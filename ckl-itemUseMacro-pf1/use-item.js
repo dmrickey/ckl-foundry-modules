@@ -127,8 +127,8 @@ Hooks.once('init', () => {
         log('ckl - hook - createChatMessage', chatMessagePF);
         const item = chatMessagePF?.itemSource;
         const actor = item?.options?.actor;
-        const macrosString = getUseMacros(item);
-        if (actor?.id && macrosString) {
+        const macros = getUseMacros(item);
+        if (actor?.id && macros?.length) {
             const myToken = canvas.tokens.ownedTokens.find(x => x.actor.id === actor.id);
 
             const allTokens = canvas.tokens.objects.children;
@@ -150,8 +150,6 @@ Hooks.once('init', () => {
                 tokenId: myToken?.id,
             }
 
-            let macros = macrosString.split(',').map(x => x.split(';'));
-            macros = [].concat(...macros).map(x => x.trim());
             for (let i = 0; i < macros.length; i++) {
                 const macro = macros[i];
                 await callMacro(macro, args);
