@@ -1,0 +1,11 @@
+{
+	"name": "ckl-buff-token-magic-fx",
+	"title": "ckl Token Magic FX - Buff integration",
+	"description": "Automatically turn on and off effects from Token Magic FX when enabling or disabling a buff.",
+	"version": "1.0.0",
+	"author": "claudekennilol",
+	"esmodules": ["ckl-buff-token-magic-fx.js"],
+	"minimumCoreVersion": "0.7.9",
+	"compatibleCoreVersion": "0.9.0",
+	"systems": ["pf1"]
+}
