@@ -43,16 +43,17 @@ Hooks.once('init', () => {
         if (update?.data?.hasOwnProperty('active')) {
             const myToken = canvas.tokens.ownedTokens.find(x => x.actor.id === actor.id);
 
-            const fxString = item.flags[namespace][prop];
+            const fxString = item.flags[namespace]?.[prop];
 
-            // todo figure out what these are called **************************************************
-            const func = update.data.active ? TokenMagic.apply : TokenMagic.delete;
+            if (myToken && fxString) {
+                const func = update.data.active ? TokenMagic.addFilters : TokenMagic.deleteFilters;
 
-            let fxs = fxString.split(',').map(x => x.split(';'));
-            fxs = [].concat(...fxs).map(x => x.trim());
-            for (let i = 0; i < fxs.length; i++) {
-                const fx = fxs[i];
-                func(fx);
+                let fxs = fxString.split(',').map(x => x.split(';'));
+                fxs = [].concat(...fxs).map(x => x.trim());
+                for (let i = 0; i < fxs.length; i++) {
+                    const fx = fxs[i];
+                    await func(myToken, fx);
+                }
             }
         }
     });
