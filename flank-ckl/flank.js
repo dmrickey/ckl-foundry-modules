@@ -62,7 +62,7 @@ const isFlanking = (token1, token2, targetToken) => {
 	}
 
 	// if top/bottom opposite
-	if (above(token1, targetToken) && below(token2, targetToken)
+	if ((above(token1, targetToken) && below(token2, targetToken) || below(token1, targetToken) && above(token2, targetToken))
 		&& !(leftOf(token1, targetToken) || leftOf(token2, targetToken) || rightOf(token1, targetToken) || rightOf(token2, targetToken))
 	) {
 		return true;
@@ -119,13 +119,13 @@ const turnOnBuffAsync = async (token, buffId) => {
 }
 
 const turnOffFlankAsync = async (token) => {
-	await Promise.all(allBuffIds.map(async (id) => {
+	for (const id of allBuffIds) {
 		const buffName = await getBuffNameAsync(id);
 		const item = token.actor.items?.find(i => i.type === "buff" && i.name === buffName);
 		if (item) {
 			await item.update({ "data.active": false });
 		}
-	}));
+	}
 }
 
 const isWithinRange = (token1, token2, minFeet, maxFeet) => {
