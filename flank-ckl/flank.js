@@ -1,17 +1,16 @@
-const createData = {
-	name: "Flanking",
-	type: "buff",
-	"data.buffType": "misc",
-	"data.active": true,
-	"data.changes": [ { _id: randomID(8), "formula": "2", "operator": "add", "target": "attack", "subTarget": "mattack", "modifier": "untyped", "priority": 0, "value": 0 } ]
-};
-
 // top left of the map is (0,0)
 
 const left = (token) => token.data.x;
+const leftOf = (token, target) => right(token) <= left(target);
+
 const right = (token) => token.data.x + token.w;
+const rightOf = (token, target) => left(token) >= right(target);
+
 const top = (token) => token.data.y;
+const above = (token, target) => bottom(token) <= top(target);
+
 const bottom = (token) => token.data.y + token.h;
+const below = (token, target) => top(token) >= bottom(target);
 
 const isSharingSquare = (token1, token2) =>
 	left(token1) >= left(token2)
@@ -21,7 +20,7 @@ const isSharingSquare = (token1, token2) =>
 
 const isAdjacent = (token1, token2) => {
 	// is above or below target
-	if ((left(token1) >= left(token2) && right(token1) <= right(token2)) 
+	if ((left(token1) >= left(token2) && right(token1) <= right(token2))
 		|| right(token1) >= right(token2) && left(token1) <= left(token2)) {
 		if (top(token1) == bottom(token2) || bottom(token1) == top(token2)) {
 			return true;
@@ -43,8 +42,34 @@ const isAdjacent = (token1, token2) => {
 		}
 	}
 
-	// if none of the above, return true if sharing the same square as adjacent is basically defined as "one quare or closer"
+	// if none of the above, return true if sharing the same square as adjacent is basically defined as "one square or closer"
 	return isSharingSquare(token1, token2);
+}
+
+const isFlanking = (token1, token2, targetToken) => {
+	// if diagonally opposite
+	if ((leftOf(token1, targetToken) && rightOf(token2, targetToken) || rightOf(token1, targetToken) && leftOf(token2, targetToken))
+		&& ((above(token1, targetToken) && below(token2, targetToken)) || (below(token1, targetToken) && above(token2, targetToken)))
+	) {
+			return true;
+	}
+
+	// if left/right opposite
+	if ((leftOf(token1, targetToken) && rightOf(token2, targetToken) || rightOf(token1, targetToken) && leftOf(token2, targetToken))
+		&& !(above(token1, targetToken) || above(token2, targetToken) || below(token1, targetToken) || below(token2, targetToken))
+	) {
+			return true;
+	}
+
+	// if top/bottom opposite
+	if (above(token1, targetToken) && below(token2, targetToken)
+		&& !(leftOf(token1, targetToken) || leftOf(token2, targetToken) || rightOf(token1, targetToken) || rightOf(token2, targetToken))
+	) {
+		return true;
+	}
+
+
+	return false;
 }
 
 const flankId = "g3ijMEUDDC5aCBJx";
@@ -63,7 +88,7 @@ const allBuffIds = [flankId, outflankId, menacingId, flankMenacingAndOutflankId]
 
 const getBuffNameAsync = async (id) => {
 	const pack = game.packs.get("flank-ckl.flank-ckl");
-	if (!pack.index.length) {
+	if (!pack.indexed) {
 		await pack.getIndex();
 	}
 	return pack.index.find(x => x._id === id).name;
@@ -74,7 +99,7 @@ const getBuffDataAsync = async (id) => {
 	if (!pack.index.length) {
 		await pack.getIndex();
 	}
-	const buff = await pack.getEntity(id);
+	const buff = await pack.getDocument(id);
 	return duplicate(buff.data);
 }
 
@@ -141,12 +166,18 @@ const isWithinRange = (token1, token2, minFeet, maxFeet) => {
 	else if (isRightOf) {
 		x2 += (token2.data.width - 1) * gridSize;
 	}
+	else {
+		x2 = x1;
+	}
 
 	if (isAbove) {
 		y1 += (token1.data.height - 1) * gridSize;
 	}
 	else if (isBelow) {
 		y2 += (token2.data.height - 1) * gridSize;
+	}
+	else {
+		y2 = y1;
 	}
 
 	const ray = new Ray({ x: x1, y: y1 }, { x: x2, y: y2 });
@@ -157,11 +188,11 @@ const isWithinRange = (token1, token2, minFeet, maxFeet) => {
 const isMouser = (token) => token.actor.data.items.some(x => x.name === 'Swashbuckler (Mouser)');
 const hasOutflank = (token) => token.actor.data.items.some(x => x.name.toLowerCase().includes('outflank'));
 const hasGangUp = (token) => token.actor.data.items.map(x => x.name.toLowerCase()).some(name => name.includes('gang up') || name.includes('gangaup'));
-const hasMenacing = (token) => token.actor.data.items.some(x => x.type === 'weapon' && x.data.equipped && x.name.toLowerCase().includes('menacing'));
+const hasMenacing = (token) => token.actor.data.items.some(x => x.type === 'weapon' && x.data.data.equipped && x.name.toLowerCase().includes('menacing'));
 const isRatfolk = (token) => token.actor.data.items.some(x => x.type === 'race' && x.name === 'Ratfolk');
 const isThreatening = (token1, token2) => {
 	const attacks = token1.actor.items.filter(x => x.type === 'attack' && (x.data.data.range.units === 'melee' || x.data.data.range.units === 'reach'));
-	const naturalAttacks = attacks.filter(x => x.data.attackType === 'natural');
+	const naturalAttacks = attacks.filter(x => x.data.data.attackType === 'natural');
 
 	if (naturalAttacks.some(na => isWithinRange(token1, token2, 0, na.range))) {
 		return true;
@@ -174,10 +205,10 @@ const isThreatening = (token1, token2) => {
 	const weaponAttacks = attacks
 		.filter(attack => attack.data.attackType !== 'natural' && attackIdsForEquippedWeapons.includes(attack.id));
 
-	const whips = weaponAttacks.filter(x => x.data.data.range.units === 'melee' || x.name.toLowerCase().includes('whip'));
-	for (let i = 0; i < whips.length; i++) {
-		const whip = whips[i];
-		if (isWithinRange(token1, token2, 0, whip.range)) {
+	const weapons = weaponAttacks.filter(x => x.data.data.range.units === 'melee' || x.name.toLowerCase().includes('whip'));
+	for (let i = 0; i < weapons.length; i++) {
+		const weapon = weapons[i];
+		if (isWithinRange(token1, token2, 0, weapon.range)) {
 			return true;
 		}
 	}
@@ -251,25 +282,10 @@ const handleFlanking = async (meToken, targetToken) => {
 		) {
 			setBestFlank(friend);
 		}
-		else if (isThreatening(friend, targetToken)) {
-			// Set up coordinates of every edge of the targetted token
-			const tLeft = left(targetToken);
-			const tRight = right(targetToken);
-			const tTop = top(targetToken);
-			const tBottom = bottom(targetToken);
-			const targetTokenBounds = [
-				[tLeft, tTop, tRight, tTop],
-				[tRight, tTop, tRight, tBottom],
-				[tRight, tBottom, tLeft, tBottom],
-				[tLeft, tBottom, tLeft, tTop]
-			];
-
-			const betweenRay = new Ray(meToken.center, friend.center);
-			const checkIntersect = targetTokenBounds.map(b => betweenRay.intersectSegment(b));
-
-			if (checkIntersect[0] && checkIntersect[2] || checkIntersect[1] && checkIntersect[3]) {
-				setBestFlank(friend);
-			}
+		else if (isThreatening(friend, targetToken)
+			&& isFlanking(meToken, friend, targetToken)
+		) {
+			setBestFlank(friend);
 		}
 
 		if (hasGangUp(friend) && isThreatening(friend, targetToken)) {
