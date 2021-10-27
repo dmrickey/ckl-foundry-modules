@@ -1,6 +1,6 @@
 {
 	"name": "ckl-flank",
-	"title": "Flank Target (PF1E)",
+	"title": "ckl Flank Target (PF1E)",
 	"description": "Automatically add flank bonuses when targeting a token",
 	"version": "1.0.0",
 	"author": "claudekennilol",
