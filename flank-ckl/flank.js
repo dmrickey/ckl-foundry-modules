@@ -47,18 +47,19 @@ const isAdjacent = (token1, token2) => {
 }
 
 const isFlanking = (token1, token2, targetToken) => {
+	// todo handle when token1/token2 are larger than one square
 	// if diagonally opposite
 	if ((leftOf(token1, targetToken) && rightOf(token2, targetToken) || rightOf(token1, targetToken) && leftOf(token2, targetToken))
 		&& ((above(token1, targetToken) && below(token2, targetToken)) || (below(token1, targetToken) && above(token2, targetToken)))
 	) {
-			return true;
+		return true;
 	}
 
 	// if left/right opposite
 	if ((leftOf(token1, targetToken) && rightOf(token2, targetToken) || rightOf(token1, targetToken) && leftOf(token2, targetToken))
 		&& !(above(token1, targetToken) || above(token2, targetToken) || below(token1, targetToken) || below(token2, targetToken))
 	) {
-			return true;
+		return true;
 	}
 
 	// if top/bottom opposite
