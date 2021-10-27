@@ -88,7 +88,7 @@ const rankedBuffs = {
 const allBuffIds = [flankId, outflankId, menacingId, flankMenacingAndOutflankId];
 
 const getBuffNameAsync = async (id) => {
-	const pack = game.packs.get("flank-ckl.flank-ckl");
+	const pack = game.packs.get("ckl-flank.ckl-flank");
 	if (!pack.indexed) {
 		await pack.getIndex();
 	}
@@ -96,7 +96,7 @@ const getBuffNameAsync = async (id) => {
 }
 
 const getBuffDataAsync = async (id) => {
-	const pack = game.packs.get("flank-ckl.flank-ckl");
+	const pack = game.packs.get("ckl-flank.ckl-flank");
 	if (!pack.index.length) {
 		await pack.getIndex();
 	}

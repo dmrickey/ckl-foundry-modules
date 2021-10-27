@@ -1,5 +1,5 @@
 {
-	"name": "flank-ckl",
+	"name": "ckl-flank",
 	"title": "Flank Target (PF1E)",
 	"description": "Automatically add flank bonuses when targeting a token",
 	"version": "1.0.0",
@@ -10,12 +10,12 @@
 	"systems": ["pf1"],
 	"packs": [
 		{
-			"name": "flank-ckl",
+			"name": "ckl-flank",
 			"label": "Flank (ckl)",
 			"system": "pf1",
 			"path": "packs/flank.db",
 			"entity": "Item",
-			"module": "flank-ckl"
+			"module": "ckl-flank"
 		}
 	]
 }
