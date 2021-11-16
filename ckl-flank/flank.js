@@ -87,32 +87,26 @@ const rankedBuffs = {
 
 const allBuffIds = [flankId, outflankId, menacingId, flankMenacingAndOutflankId];
 
-const getBuffNameAsync = async (id) => {
+const getBuffPackAsync = async () => {
     const pack = game.packs.get("ckl-flank.ckl-flank");
     if (!pack.indexed) {
         await pack.getIndex();
     }
-    return pack.index.find(x => x._id === id).name;
+    return pack;
 }
 
 const getBuffDataAsync = async (id) => {
-    const pack = game.packs.get("ckl-flank.ckl-flank");
-    if (!pack.index.length) {
-        await pack.getIndex();
-    }
+    const pack = await getBuffPackAsync();
     const buff = await pack.getDocument(id);
     return duplicate(buff.data);
 }
 
 const turnOnBuffAsync = async (token, buffId) => {
-    const buffName = await getBuffNameAsync(buffId);
-    const item = token.actor.items.find(i => i.type === "buff" && i.name === buffName);
+    const buff = await getBuffDataAsync(buffId);
+    const item = token.actor.items.find(i => i.type === "buff" && i.name === buff.name);
     if (!item) {
-        const buff = await getBuffDataAsync(buffId);
         buff.data.active = true;
-
-        // todo verify if async or not
-        token.actor.createOwnedItem(buff);
+        await token.actor.createOwnedItem(buff);
     }
     else {
         await item.update({ "data.active": true });
@@ -121,8 +115,8 @@ const turnOnBuffAsync = async (token, buffId) => {
 
 const turnOffFlankAsync = async (token) => {
     for (const id of allBuffIds) {
-        const buffName = await getBuffNameAsync(id);
-        const item = token.actor.items?.find(i => i.type === "buff" && i.name === buffName);
+        const buff = await getBuffDataAsync(id);
+        const item = token.actor.items.find(i => i.type === "buff" && i.name === buff.name);
         if (item) {
             await item.update({ "data.active": false });
         }
