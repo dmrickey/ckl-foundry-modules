@@ -3,7 +3,6 @@ const handleMeasuredTemplateUpdate = async (id) => {
     if (!template) return;
 
     // const grid = canvas.grid.getHighlightLayer(`Template.${id}`);
-    console.log('template', template);
 
     const borderOpacity = template.document.getFlag('world', 'borderOpacity')
     if (borderOpacity !== undefined) {
@@ -20,8 +19,8 @@ const handleMeasuredTemplateUpdate = async (id) => {
 const addTransparencyToTemplate = async (template) => {
     if (!template) return;
 
-    const borderOpacity = template.document.getFlag('world', 'borderOpacity')
-    if (template.template.alpha !== borderOpacity) {
+    const borderOpacity = template?.data?.flags?.world?.borderOpacity;
+    if ((!borderOpacity || borderOpacity === 0) && template.template.alpha !== borderOpacity) {
         template.template.alpha = borderOpacity;
     }
 }
@@ -33,7 +32,6 @@ const addTransparencyToGrid = async (id) => {
 Hooks.once("init", async function () {
     function addTransparency(wrapped, ...args) {
         wrapped(...args);
-        console.log('this', this);
         addTransparencyToTemplate(this);
     }
 
