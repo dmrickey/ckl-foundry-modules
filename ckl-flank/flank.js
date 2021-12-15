@@ -318,7 +318,7 @@ Hooks.once('init', () => {
             }
 
             const allTokens = canvas.tokens.objects.children;
-            const allTargeted = allTokens.filter(x => x.targeted?.size);
+            const allTargeted = allTokens.filter(x => x.targeted?.size != null);
             const targetedByMe = [];
             allTargeted.forEach(at => {
                 at.targeted.forEach(att => {
