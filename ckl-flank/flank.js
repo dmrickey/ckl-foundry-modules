@@ -305,17 +305,10 @@ const handleFlanking = async (meToken, targetToken) => {
 };
 
 Hooks.once('init', () => {
-    Hooks.on('updateToken', async (scene, token, update, { diff }) => {
-        if (diff && (update?.hasOwnProperty('x') || update?.hasOwnProperty('y'))) {
+    Hooks.on('updateToken', async (token, update, _options, _userId) => {
+        if (update?.hasOwnProperty('x') || update?.hasOwnProperty('y')) {
             const fullToken = canvas.tokens.get(token._id);
             await turnOffFlankAsync(fullToken);
-
-            if (update?.hasOwnProperty('x')) {
-                fullToken.data.x = update.x;
-            }
-            if (update?.hasOwnProperty('y')) {
-                fullToken.data.y = update.y;
-            }
 
             const allTokens = canvas.tokens.objects.children;
             const allTargeted = allTokens.filter(x => x.targeted?.size);
