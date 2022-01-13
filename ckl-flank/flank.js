@@ -307,7 +307,7 @@ const handleFlanking = async (meToken, targetToken) => {
 Hooks.once('init', () => {
     Hooks.on('updateToken', async (token, update, _options, _userId) => {
         if (update?.hasOwnProperty('x') || update?.hasOwnProperty('y')) {
-            const fullToken = canvas.tokens.get(token._id);
+            const fullToken = canvas.tokens.get(token.id);
             await turnOffFlankAsync(fullToken);
 
             const allTokens = canvas.tokens.objects.children;
