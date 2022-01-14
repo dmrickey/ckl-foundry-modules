@@ -1,0 +1,1 @@
+This is just a proof of concept to allow templates to be transparent. Do not use this.
