@@ -1,1 +1,1 @@
-mklink /D C:\Users\David\AppData\Local\FoundryVTT\Data\modules\ckl-flank C:\Users\David\Documents\repos\ckl-foundry-modules\ckl-flank
+mklink /D C:\Users\David\AppData\Local\FoundryVTT\Data\modules\ckl-channel-auto-heal C:\Users\David\Documents\repos\ckl-foundry-modules\ckl-channel-auto-heal
