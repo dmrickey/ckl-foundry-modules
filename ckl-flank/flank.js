@@ -226,8 +226,8 @@ const isThreatening = (token1, token2) => {
 };
 
 const handleFlanking = async (meToken, targetToken) => {
+    await turnOffFlankAsync(meToken);
     if (!targetToken || !canBeFlanked(targetToken) || !isThreatening(meToken, targetToken)) {
-        await turnOffFlankAsync(meToken);
         return;
     }
 
@@ -299,7 +299,6 @@ const handleFlanking = async (meToken, targetToken) => {
     }
 
     if (bestFlankId) {
-        await turnOffFlankAsync(meToken);
         await turnOnBuffAsync(meToken, bestFlankId);
     }
 };
@@ -307,8 +306,6 @@ const handleFlanking = async (meToken, targetToken) => {
 Hooks.once('init', () => {
     Hooks.on('updateToken', async (token, update, _options, _userId) => {
         if (update?.hasOwnProperty('x') || update?.hasOwnProperty('y')) {
-            const fullToken = canvas.tokens.get(token.id);
-            await turnOffFlankAsync(fullToken);
 
             const allTokens = canvas.tokens.objects.children;
             const allTargeted = allTokens.filter(x => x.targeted?.size != null);
@@ -321,9 +318,34 @@ Hooks.once('init', () => {
                 });
             });
 
-            await Promise.all(targetedByMe.map(async (targetToken) => {
-                await handleFlanking(fullToken, targetToken);
-            }));
+            if (!targetedByMe.length) {
+                return;
+            }
+
+            const myTokens = canvas.tokens.objects.children.filter(x => x.isOwner);
+
+            // if I move
+            if (myTokens.some(x => x.id === token.id)) {
+                const fullToken = canvas.tokens.get(token.id);
+
+                await Promise.all(targetedByMe.map(async (targetToken) => {
+                    await handleFlanking(fullToken, targetToken);
+                }));
+            }
+            // else if my target moves
+            else if (targetedByMe.some(x => x.id === token.id)) {
+                const myMovingTargetedToken = targetedByMe.find(x => x.id === token.id);
+                const myTokens = canvas.tokens.objects.children.filter(x => x.isOwner);
+
+                await Promise.all(myTokens.map(async (myToken) => {
+                    myToken.data.x;
+                    myToken.data.y;
+
+                    await handleFlanking(myToken, myMovingTargetedToken);
+                }));
+            }
+            // else if a friendly player that I could be flanking with moves
+            // todo
         }
     });
 
