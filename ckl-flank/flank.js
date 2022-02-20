@@ -108,7 +108,7 @@ const turnOnBuffAsync = async (token, buffId) => {
         buff.data.active = true;
         await token.actor.createOwnedItem(buff);
     }
-    else {
+    else if (!item.data.active) {
         await item.update({ "data.active": true });
     }
 }
@@ -117,7 +117,7 @@ const turnOffFlankAsync = async (token) => {
     for (const id of allBuffIds) {
         const buff = await getBuffDataAsync(id);
         const item = token.actor.items.find(i => i.type === "buff" && i.name === buff.name);
-        if (item) {
+        if (item && item.data.active) {
             await item.update({ "data.active": false });
         }
     }
@@ -319,6 +319,7 @@ Hooks.once('init', () => {
             });
 
             if (!targetedByMe.length) {
+                await turnOffFlankAsync(meToken);
                 return;
             }
 
