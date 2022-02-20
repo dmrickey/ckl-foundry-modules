@@ -108,7 +108,7 @@ const turnOnBuffAsync = async (token, buffId) => {
         buff.data.active = true;
         await token.actor.createOwnedItem(buff);
     }
-    else if (!item.data.active) {
+    else if (!item.data.data.active) {
         await item.update({ "data.active": true });
     }
 }
@@ -117,7 +117,7 @@ const turnOffFlankAsync = async (token) => {
     for (const id of allBuffIds) {
         const buff = await getBuffDataAsync(id);
         const item = token.actor.items.find(i => i.type === "buff" && i.name === buff.name);
-        if (item && item.data.active) {
+        if (item && item.data.data.active) {
             await item.update({ "data.active": false });
         }
     }
@@ -329,7 +329,7 @@ Hooks.once('init', () => {
 
             // if I move
             if (myTokens.some(x => x.id === token.id)) {
-                const fullToken = canvas.tokens.get(token.id);
+                const fullToken = canvas.tokens.get(token.id).clone();
 
                 await Promise.all(targetedByMe.map(async (targetToken) => {
                     await handleFlanking(fullToken, targetToken);
@@ -337,7 +337,7 @@ Hooks.once('init', () => {
             }
             // else if my target moves
             else if (targetedByMe.some(x => x.id === token.id)) {
-                const myMovingTargetedToken = targetedByMe.find(x => x.id === token.id);
+                const myMovingTargetedToken = targetedByMe.find(x => x.id === token.id).clone();
                 const myTokens = canvas.tokens.objects.children.filter(x => x.isOwner);
 
                 await Promise.all(myTokens.map(async (myToken) => {

@@ -1,21 +1,25 @@
 {
-	"name": "ckl-flank",
-	"title": "ckl Flank Target (PF1E)",
-	"description": "Automatically add flank bonuses when targeting a token",
-	"version": "1.0.0",
-	"author": "claudekennilol",
-	"esmodules": ["flank.js"],
-	"minimumCoreVersion": "0.8.0",
-	"compatibleCoreVersion": "0.9.0",
-	"systems": ["pf1"],
-	"packs": [
-		{
-			"name": "ckl-flank",
-			"label": "Flank (ckl)",
-			"system": "pf1",
-			"path": "packs/flank.db",
-			"entity": "Item",
-			"module": "ckl-flank"
-		}
-	]
+    "name": "ckl-flank",
+    "title": "ckl Flank Target (PF1E)",
+    "description": "Automatically add flank bonuses when targeting a token",
+    "version": "1.0.0",
+    "author": "claudekennilol",
+    "esmodules": [
+        "flank.js"
+    ],
+    "minimumCoreVersion": "9",
+    "compatibleCoreVersion": "9",
+    "systems": [
+        "pf1"
+    ],
+    "packs": [
+        {
+            "name": "ckl-flank",
+            "label": "Flank (ckl)",
+            "system": "pf1",
+            "path": "packs/flank.db",
+            "entity": "Item",
+            "module": "ckl-flank"
+        }
+    ]
 }
