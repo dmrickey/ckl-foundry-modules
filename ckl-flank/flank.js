@@ -318,12 +318,14 @@ Hooks.once('init', () => {
                 });
             });
 
+            const myTokens = canvas.tokens.objects.children.filter(x => x.isOwner);
+
             if (!targetedByMe.length) {
-                await turnOffFlankAsync(meToken);
+                await Promise.all(myTokens.map(async (myToken) => {
+                    await turnOffFlankAsync(myToken);
+                }));
                 return;
             }
-
-            const myTokens = canvas.tokens.objects.children.filter(x => x.isOwner);
 
             // if I move
             if (myTokens.some(x => x.id === token.id)) {
@@ -339,9 +341,6 @@ Hooks.once('init', () => {
                 const myTokens = canvas.tokens.objects.children.filter(x => x.isOwner);
 
                 await Promise.all(myTokens.map(async (myToken) => {
-                    myToken.data.x;
-                    myToken.data.y;
-
                     await handleFlanking(myToken, myMovingTargetedToken);
                 }));
             }
