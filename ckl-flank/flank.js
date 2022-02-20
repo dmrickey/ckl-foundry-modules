@@ -106,7 +106,7 @@ const turnOnBuffAsync = async (token, buffId) => {
     const item = token.actor.items.find(i => i.type === "buff" && i.name === buff.name);
     if (!item) {
         buff.data.active = true;
-        await token.actor.createOwnedItem(buff);
+        await token.actor.createEmbeddedDocuments("Item", [buff]);
     }
     else if (!item.data.data.active) {
         await item.update({ "data.active": true });
@@ -120,6 +120,15 @@ const turnOffFlankAsync = async (token) => {
         if (item && item.data.data.active) {
             await item.update({ "data.active": false });
         }
+    }
+}
+
+// todo
+const amILowestOwner = (token) => {
+    const permissions = token.actor.data.permission;
+
+    for (const id in permissions) {
+
     }
 }
 
@@ -225,9 +234,17 @@ const isThreatening = (token1, token2) => {
     return false;
 };
 
-const handleFlanking = async (meToken, targetToken) => {
+const handleFlanking = async (meToken, targetToken, friends = null) => {
+    if (!meToken) {
+        return;
+    }
+
     await turnOffFlankAsync(meToken);
-    if (!targetToken || !canBeFlanked(targetToken) || !isThreatening(meToken, targetToken)) {
+    if (!targetToken
+        || !canBeFlanked(targetToken)
+        || !isThreatening(meToken, targetToken)
+        || meToken === targetToken
+    ) {
         return;
     }
 
@@ -254,9 +271,8 @@ const handleFlanking = async (meToken, targetToken) => {
 
     const gangUpFriends = [];
 
-    const friends = canvas.tokens.placeables.filter(t => t.data.disposition === meToken.data.disposition && t.data._id !== meToken.data._id);
-    await Promise.all(friends.map(async (friend) => {
-
+    friends ||= canvas.tokens.placeables.filter(t => t.data.disposition === meToken.data.disposition && t.data._id !== meToken.data._id);
+    for (const friend of friends) {
         // todo hunter and pet
 
         if (targetToken === friend) {
@@ -289,10 +305,11 @@ const handleFlanking = async (meToken, targetToken) => {
             setBestFlank(friend);
         }
 
+        // fix this
         if (hasGangUp(friend) && isThreatening(friend, targetToken)) {
             gangUpFriends.push(friend);
         }
-    }));
+    }
 
     if (gangUpFriends.length >= 3) {
         gangUpFriends.forEach(f => setBestFlank(f));
@@ -321,31 +338,32 @@ Hooks.once('init', () => {
             const myTokens = canvas.tokens.objects.children.filter(x => x.isOwner);
 
             if (!targetedByMe.length) {
-                await Promise.all(myTokens.map(async (myToken) => {
-                    await turnOffFlankAsync(myToken);
-                }));
+                await Promise.all(myTokens.map((myToken) => turnOffFlankAsync(myToken)));
                 return;
             }
 
             // if I move
             if (myTokens.some(x => x.id === token.id)) {
                 const fullToken = canvas.tokens.get(token.id).clone();
-
-                await Promise.all(targetedByMe.map(async (targetToken) => {
-                    await handleFlanking(fullToken, targetToken);
-                }));
+                await Promise.all(targetedByMe.map((targetToken) => handleFlanking(fullToken, targetToken)));
             }
             // else if my target moves
             else if (targetedByMe.some(x => x.id === token.id)) {
                 const myMovingTargetedToken = targetedByMe.find(x => x.id === token.id).clone();
                 const myTokens = canvas.tokens.objects.children.filter(x => x.isOwner);
-
-                await Promise.all(myTokens.map(async (myToken) => {
-                    await handleFlanking(myToken, myMovingTargetedToken);
-                }));
+                await Promise.all(myTokens.map((myToken) => handleFlanking(myToken, myMovingTargetedToken)));
             }
             // else if a friendly player that I could be flanking with moves
-            // todo
+            else {
+                const movingToken = canvas.tokens.get(token.id).clone();
+                for (const myToken of myTokens) {
+                    for (const targeted of targetedByMe) {
+                        if (myToken.data.disposition === movingToken.data.disposition) {
+                            await handleFlanking(myToken, targeted, [movingToken]);
+                        }
+                    }
+                }
+            }
         }
     });
 
@@ -354,21 +372,17 @@ Hooks.once('init', () => {
             return;
         }
 
-        let meToken;
+        let myTokens;
         if (user.isGM) {
-            meToken = canvas.tokens.controlled[0];
+            myTokens = canvas.tokens.controlled;
         } else {
-            meToken = user.character?.getActiveTokens()[0];
+            myTokens = canvas.tokens.objects.children.filter(x => x.isOwner);
         }
-        if (!meToken || meToken == targetToken) {
+
+        if (!myTokens.length) {
             return;
         }
 
-        if (!targetted) {
-            await turnOffFlankAsync(meToken);
-            return;
-        }
-
-        await handleFlanking(meToken, targetToken);
+        await Promise.all(myTokens.map((myToken) => targetted ? handleFlanking(myToken, targetToken) : turnOffFlankAsync(myToken)));
     });
 });
