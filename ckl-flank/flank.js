@@ -12,11 +12,13 @@ const above = (token, target) => bottom(token) <= top(target);
 const bottom = (token) => token.data.y + token.h;
 const below = (token, target) => top(token) >= bottom(target);
 
-const isSharingSquare = (token1, token2) =>
+const _isSharingSquare = (token1, token2) =>
     left(token1) >= left(token2)
     && top(token1) >= top(token2)
     && right(token1) <= right(token2)
     && bottom(token1) <= bottom(token2);
+const isSharingSquare = (token1, token2) =>
+    _isSharingSquare(token1, token2) || _isSharingSquare(token2, token1);
 
 const isAdjacent = (token1, token2) => {
     // is above or below target
