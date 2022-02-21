@@ -202,7 +202,11 @@ const isWithinRange = (token1, token2, minFeet, maxFeet) => {
     return minFeet <= distance && distance <= maxFeet;
 }
 
-const isMouser = (token) => token.actor.data.items.some(x => x.name === 'Swashbuckler (Mouser)');
+const isMouser = (token) => token.actor.data.items.some(x => x.name.toLowerCase().includes('underfoot assault'));
+const hasSoloTactics = (token) => token.actor.data.items.some(x => {
+    const name = x.name.toLowerCase();
+    return (name.includes('fighter') || name.includes('solo')) && name.includes('tactics');
+});
 const hasOutflank = (token) => token.actor.data.items.some(x => x.name.toLowerCase().includes('outflank'));
 const hasGangUp = (token) => token.actor.data.items.map(x => x.name.toLowerCase()).some(name => name.includes('gang up') || name.includes('gangaup'));
 const hasMenacing = (token) => token.actor.data.items.some(x => x.type === 'weapon' && x.data.data.equipped && x.name.toLowerCase().includes('menacing'));
@@ -257,7 +261,7 @@ const handleFlanking = async (meToken, targetToken, friends = null) => {
 
     let bestFlankId = null;
     const setBestFlank = (flankFriend) => {
-        const outflank = hasOutflank(meToken) && hasOutflank(flankFriend);
+        const outflank = hasOutflank(meToken) && (hasSoloTactics(meToken) || hasOutflank(flankFriend));
         const menacing = hasMenacing(meToken) || hasMenacing(flankFriend);
 
         const scopedBestFlankId = outflank && menacing
