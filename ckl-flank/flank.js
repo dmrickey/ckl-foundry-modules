@@ -116,12 +116,17 @@ const turnOnBuffAsync = async (token, buffId) => {
 }
 
 const turnOffFlankAsync = async (token) => {
+    const updates = [];
     for (const id of allBuffIds) {
         const buff = await getBuffDataAsync(id);
         const item = token.actor.items.find(i => i.type === "buff" && i.name === buff.name);
-        if (item && item.data.data.active) {
-            await item.update({ "data.active": false });
+        if (item?.data.data.active) {
+            updates.push({ _id: item.id, "data.active": false });
         }
+    }
+
+    if (updates.length) {
+        await token.actor.updateEmbeddedDocuments("Item", updates);
     }
 }
 
