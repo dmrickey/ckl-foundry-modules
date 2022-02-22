@@ -71,7 +71,6 @@ const isFlanking = (token1, token2, targetToken) => {
         return true;
     }
 
-
     return false;
 }
 
@@ -130,7 +129,6 @@ const turnOffFlankAsync = async (token) => {
     }
 }
 
-// todo
 const amILowestOwner = (token) => {
     const permissions = token.actor.data.permission;
     const activeUsers = [...game.users].filter(x => x.active).sort((x, y) => {
@@ -263,10 +261,12 @@ const handleFlanking = async (meToken, targetToken, friends = null) => {
     }
 
     await turnOffFlankAsync(meToken);
+
     if (!targetToken
         || !canBeFlanked(targetToken)
         || !isThreatening(meToken, targetToken)
         || meToken === targetToken
+        // todo if my disposition = target's disposition
     ) {
         return;
     }
@@ -296,39 +296,43 @@ const handleFlanking = async (meToken, targetToken, friends = null) => {
 
     friends ||= canvas.tokens.placeables.filter(t => t.data.disposition === meToken.data.disposition && t.id !== meToken.id);
     for (const friend of friends) {
-        // todo hunter and pet
 
-        if (targetToken === friend) {
-            // continue;
+        if (targetToken === friend || !isThreatening(friend, targetToken)) {
+            continue;
+        }
+
+        // todo 
+        // if (hasPackFlanking(meToken)
+        //     && isMyCompanion(friend)
+        //     && (hasPackFlanking(friend) || hasSoloTactics(meToken))
+        //     && isAdjacent(meToken, friend)
+        // ) {
+        //     setBestFlank(friend);
+        // }
+        if (isFlanking(meToken, friend, targetToken)
+        ) {
+            setBestFlank(friend);
         }
         else if (isRatfolk(meToken)
             && isRatfolk(friend)
             && isSharingSquare(meToken, friend)
-            && isThreatening(friend, targetToken)
         ) {
             setBestFlank(friend);
         }
         else if (isMouser(friend)
             && isAdjacent(meToken, friend)
             && isSharingSquare(friend, targetToken)
-            && isThreatening(friend, targetToken)
         ) {
             setBestFlank(friend);
         }
         else if (isMouser(meToken)
             && isAdjacent(meToken, friend)
             && isSharingSquare(meToken, targetToken)
-            && isThreatening(friend, targetToken)
-        ) {
-            setBestFlank(friend);
-        }
-        else if (isThreatening(friend, targetToken)
-            && isFlanking(meToken, friend, targetToken)
         ) {
             setBestFlank(friend);
         }
 
-        if (hasGangUp(meToken) && isThreatening(friend, targetToken)) {
+        if (hasGangUp(meToken)) {
             gangUpFriends.push(friend);
         }
     }
