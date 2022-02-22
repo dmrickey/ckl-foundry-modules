@@ -133,10 +133,22 @@ const turnOffFlankAsync = async (token) => {
 // todo
 const amILowestOwner = (token) => {
     const permissions = token.actor.data.permission;
+    const activeUsers = [...game.users].filter(x => x.active).sort((x, y) => {
+        const idCompare = x.id > y.id ? 1 : -1;
+        if (x.isGM === y.isGM) {
+            return idCompare;
+        }
 
-    for (const id in permissions) {
+        if (x.isGM) {
+            return 1;
+        }
 
-    }
+        return -1;
+    });
+
+    const owner = foundry.CONST.DOCUMENT_PERMISSION_LEVELS.OWNER;
+    const owners = activeUsers.filter((user) => typeof permissions[user.id] === 'number' && permissions[user.id] === owner);
+    return owners[0].id === game.userId;
 }
 
 const canBeFlanked = (token) => {
@@ -282,7 +294,7 @@ const handleFlanking = async (meToken, targetToken, friends = null) => {
 
     const gangUpFriends = [];
 
-    friends ||= canvas.tokens.placeables.filter(t => t.data.disposition === meToken.data.disposition && t.data._id !== meToken.data._id);
+    friends ||= canvas.tokens.placeables.filter(t => t.data.disposition === meToken.data.disposition && t.id !== meToken.id);
     for (const friend of friends) {
         // todo hunter and pet
 
@@ -316,13 +328,12 @@ const handleFlanking = async (meToken, targetToken, friends = null) => {
             setBestFlank(friend);
         }
 
-        // fix this
-        if (hasGangUp(friend) && isThreatening(friend, targetToken)) {
+        if (hasGangUp(meToken) && isThreatening(friend, targetToken)) {
             gangUpFriends.push(friend);
         }
     }
 
-    if (gangUpFriends.length >= 3) {
+    if (gangUpFriends.length >= 2) {
         gangUpFriends.forEach(f => setBestFlank(f));
     }
 
@@ -346,31 +357,35 @@ Hooks.once('init', () => {
                 });
             });
 
-            const myTokens = canvas.tokens.objects.children.filter(x => x.isOwner);
+            const myTokens = canvas.tokens.objects.children.filter(x => amILowestOwner(x));
 
             if (!targetedByMe.length) {
-                await Promise.all(myTokens.map((myToken) => turnOffFlankAsync(myToken)));
+                await Promise.all(myTokens.map(async (myToken) => await turnOffFlankAsync(myToken)));
                 return;
             }
 
             // if I move
             if (myTokens.some(x => x.id === token.id)) {
                 const fullToken = canvas.tokens.get(token.id).clone();
-                await Promise.all(targetedByMe.map((targetToken) => handleFlanking(fullToken, targetToken)));
+                await Promise.all(targetedByMe.map(async (targetToken) => await handleFlanking(fullToken, targetToken)));
             }
             // else if my target moves
             else if (targetedByMe.some(x => x.id === token.id)) {
                 const myMovingTargetedToken = targetedByMe.find(x => x.id === token.id).clone();
                 const myTokens = canvas.tokens.objects.children.filter(x => x.isOwner);
-                await Promise.all(myTokens.map((myToken) => handleFlanking(myToken, myMovingTargetedToken)));
+                await Promise.all(myTokens.map(async (myToken) => await handleFlanking(myToken, myMovingTargetedToken)));
             }
-            // else if a friendly player that I could be flanking with moves
-            else {
+            // else if a friendly player that I could be flanking with moves (only handle by gm to make sure only one client tries to update)
+            else if (game.pf1.utils.getFirstActiveGM().id === game.user.id) {
                 const movingToken = canvas.tokens.get(token.id).clone();
                 for (const myToken of myTokens) {
                     for (const targeted of targetedByMe) {
                         if (myToken.data.disposition === movingToken.data.disposition) {
-                            await handleFlanking(myToken, targeted, [movingToken]);
+                            const otherFriends = canvas.tokens.placeables.filter(t =>
+                                t.data.disposition === meToken.data.disposition
+                                && t.id !== meToken.id
+                                && t.id !== movingToken.id);
+                            await handleFlanking(myToken, targeted, [...otherFriends, movingToken]);
                         }
                     }
                 }
@@ -394,6 +409,6 @@ Hooks.once('init', () => {
             return;
         }
 
-        await Promise.all(myTokens.map((myToken) => targetted ? handleFlanking(myToken, targetToken) : turnOffFlankAsync(myToken)));
+        await Promise.all(myTokens.map(async (myToken) => await targetted ? handleFlanking(myToken, targetToken) : turnOffFlankAsync(myToken)));
     });
 });
