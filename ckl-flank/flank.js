@@ -266,7 +266,7 @@ const handleFlanking = async (meToken, targetToken, friends = null) => {
         || !canBeFlanked(targetToken)
         || !isThreatening(meToken, targetToken)
         || meToken === targetToken
-        // todo if my disposition = target's disposition
+        || meToken.data.disposition === targetToken.data.disposition
     ) {
         return;
     }
