@@ -1,7 +1,6 @@
 Mod for pf1 that automatically determines flank bonuses for allies based on token placement and which token is being targeted.
 
 ## todo
-- only care about hooks if in combat
 - better handling for when the tokens-that-want-flanking are larger than medium (i.e. larger than one square)
-- figure out a way to determine if a hunter is flanking with his pet (assuming he still has the class ability that allows them to get adjacency-flanking)
+- fill in pack flanking method for hunters (or other random characters that somehow get it)
 - start filling in method that determines if a token _can't_ be flanked
