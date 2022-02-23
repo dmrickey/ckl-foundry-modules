@@ -348,56 +348,60 @@ const handleFlanking = async (meToken, targetToken, friends = null) => {
 
 Hooks.once('init', () => {
     Hooks.on('updateToken', async (token, update, _options, _userId) => {
-        if (update?.hasOwnProperty('x') || update?.hasOwnProperty('y')) {
+        if (!game.combat
+            && !update?.hasOwnProperty('x')
+            && !update?.hasOwnProperty('y')
+        ) {
+            return;
+        }
 
-            const allTokens = canvas.tokens.objects.children;
-            const allTargeted = allTokens.filter(x => x.targeted?.size != null);
-            const targetedByMe = [];
-            allTargeted.forEach(at => {
-                at.targeted.forEach(att => {
-                    if (att === game.user) {
-                        targetedByMe.push(at);
-                    }
-                });
+        const allTokens = canvas.tokens.objects.children;
+        const allTargeted = allTokens.filter(x => x.targeted?.size != null);
+        const targetedByMe = [];
+        allTargeted.forEach(at => {
+            at.targeted.forEach(att => {
+                if (att === game.user) {
+                    targetedByMe.push(at);
+                }
             });
+        });
 
-            let myTokens = canvas.tokens.objects.children.filter(x => amILowestOwner(x));
+        let myTokens = canvas.tokens.objects.children.filter(x => amILowestOwner(x));
 
-            if (!targetedByMe.length) {
-                await Promise.all(myTokens.map(async (myToken) => await turnOffFlankAsync(myToken)));
-                return;
-            }
+        if (!targetedByMe.length) {
+            await Promise.all(myTokens.map(async (myToken) => await turnOffFlankAsync(myToken)));
+            return;
+        }
 
-            // if I move
-            if (myTokens.some(x => x.id === token.id)) {
-                const fullToken = canvas.tokens.get(token.id).clone();
-                await Promise.all(targetedByMe.map(async (targetToken) => await handleFlanking(fullToken, targetToken)));
-            }
-            // else if my target moves
-            else if (targetedByMe.some(x => x.id === token.id)) {
-                const myMovingTargetedToken = targetedByMe.find(x => x.id === token.id).clone();
-                const myTokens = canvas.tokens.objects.children.filter(x => x.isOwner);
-                await Promise.all(myTokens.map(async (myToken) => await handleFlanking(myToken, myMovingTargetedToken)));
-            }
-            // else if a friendly player that I could be flanking with moves (only handle by gm to make sure only one client tries to update)
-            else {
-                const movingToken = canvas.tokens.get(token.id).clone();
-                myTokens = canvas.tokens.objects.children.filter(x => x.data.disposition === movingToken.data.disposition && amILowestOwner(x))
-                for (const myToken of myTokens) {
-                    for (const targeted of targetedByMe) {
-                        const otherFriends = canvas.tokens.placeables.filter(t =>
-                            t.data.disposition === myToken.data.disposition
-                            && t.id !== myToken.id
-                            && t.id !== token.id);
-                        await handleFlanking(myToken, targeted, [...otherFriends, movingToken]);
-                    }
+        // if I move
+        if (myTokens.some(x => x.id === token.id)) {
+            const fullToken = canvas.tokens.get(token.id).clone();
+            await Promise.all(targetedByMe.map(async (targetToken) => await handleFlanking(fullToken, targetToken)));
+        }
+        // else if my target moves
+        else if (targetedByMe.some(x => x.id === token.id)) {
+            const myMovingTargetedToken = targetedByMe.find(x => x.id === token.id).clone();
+            const myTokens = canvas.tokens.objects.children.filter(x => x.isOwner);
+            await Promise.all(myTokens.map(async (myToken) => await handleFlanking(myToken, myMovingTargetedToken)));
+        }
+        // else if a friendly player that I could be flanking with moves (only handle by gm to make sure only one client tries to update)
+        else {
+            const movingToken = canvas.tokens.get(token.id).clone();
+            myTokens = canvas.tokens.objects.children.filter(x => x.data.disposition === movingToken.data.disposition && amILowestOwner(x))
+            for (const myToken of myTokens) {
+                for (const targeted of targetedByMe) {
+                    const otherFriends = canvas.tokens.placeables.filter(t =>
+                        t.data.disposition === myToken.data.disposition
+                        && t.id !== myToken.id
+                        && t.id !== token.id);
+                    await handleFlanking(myToken, targeted, [...otherFriends, movingToken]);
                 }
             }
         }
     });
 
     Hooks.on("targetToken", async (user, targetToken, targetted) => {
-        if (user !== game.user) {
+        if (!game.combat || user !== game.user) {
             return;
         }
 
