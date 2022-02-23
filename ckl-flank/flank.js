@@ -313,12 +313,6 @@ const handleFlanking = async (meToken, targetToken, friends = null) => {
         ) {
             setBestFlank(friend);
         }
-        else if (isRatfolk(meToken)
-            && isRatfolk(friend)
-            && isSharingSquare(meToken, friend)
-        ) {
-            setBestFlank(friend);
-        }
         else if (isMouser(friend)
             && isAdjacent(meToken, friend)
             && isSharingSquare(friend, targetToken)
@@ -328,6 +322,12 @@ const handleFlanking = async (meToken, targetToken, friends = null) => {
         else if (isMouser(meToken)
             && isAdjacent(meToken, friend)
             && isSharingSquare(meToken, targetToken)
+        ) {
+            setBestFlank(friend);
+        }
+        else if (isRatfolk(meToken)
+            && isRatfolk(friend)
+            && isSharingSquare(meToken, friend)
         ) {
             setBestFlank(friend);
         }
@@ -361,7 +361,7 @@ Hooks.once('init', () => {
                 });
             });
 
-            const myTokens = canvas.tokens.objects.children.filter(x => amILowestOwner(x));
+            let myTokens = canvas.tokens.objects.children.filter(x => amILowestOwner(x));
 
             if (!targetedByMe.length) {
                 await Promise.all(myTokens.map(async (myToken) => await turnOffFlankAsync(myToken)));
@@ -380,17 +380,16 @@ Hooks.once('init', () => {
                 await Promise.all(myTokens.map(async (myToken) => await handleFlanking(myToken, myMovingTargetedToken)));
             }
             // else if a friendly player that I could be flanking with moves (only handle by gm to make sure only one client tries to update)
-            else if (game.pf1.utils.getFirstActiveGM().id === game.user.id) {
+            else {
                 const movingToken = canvas.tokens.get(token.id).clone();
+                myTokens = canvas.tokens.objects.children.filter(x => x.data.disposition === movingToken.data.disposition && amILowestOwner(x))
                 for (const myToken of myTokens) {
                     for (const targeted of targetedByMe) {
-                        if (myToken.data.disposition === movingToken.data.disposition) {
-                            const otherFriends = canvas.tokens.placeables.filter(t =>
-                                t.data.disposition === meToken.data.disposition
-                                && t.id !== meToken.id
-                                && t.id !== movingToken.id);
-                            await handleFlanking(myToken, targeted, [...otherFriends, movingToken]);
-                        }
+                        const otherFriends = canvas.tokens.placeables.filter(t =>
+                            t.data.disposition === myToken.data.disposition
+                            && t.id !== myToken.id
+                            && t.id !== token.id);
+                        await handleFlanking(myToken, targeted, [...otherFriends, movingToken]);
                     }
                 }
             }
