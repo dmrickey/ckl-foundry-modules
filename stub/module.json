@@ -1,30 +1,41 @@
 {
-	"name": "stub",
-	"title": "Stub Module",
-	"description": "Example basic module.",
-
-	"version": "1.0.0",
-	"author": "Stub Author 2",
-	"authors": [
-		{ "name": "Stub Author 1", "url": "https://example.com/", "discord": "Stub Author#-0001" },
-		{ "name": "Stub Author 2", "url": "https://example.com/", "discord": "Stub Author#-0002" }
-	],
-
-	"esmodules": [ "stub.mjs" ],
-	"styles": ["stub.css"],
-
-	"languages": [
-		{ "lang": "en", "name": "English", "path": "lang/en.json" }
-	],
-
-	"minimumCoreVersion": "0.7.9",
-	"compatibleCoreVersion": "0.7.9",
-
-	"license": "LICENSE",
-	"readme": "README.md",
-
-	"manifest": "https://example.com/latest/module.json",
-	"download": "https://example.com/download/1.0.0/stub.zip",
-	"url": "https://example.com/",
-	"bugs": "https://example.com/bees"
+    "name": "stub",
+    "title": "Stub Module",
+    "description": "Example basic module.",
+    "version": "1.0.0",
+    "author": "Stub Author 2",
+    "authors": [
+        {
+            "name": "Stub Author 1",
+            "url": "https://example.com/",
+            "discord": "Stub Author#-0001"
+        },
+        {
+            "name": "Stub Author 2",
+            "url": "https://example.com/",
+            "discord": "Stub Author#-0002"
+        }
+    ],
+    "esmodules": [
+        "stub.mjs"
+    ],
+    "styles": [
+        "stub.css"
+    ],
+    "languages": [
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "lang/en.json"
+        }
+    ],
+    "dependencies": [],
+    "minimumCoreVersion": "0.7.9",
+    "compatibleCoreVersion": "0.7.9",
+    "license": "LICENSE",
+    "readme": "README.md",
+    "manifest": "https://example.com/latest/module.json",
+    "download": "https://example.com/download/1.0.0/stub.zip",
+    "url": "https://example.com/",
+    "bugs": "https://example.com/bees"
 }

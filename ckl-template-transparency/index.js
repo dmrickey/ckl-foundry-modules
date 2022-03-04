@@ -17,10 +17,17 @@ const handleMeasuredTemplateUpdate = async (id) => {
 }
 
 const addTransparencyToTemplate = async (template) => {
-    if (!template) return;
+    if (!template) {
+        return;
+    }
 
     const borderOpacity = template?.data?.flags?.world?.borderOpacity;
-    if ((!borderOpacity || borderOpacity === 0) && template.template.alpha !== borderOpacity) {
+
+    if (borderOpacity === undefined) {
+        return;
+    }
+
+    if (typeof borderOpacity === 'number' && template.template.alpha !== borderOpacity) {
         template.template.alpha = borderOpacity;
     }
 }
