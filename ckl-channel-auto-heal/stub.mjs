@@ -28,10 +28,12 @@ Hooks.once('ready', () => {
         }
         if (type === 'postAttack') {
             // ifDebug(() => console.log('******************* postAttack hook *********************', item, type, etc));
-            if (item.name.toLowerCase() === 'channel energy' && etc.ev?.caught !== true) {
+            if (item.name.toLowerCase().includes('channel energy') && etc.ev?.caught !== true) {
                 if (item.isHealing) {
-                    // todo get this amount better
-                    const healed = etc.chatData["flags.pf1.metadata"].rolls.attacks[0].damage[0].roll.total;
+                    const healed = etc.templateData.attacks[0]?.damage.total;
+                    if (!healed) {
+                        return;
+                    }
 
                     const targets = etc.templateData.targets;
                     const updates = targets?.map((target) => {
