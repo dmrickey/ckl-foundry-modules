@@ -1,3 +1,16 @@
+let socket;
+
+Hooks.once("socketlib.ready", () => {
+    socket = socketlib.registerModule("ckl-channel-auto-heal");
+    socket.register("updateActors", updateActors);
+});
+
+async function updateActors(updates) {
+    if (updates?.length) {
+        await Actor.updateDocuments(updates);
+    }
+}
+
 const self = (me) => typeof me === 'function' ? me() : me;
 
 const ifDebug = (func) => {
@@ -19,17 +32,16 @@ Hooks.once('ready', () => {
                 if (item.isHealing) {
                     // todo get this amount better
                     const healed = etc.chatData["flags.pf1.metadata"].rolls.attacks[0].damage[0].roll.total;
-                    const applyMutation = async (target) => {
-                        // todo verify if actor can receive healing (i.e. not undead)
+
+                    const targets = etc.templateData.targets;
+                    const updates = targets?.map((target) => {
                         const currentHp = target.actorData.data.attributes.hp.value;
                         const maxHp = target.actorData.data.attributes.hp.max;
                         const newHp = Math.min(currentHp + healed, maxHp);
-                        await warpgate.mutate(target.tokenData.document, { actor: { 'data.attributes.hp.value': newHp } });
-                    };
-
-                    const targets = etc.templateData.targets;
-                    if (targets) {
-                        await Promise.all(targets.map(applyMutation));
+                        return { _id: target.actorData._id, 'data.attributes.hp.value': newHp };
+                    })
+                    if (updates?.length) {
+                        await socket.executeAsGM('updateActors', updates);
                     }
                 }
 

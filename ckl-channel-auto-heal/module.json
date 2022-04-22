@@ -30,5 +30,6 @@
     "manifest": "https://example.com/latest/module.json",
     "download": "https://example.com/download/1.0.0/stub.zip",
     "url": "https://example.com/",
-    "bugs": "https://example.com/bees"
+    "bugs": "https://example.com/bees",
+    "socket": true
 }
