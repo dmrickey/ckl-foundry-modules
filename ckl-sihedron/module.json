@@ -1,0 +1,40 @@
+{
+    "name": "ckl-sihedron",
+    "title": "Ckl Sihedron",
+    "description": "Example basic module.",
+    "version": "1.0.0",
+    "author": "David Rickey",
+    "authors": [
+        {
+            "name": "David Rickey",
+            "discord": "david (aka claudekennilol)#2244"
+        }
+    ],
+    "esmodules": ["stub.mjs"],
+    "styles": ["stub.css"],
+    "languages": [
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "lang/en.json"
+        }
+    ],
+    "dependencies": [
+        {
+            "name": "socketlib",
+            "type": "module"
+        },
+        {
+            "name": "warpgate",
+            "type": "module"
+        }
+    ],
+    "minimumCoreVersion": "0.9.0",
+    "compatibleCoreVersion": "0.9.0",
+    "license": "LICENSE",
+    "readme": "README.md",
+    "manifest": "https://example.com/latest/module.json",
+    "download": "https://example.com/download/1.0.0/stub.zip",
+    "url": "https://example.com/",
+    "bugs": "https://example.com/bees"
+}
