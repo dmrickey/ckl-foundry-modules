@@ -72,6 +72,19 @@ function handleSihedron(equipped, actor, token, item) {
         await game.pf1.documents.ActorPF.applyDamage(-amount);
         // todo chat card
 
+        // todo use this example
+        function postToChat(damage) {
+            let finalDamage = Math.floor((damage - 5) / 2);
+            let chatData = {
+                user: game.user._id,
+                speaker: {
+                    alias: "Damage Taken"
+                },
+                content: `The damage taken is: <b>${finalDamage}<b>`,
+            };
+            ChatMessage.create(chatData, {});
+        };
+
         canvas.tokens.releaseAll();
         originalControlled.forEach(t => t.control({ releaseOthers: false }));
     }
@@ -155,13 +168,16 @@ function handleSihedron(equipped, actor, token, item) {
         await item.setFlag(MODULE_NAME, 'healOnEquip', true);
         executeApplyBuff('Apply Sihedron!');
 
-        if (target.testUserPermission(game.user, 'OWNER')) {
-            const itemData = item.toObject();
-            await target.createEmbeddedDocuments('Item', [itemData]);
+        // execute on player owner's client
+        try {
+            // todo targetUserId
+            await socket.executeAsUser('takeSihedron', targetUserId, target.id, actor.id, item.id);
         }
-        else {
-            await socket.executeAsUser('takeSihedron', target.id, actor.id, item.id);
+        // if fails (e.g. user isn't logged in), then execute on GM client
+        catch {
+            await socket.executeAsGM('takeSihedron', target.id, actor.id, item.id);
         }
+
         await item.delete();
     }
 }
