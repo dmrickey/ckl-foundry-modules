@@ -38,6 +38,22 @@ const give = 'give';
 
 const capitalizeFirstLetter = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
+const getOwningUser = (doc) => {
+    if (!doc) return false;
+
+    const playerOwners = Object.entries(doc.data.permission)
+        .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
+        .map(([id]) => id);
+
+    if (playerOwners.length > 0) {
+        return game.users.get(playerOwners[0]);
+    }
+
+    /* if no online player owns this actor, fall back to first GM */
+    return game.users.find(u => u.isGM && u.active);
+}
+
+
 function takeSihedron(toActorId, fromActorId, itemId) {
     const fromActor = game.actors.get(fromActorId);
     const item = fromActor.getEmbeddedDocument('Item', itemId);
@@ -170,7 +186,7 @@ function handleSihedron(equipped, actor, token, item) {
 
         // execute on player owner's client
         try {
-            // todo targetUserId
+            const targetUserId = getOwningUser()?.id;
             await socket.executeAsUser('takeSihedron', targetUserId, target.id, actor.id, item.id);
         }
         // if fails (e.g. user isn't logged in), then execute on GM client
