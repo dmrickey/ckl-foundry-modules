@@ -1,5 +1,7 @@
 // Hooks.once('init', () => console.log('¡¡¡ STUB MODULE !!!', game.i18n.localize('STUB.Message')));
 
+import { createHealCard } from './chat-card-maker.mjs';
+
 const MODULE_NAME = 'ckl-sihedron';
 
 let socket;
@@ -11,7 +13,7 @@ Hooks.once('socketlib.ready', () => {
 });
 
 // This requires `Warpgate` - for showing the button menu
-// This requires socketlib -- for making sure the equip happens on the expected client so the menu shows up as expected
+// This requires `socketlib` - for making sure the equip happens on the expected client so the menu shows up as expected
 // This requires that Noon's `applyBuff` macro be in your world (I've also modified it to prevent spam when turning off buffs. you'll have to remove the "skipMessage" part from where buffs are being turned off).
 // This requires that you have configured Buffs in your world for this macro to swap between (see `buffs` variable below for expected names) - plus a buff for +2 bonus to saves called `Sihedron!`
 
@@ -77,7 +79,7 @@ function useSihedron(equipped, actor, token, item) {
         executeApplyBuff(`Remove ${buffs[virtue].name} skipMessage`);
     });
 
-    const healToken = async (token) => {
+    const healToken = async () => {
         if (typeof token === 'undefined' || !token) {
             return;
         }
@@ -85,22 +87,9 @@ function useSihedron(equipped, actor, token, item) {
         const originalControlled = canvas.tokens.controlled;
 
         token.control();
-        const amount = RollPF.safeTotal('2d8 + 10');
-        await game.pf1.documents.ActorPF.applyDamage(-amount);
-        // todo chat card
-
-        // todo use this example
-        function postToChat(damage) {
-            let finalDamage = Math.floor((damage - 5) / 2);
-            let chatData = {
-                user: game.user._id,
-                speaker: {
-                    alias: "Damage Taken"
-                },
-                content: `The damage taken is: <b>${finalDamage}<b>`,
-            };
-            ChatMessage.create(chatData, {});
-        };
+        const roll = RollPF.safeRoll('2d8 + 10');
+        await game.pf1.documents.ActorPF.applyDamage(-roll.total);
+        createHealCard(item, actor, token, roll);
 
         canvas.tokens.releaseAll();
         originalControlled.forEach(t => t.control({ releaseOthers: false }));
@@ -178,7 +167,6 @@ function useSihedron(equipped, actor, token, item) {
             shared.reject = true;
             return;
         }
-        const target = game.actors.get(targetData.id);
 
         await item.unsetFlag(MODULE_NAME, 'virtue');
         await healToken();
@@ -186,8 +174,9 @@ function useSihedron(equipped, actor, token, item) {
         executeApplyBuff('Apply Sihedron!');
 
         // execute on player owner's client
+        const target = game.actors.get(targetData.id);
         try {
-            const targetUserId = getOwningUser()?.id;
+            const targetUserId = getOwningUser(target)?.id;
             await socket.executeAsUser('takeSihedron', targetUserId, target.id, actor.id, item.id);
         }
         // if fails (e.g. user isn't logged in), then execute on GM client

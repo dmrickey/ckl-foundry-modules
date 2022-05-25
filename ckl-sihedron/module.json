@@ -10,7 +10,7 @@
             "discord": "david (aka claudekennilol)#2244"
         }
     ],
-    "esmodules": ["stub.mjs"],
+    "esmodules": ["stub.mjs, chat-card-maker.mjs"],
     "styles": ["stub.css"],
     "languages": [
         {
