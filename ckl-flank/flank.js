@@ -150,7 +150,7 @@ const amILowestOwner = (token) => {
 }
 
 const canBeFlanked = (token) => {
-    // todo
+    // todo - create a flag that can go in a feature/buff that I can add to creatures that can't be flanked.
 
     return true;
 }
@@ -301,7 +301,7 @@ const handleFlanking = async (meToken, targetToken, friends = null) => {
             continue;
         }
 
-        // todo 
+        // todo
         // if (hasPackFlanking(meToken)
         //     && isMyCompanion(friend)
         //     && (hasPackFlanking(friend) || hasSoloTactics(meToken))
