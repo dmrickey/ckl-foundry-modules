@@ -6,10 +6,12 @@ let socket;
 Hooks.once('socketlib.ready', () => {
     socket = socketlib.registerModule(MODULE_NAME);
     socket.register('takeSihedron', takeSihedron);
+
+    window.Sihedron = { useSihedron }
 });
 
 // This requires `Warpgate` - for showing the button menu
-// This requires `Tagger` - for grabbing all the player tokens in the scene for valid choices to give the Sihedron to (and they all have to be tagged `player`)
+// This requires socketlib -- for making sure the equip happens on the expected client so the menu shows up as expected
 // This requires that Noon's `applyBuff` macro be in your world (I've also modified it to prevent spam when turning off buffs. you'll have to remove the "skipMessage" part from where buffs are being turned off).
 // This requires that you have configured Buffs in your world for this macro to swap between (see `buffs` variable below for expected names) - plus a buff for +2 bonus to saves called `Sihedron!`
 
@@ -53,7 +55,6 @@ const getOwningUser = (doc) => {
     return game.users.find(u => u.isGM && u.active);
 }
 
-
 function takeSihedron(toActorId, fromActorId, itemId) {
     const fromActor = game.actors.get(fromActorId);
     const item = fromActor.getEmbeddedDocument('Item', itemId);
@@ -63,7 +64,7 @@ function takeSihedron(toActorId, fromActorId, itemId) {
     await target.createEmbeddedDocuments('Item', [itemData]);
 }
 
-function handleSihedron(equipped, actor, token, item) {
+function useSihedron(equipped, actor, token, item) {
     let justReceived = false;
 
     const executeApplyBuff = (command) => {
