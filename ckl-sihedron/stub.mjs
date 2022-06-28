@@ -9,13 +9,18 @@ Hooks.once('socketlib.ready', () => {
     socket = socketlib.registerModule(MODULE_NAME);
     socket.register('takeSihedron', takeSihedron);
 
-    window.Sihedron = { useSihedron }
+    window.Sihedron = { useSihedron };
 });
 
-// This requires `Warpgate` - for showing the button menu
+// This requires `Warpgate`
+//   - for showing the button menu
+//   - for adding SLAs from the different Sihedron buffs
 // This requires `socketlib` - for making sure the equip happens on the expected client so the menu shows up as expected
-// This requires that Noon's `applyBuff` macro be in your world (I've also modified it to prevent spam when turning off buffs. you'll have to remove the "skipMessage" part from where buffs are being turned off).
-// This requires that you have configured Buffs in your world for this macro to swap between (see `buffs` variable below for expected names) - plus a buff for +2 bonus to saves called `Sihedron!`
+// This requires that Noon's `applyBuff` macro be in your world - I highly suggest changing the default notification level to 1 or even 0.
+// This requires that you have configured Buffs in your world for this macro to swap between
+//   - import the buffs into your world from the included compendium
+//   - OR add the compendium to your `applyBuff` macro configuration
+//   - OR create your own - (see `buffs` variable below for expected names) - plus a buff for +2 bonus to saves called `Sihedron!`
 
 // goes in `On Use` and `On Equip` advanced script calls
 
@@ -64,19 +69,21 @@ function takeSihedron(toActorId, fromActorId, itemId) {
 
     const target = game.actors.get(toActorId);
     await target.createEmbeddedDocuments('Item', [itemData]);
+
+    // todo move "heal token" to here instead of in "on equip" and remove "shouldHeal" flag
 }
 
 function useSihedron(equipped, actor, token, item) {
     let justReceived = false;
 
     const executeApplyBuff = (command) => {
-        window.macroChain = [command];
+        window.macroChain = [command + ' '];
         game.macros.getName('applyBuff')?.execute({ actor, token });
         // todo chat card
     }
 
     const turnOffAllBuffs = () => allVirtues.forEach((virtue) => {
-        executeApplyBuff(`Remove ${buffs[virtue].name} skipMessage`);
+        executeApplyBuff(`Remove ${buffs[virtue].name}`);
     });
 
     const healToken = async () => {
