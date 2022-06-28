@@ -45,6 +45,26 @@ const allVirtues = Object.keys(buffs);
 
 const give = 'give';
 
+// todo create pack and get id
+const sihedronItemPackId = '';
+const getItem = async (name) => {
+    const pack = game.packs.get(sihedronItemPackId);
+    const itemId = pack.index.getName(name)._id;
+    return await pack.getDocument(itemId);
+};
+
+const executeApplyBuff = (actor, command) => {
+    window.macroChain = [command + ' '];
+    game.macros.getName('applyBuff')?.execute();
+    // todo chat card
+}
+
+const turnOffAllBuffs = (actor) => allVirtues.forEach((virtue) => {
+    executeApplyBuff(actor, `Remove ${buffs[virtue].name}`);
+});
+
+const applyBuff = (actor, buffName) => executeApplyBuff(actor, buffName);
+
 const capitalizeFirstLetter = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const getOwningUser = (doc) => {
@@ -62,69 +82,36 @@ const getOwningUser = (doc) => {
     return game.users.find(u => u.isGM && u.active);
 }
 
-function takeSihedron(toActorId, fromActorId, itemId) {
+const healActor = async (actor) => {
+    if (typeof actor === 'undefined' || !actor) {
+        return;
+    }
+
+    const toHeal = RollPF.safeRoll('2d8 + 10');
+    await actor.applyDamage(-toHeal.total);
+    // todo get token
+    createHealCard(item, actor, token, toHeal);
+}
+
+async function takeSihedron(toActorId, fromActorId, itemId) {
     const fromActor = game.actors.get(fromActorId);
-    const item = fromActor.getEmbeddedDocument('Item', itemId);
-    const itemData = item.toObject();
+    const sihedronItem = fromActor.getEmbeddedDocument('Item', itemId);
+    const itemData = sihedronItem.toObject();
 
     const target = game.actors.get(toActorId);
     await target.createEmbeddedDocuments('Item', [itemData]);
 
-    // todo move "heal token" to here instead of in "on equip" and remove "shouldHeal" flag
+    await healActor(actor);
+    applyBuff(actor, 'Apply Sihedron!');
 }
 
-function useSihedron(equipped, actor, token, item) {
-    let justReceived = false;
-
-    const executeApplyBuff = (command) => {
-        window.macroChain = [command + ' '];
-        game.macros.getName('applyBuff')?.execute({ actor, token });
-        // todo chat card
-    }
-
-    const turnOffAllBuffs = () => allVirtues.forEach((virtue) => {
-        executeApplyBuff(`Remove ${buffs[virtue].name}`);
-    });
-
-    const healToken = async () => {
-        if (typeof token === 'undefined' || !token) {
-            return;
-        }
-
-        const originalControlled = canvas.tokens.controlled;
-
-        token.control();
-        const roll = RollPF.safeRoll('2d8 + 10');
-        await game.pf1.documents.ActorPF.applyDamage(-roll.total);
-        createHealCard(item, actor, token, roll);
-
-        canvas.tokens.releaseAll();
-        originalControlled.forEach(t => t.control({ releaseOthers: false }));
-    }
-
-    if (typeof equipped !== 'undefined') {
-        if (equipped) {
-            const shouldHeal = item.getFlag(MODULE_NAME, 'healOnEquip');
-            if (shouldHeal) {
-                justReceived = true;
-                await healToken(token);
-                executeApplyBuff('Apply Sihedron!');
-                await item.unsetFlag(MODULE_NAME, 'healOnEquip');
-            }
-        }
-        // if unequipping
-        else {
-            turnOffAllBuffs();
-            return;
-        }
-    }
-
-    const currentVirtue = item.getFlag(MODULE_NAME, 'virtue');
+const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
+    const currentVirtue = sihedronItem.getFlag(MODULE_NAME, 'virtue');
     const buttons = allVirtues
         .filter((virtue) => !buffs[currentVirtue]?.opposed.has(virtue))
         .filter((virtue) => !currentVirtue || virtue !== currentVirtue)
         .map((virtue) => ({ label: capitalizeFirstLetter(virtue), value: virtue }));
-    if (!justReceived) {
+    if (showGive) {
         buttons.push({ label: 'Give', value: give });
     }
     buttons.push({ label: 'Cancel' });
@@ -151,12 +138,12 @@ function useSihedron(equipped, actor, token, item) {
         return;
     }
 
-    turnOffAllBuffs();
+    turnOffAllBuffs(actor);
 
     if (allVirtues.includes(chosenVirtue)) {
         await item.setFlag(MODULE_NAME, 'virtue', chosenVirtue);
 
-        executeApplyBuff(`Apply ${buffs[chosenVirtue].name}`);
+        applyBuff(actor, `Apply ${buffs[chosenVirtue].name}`);
         return;
     }
 
@@ -171,14 +158,12 @@ function useSihedron(equipped, actor, token, item) {
 
         const targetData = await game.pf1.utils.dialogGetActor('Give Sihedron to', actors);
         if (!targetData) {
-            shared.reject = true;
-            return;
+            return false;
         }
 
         await item.unsetFlag(MODULE_NAME, 'virtue');
-        await healToken();
-        await item.setFlag(MODULE_NAME, 'healOnEquip', true);
-        executeApplyBuff('Apply Sihedron!');
+        await healActor(actor);
+        applyBuff(actor, 'Apply Sihedron!');
 
         // execute on player owner's client
         const target = game.actors.get(targetData.id);
@@ -192,5 +177,22 @@ function useSihedron(equipped, actor, token, item) {
         }
 
         await item.delete();
+    }
+
+    return true;
+}
+
+async function useSihedron(actor, equipped, sihedronItem, shared) {
+    if (typeof equipped !== 'undefined') {
+        // if unequipping
+        if (!equipped) {
+            turnOffAllBuffs(actor);
+            return;
+        }
+    }
+
+    var madeChoice = await makeMenuChoice(actor, sihedronItem, true);
+    if (!madeChoice) {
+        shared.reject = true;
     }
 }
