@@ -26,7 +26,7 @@ export const createHealCard = (item, actor, token, roll) => {
                     <tr>
                         <td class="lil-melded-type" colspan="2">
                             <a class="inline-roll inline-dsn-hidden inline-result lil-roll-restyle poor-roll middling-roll lil-melded-roll" title="2d6" data-roll="${escape(JSON.stringify(roll))}" data-roll-grade="4">
-                                <i class="fas fa-dice-d20"></i> ${total}
+                                <i class="fas fa-dice-d20"></i> ${roll.total}
                             </a>
                             &nbsp;Positive<i class="fas fa-seedling lil-damage-type" style="color: white; text-shadow: lime 0px 0px 5px;"></i>
                         </td>
@@ -39,7 +39,7 @@ export const createHealCard = (item, actor, token, roll) => {
     let chatData = {
         user: game.user._id,
         speaker: {
-            alias: "Damage Taken"
+            alias: "Healed"
         },
         content,
     };

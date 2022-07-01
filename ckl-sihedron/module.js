@@ -80,7 +80,7 @@ const getOwningUserId = (doc) => {
     return playerOwnerId || game.users.find(u => u.isGM && u.active)?.id;
 }
 
-const healActor = async (actor) => {
+const healActor = async (actor, item) => {
     if (typeof actor === 'undefined' || !actor) {
         return;
     }
@@ -89,7 +89,8 @@ const healActor = async (actor) => {
     console.log(`healed '${toHeal.total}' to '${actor.name}'`);
     await actor.applyDamage(-toHeal.total);
     // todo get token
-    // createHealCard(item, actor, token, toHeal);
+    const token = [...canvas.scene.tokens].find((x) => x.actor.id === actor.id)?.object;
+    createHealCard(item, actor, token, toHeal);
 }
 
 const takeItem = async (targetActorId, fromActorId, itemId) => {
@@ -99,13 +100,14 @@ const takeItem = async (targetActorId, fromActorId, itemId) => {
 
     const targetActor = game.actors.get(targetActorId);
     await targetActor.createEmbeddedDocuments('Item', [itemData]);
+    return itemData;
 };
 
 async function takeSihedron(targetActorId, fromActorId, itemId) {
-    await takeItem(targetActorId, fromActorId, itemId);
+    const item = await takeItem(targetActorId, fromActorId, itemId);
 
     const targetActor = game.actors.get(targetActorId);
-    await healActor(targetActor);
+    await healActor(targetActor, item);
     applyBuff(targetActor, `Apply Sihedron! to ${targetActor.name}`);
 }
 
@@ -167,7 +169,7 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
             return false;
         }
 
-        await healActor(actor);
+        await healActor(actor, sihedronItem);
         applyBuff(actor, `Apply Sihedron! to ${actor.name}`);
 
         // execute on player owner's client
@@ -176,8 +178,8 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
             const targetUserId = getOwningUserId(target);
             await socket.executeAsUser('takeSihedron', targetUserId, target.id, actor.id, sihedronItem.id);
         }
-        // if fails (e.g. user isn't logged in), then execute on GM client
         catch {
+            // if fails (e.g. user isn't logged in), then execute on GM client -- should never happen though
             await socket.executeAsGM('takeSihedron', target.id, actor.id, sihedronItem.id);
         }
 
