@@ -1,15 +1,15 @@
 // Hooks.once('init', () => console.log('¡¡¡ STUB MODULE !!!', game.i18n.localize('STUB.Message')));
 
-import { createHealCard } from './chat-card-maker.mjs';
+import { createHealCard } from './chat-card-maker.js';
 
 const MODULE_NAME = 'ckl-sihedron';
 
 let socket;
-Hooks.once('socketlib.ready', () => {
+Hooks.once("socketlib.ready", () => {
     socket = socketlib.registerModule(MODULE_NAME);
     socket.register('takeSihedron', takeSihedron);
 
-    window.Sihedron = { useSihedron };
+    window.Sihedron = { setSihedronEquip, useSihedron };
 });
 
 // This requires `Warpgate`
@@ -60,7 +60,7 @@ const executeApplyBuff = (actor, command) => {
 }
 
 const turnOffAllBuffs = (actor) => allVirtues.forEach((virtue) => {
-    executeApplyBuff(actor, `Remove ${buffs[virtue].name}`);
+    executeApplyBuff(actor, `Remove ${buffs[virtue].name} from ${actor.name}`);
 });
 
 const applyBuff = (actor, buffName) => executeApplyBuff(actor, buffName);
@@ -102,7 +102,7 @@ async function takeSihedron(toActorId, fromActorId, itemId) {
     await target.createEmbeddedDocuments('Item', [itemData]);
 
     await healActor(actor);
-    applyBuff(actor, 'Apply Sihedron!');
+    applyBuff(actor, `Apply Sihedron! to ${actor.name}`);
 }
 
 const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
@@ -121,7 +121,7 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
         virtueHints += `<div>${capitalizeFirstLetter(virtue)}</div><div>${buffs[virtue].value}</div>`
     });
     virtueHints += '</div>';
-    inputs = [{ type: 'info', label: virtueHints }];
+    const inputs = [{ type: 'info', label: virtueHints }];
 
     if (currentVirtue) {
         inputs.push({ type: 'info', label: `Currently active: ${capitalizeFirstLetter(currentVirtue)}` });
@@ -141,9 +141,9 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
     turnOffAllBuffs(actor);
 
     if (allVirtues.includes(chosenVirtue)) {
-        await item.setFlag(MODULE_NAME, 'virtue', chosenVirtue);
+        await sihedronItem.setFlag(MODULE_NAME, 'virtue', chosenVirtue);
 
-        applyBuff(actor, `Apply ${buffs[chosenVirtue].name}`);
+        applyBuff(actor, `Apply ${buffs[chosenVirtue].name} to ${actor.name}`);
         return;
     }
 
@@ -161,36 +161,38 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
             return false;
         }
 
-        await item.unsetFlag(MODULE_NAME, 'virtue');
+        await sihedronItem.unsetFlag(MODULE_NAME, 'virtue');
         await healActor(actor);
-        applyBuff(actor, 'Apply Sihedron!');
+        applyBuff(actor, `Apply Sihedron! to ${actor.name}`);
 
         // execute on player owner's client
         const target = game.actors.get(targetData.id);
         try {
             const targetUserId = getOwningUser(target)?.id;
-            await socket.executeAsUser('takeSihedron', targetUserId, target.id, actor.id, item.id);
+            await socket.executeAsUser('takeSihedron', targetUserId, target.id, actor.id, sihedronItem.id);
         }
         // if fails (e.g. user isn't logged in), then execute on GM client
         catch {
-            await socket.executeAsGM('takeSihedron', target.id, actor.id, item.id);
+            await socket.executeAsGM('takeSihedron', target.id, actor.id, sihedronItem.id);
         }
 
-        await item.delete();
+        await sihedronItem.delete();
     }
 
     return true;
 }
 
-async function useSihedron(actor, equipped, sihedronItem, shared) {
-    if (typeof equipped !== 'undefined') {
-        // if unequipping
-        if (!equipped) {
-            turnOffAllBuffs(actor);
-            return;
-        }
+async function setSihedronEquip(actor, sihedronItem, shared, equipped) {
+    if (!equipped) {
+        turnOffAllBuffs(actor);
+        await sihedronItem.unsetFlag(MODULE_NAME, 'virtue');
+        return;
     }
 
+    await useSihedron(actor, sihedronItem, shared);
+}
+
+async function useSihedron(actor, sihedronItem, shared) {
     var madeChoice = await makeMenuChoice(actor, sihedronItem, true);
     if (!madeChoice) {
         shared.reject = true;
