@@ -88,9 +88,10 @@ const healActor = async (actor) => {
     }
 
     const toHeal = RollPF.safeRoll('2d8 + 10');
+    console.log(`healed '${toHeal.total}' to '${actor.name}'`);
     await actor.applyDamage(-toHeal.total);
     // todo get token
-    createHealCard(item, actor, token, toHeal);
+    // createHealCard(item, actor, token, toHeal);
 }
 
 async function takeSihedron(toActorId, fromActorId, itemId) {
@@ -101,8 +102,8 @@ async function takeSihedron(toActorId, fromActorId, itemId) {
     const target = game.actors.get(toActorId);
     await target.createEmbeddedDocuments('Item', [itemData]);
 
-    await healActor(actor);
-    applyBuff(actor, `Apply Sihedron! to ${actor.name}`);
+    await healActor(target);
+    applyBuff(target, `Apply Sihedron! to ${target.name}`);
 }
 
 const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
@@ -151,7 +152,9 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
         const playerActorsInScene = canvas.tokens.placeables
             .filter(t => t.actor.hasPlayerOwner)
             .map(t => t.actor);
-        const playerActors = [...game.users].map(x => x.character);
+        const playerActors = [...game.users]
+            .map(x => x.character)
+            .filter(x => !!x);
         const actors = [...playerActorsInScene, ...playerActors]
             .filter((x, i, arr) => arr.findIndex((y) => y.id === x.id) === i)
             .filter(x => x.id !== actor.id);
