@@ -67,16 +67,17 @@ const applyBuff = (actor, buffName) => executeApplyBuff(actor, buffName);
 
 const capitalizeFirstLetter = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-const getOwningUser = (doc) => {
+const getOwningUserId = (doc) => {
     if (!doc) {
         return undefined;
     }
 
-    const playerOwner = Object.entries(doc.data.permission)
-        .find(([id, level]) => !game.users.get(id)?.isGM && game.users.get(id)?.active && level === 3);
+    const playerOwnerId = Object.entries(doc.data.permission)
+        .find(([id, level]) => !game.users.get(id)?.isGM && game.users.get(id)?.active && level === 3)
+        ?.[0];
 
     // if no active players own this actor, fall back to first GM
-    return playerOwner || game.users.find(u => u.isGM && u.active);
+    return playerOwnerId || game.users.find(u => u.isGM && u.active)?.id;
 }
 
 const healActor = async (actor) => {
@@ -103,6 +104,7 @@ const takeItem = async (targetActorId, fromActorId, itemId) => {
 async function takeSihedron(targetActorId, fromActorId, itemId) {
     await takeItem(targetActorId, fromActorId, itemId);
 
+    const targetActor = game.actors.get(targetActorId);
     await healActor(targetActor);
     applyBuff(targetActor, `Apply Sihedron! to ${targetActor.name}`);
 }
@@ -171,7 +173,7 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
         // execute on player owner's client
         const target = game.actors.get(targetData.id);
         try {
-            const targetUserId = getOwningUser(target)?.id;
+            const targetUserId = getOwningUserId(target);
             await socket.executeAsUser('takeSihedron', targetUserId, target.id, actor.id, sihedronItem.id);
         }
         // if fails (e.g. user isn't logged in), then execute on GM client
@@ -186,7 +188,12 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
 }
 
 async function setSihedronEquip(actor, sihedronItem, shared, equipped) {
-    await sihedronItem.unsetFlag(MODULE_NAME, 'virtue');
+    try {
+        await sihedronItem.unsetFlag(MODULE_NAME, 'virtue');
+    }
+    catch {
+        // do nothing, the item has been deleted
+    }
 
     if (!equipped) {
         turnOffAllBuffs(actor);
