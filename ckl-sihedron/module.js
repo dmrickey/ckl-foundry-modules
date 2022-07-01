@@ -54,7 +54,7 @@ const getItem = async (name) => {
 };
 
 const executeApplyBuff = (actor, command) => {
-    window.macroChain = [command + ' '];
+    window.macroChain = [command];
     game.macros.getName('applyBuff')?.execute();
     // todo chat card
 }
@@ -68,18 +68,15 @@ const applyBuff = (actor, buffName) => executeApplyBuff(actor, buffName);
 const capitalizeFirstLetter = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const getOwningUser = (doc) => {
-    if (!doc) return false;
-
-    const playerOwners = Object.entries(doc.data.permission)
-        .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
-        .map(([id]) => id);
-
-    if (playerOwners.length > 0) {
-        return game.users.get(playerOwners[0]);
+    if (!doc) {
+        return undefined;
     }
 
-    /* if no online player owns this actor, fall back to first GM */
-    return game.users.find(u => u.isGM && u.active);
+    const playerOwner = Object.entries(doc.data.permission)
+        .find(([id, level]) => !game.users.get(id)?.isGM && game.users.get(id)?.active && level === 3);
+
+    // if no active players own this actor, fall back to first GM
+    return playerOwner || game.users.find(u => u.isGM && u.active);
 }
 
 const healActor = async (actor) => {
@@ -94,16 +91,20 @@ const healActor = async (actor) => {
     // createHealCard(item, actor, token, toHeal);
 }
 
-async function takeSihedron(toActorId, fromActorId, itemId) {
+const takeItem = async (targetActorId, fromActorId, itemId) => {
     const fromActor = game.actors.get(fromActorId);
-    const sihedronItem = fromActor.getEmbeddedDocument('Item', itemId);
-    const itemData = sihedronItem.toObject();
+    const item = fromActor.getEmbeddedDocument('Item', itemId);
+    const itemData = item.toObject();
 
-    const target = game.actors.get(toActorId);
-    await target.createEmbeddedDocuments('Item', [itemData]);
+    const targetActor = game.actors.get(targetActorId);
+    await targetActor.createEmbeddedDocuments('Item', [itemData]);
+};
 
-    await healActor(target);
-    applyBuff(target, `Apply Sihedron! to ${target.name}`);
+async function takeSihedron(targetActorId, fromActorId, itemId) {
+    await takeItem(targetActorId, fromActorId, itemId);
+
+    await healActor(targetActor);
+    applyBuff(targetActor, `Apply Sihedron! to ${targetActor.name}`);
 }
 
 const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
@@ -152,7 +153,7 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
         const playerActorsInScene = canvas.tokens.placeables
             .filter(t => t.actor.hasPlayerOwner)
             .map(t => t.actor);
-        const playerActors = [...game.users]
+        const playerActors = game.users
             .map(x => x.character)
             .filter(x => !!x);
         const actors = [...playerActorsInScene, ...playerActors]
@@ -164,7 +165,6 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
             return false;
         }
 
-        await sihedronItem.unsetFlag(MODULE_NAME, 'virtue');
         await healActor(actor);
         applyBuff(actor, `Apply Sihedron! to ${actor.name}`);
 
@@ -186,9 +186,10 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
 }
 
 async function setSihedronEquip(actor, sihedronItem, shared, equipped) {
+    await sihedronItem.unsetFlag(MODULE_NAME, 'virtue');
+
     if (!equipped) {
         turnOffAllBuffs(actor);
-        await sihedronItem.unsetFlag(MODULE_NAME, 'virtue');
         return;
     }
 
