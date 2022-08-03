@@ -4,13 +4,15 @@ const MODULE_NAME = 'ckl-skill-bonuses';
 const inspiriationDieKey = 'inspiriationDie';
 
 class CklSkillData {
-    constructor({ inspiration, dice, bonus } = {}) {
+    constructor({ inspiration, dice, bonus }) {
         this.inspiration = inspiration;
         this.dice = dice;
         this.bonus = bonus;
     }
 
-    get configured() { return !!(this.inspiration || this.dice || this.bonus); }
+    get configured() {
+        return !!(this.inspiration || this.dice || this.bonus);
+    }
 }
 
 // todo ensure this hook only runs on the client that used the skill
