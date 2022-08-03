@@ -1,7 +1,7 @@
 let socket;
 
 Hooks.once("socketlib.ready", () => {
-    socket = socketlib.registerModule("ckl-channel-auto-heal");
+    socket = socketlib.registerModule("ckl-heal-friendly-targets");
     socket.register("updateActors", updateActors);
 });
 
@@ -25,7 +25,6 @@ const self = (me) => typeof me === 'function' ? me() : me;
 
 const ifDebug = (func) => {
     // todo read game setting
-    // eslint-disable-next-line
     if (false) {
         return self(func);
     }
@@ -38,7 +37,6 @@ Hooks.once('ready', () => {
         }
         if (type === 'postAttack') {
             ifDebug(() => console.log('******************* postAttack hook *********************', item, type, etc));
-            // if (item.name.toLowerCase().includes('channel energy') && etc.ev?.caught !== true) {
             if (item.isHealing) {
                 const healed = etc.templateData.attacks[0]?.damage.total;
                 if (!healed) {
@@ -59,11 +57,6 @@ Hooks.once('ready', () => {
                     await socket.executeAsGM('updateActors', updates, healed);
                 }
             }
-
-            if (item.hasTemplate) {
-                // canvas.scene.templates.get(etc.chatData["flags.pf1.metadata"].template).delete();
-            }
-            // }
         }
     });
 });
