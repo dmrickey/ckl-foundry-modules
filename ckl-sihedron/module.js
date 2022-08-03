@@ -89,8 +89,16 @@ const healActor = async (actor, item) => {
     console.log(`healed '${toHeal.total}' to '${actor.name}'`);
     await actor.applyDamage(-toHeal.total);
     // todo get token
-    const token = [...canvas.scene.tokens].find((x) => x.actor.id === actor.id)?.object;
-    createHealCard(item, actor, token, toHeal);
+    // const token = [...canvas.scene.tokens].find((x) => x.actor.id === actor.id)?.object;
+    // createHealCard(item, actor, token, toHeal);
+
+    // todo - does this work?
+    // let chatOptions = {
+    //     user: game.user._id,
+    //     speaker: ChatMessage.getSpeaker(),
+    //     content: `${`actor`.name} automatically healed for [[${amount}[positive]]].`
+    // };
+    // ChatMessage.create(chatOptions);
 }
 
 const takeItem = async (targetActorId, fromActorId, itemId) => {
