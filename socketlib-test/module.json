@@ -3,25 +3,9 @@
     "title": "ckl Socket lib test",
     "description": "Socket lib test.",
     "version": "1.0.0",
-    "author": "Stub Author 2",
-    "authors": [
-        {
-            "name": "Stub Author 1",
-            "url": "https://example.com/",
-            "discord": "Stub Author#-0001"
-        },
-        {
-            "name": "Stub Author 2",
-            "url": "https://example.com/",
-            "discord": "Stub Author#-0002"
-        }
-    ],
-    "esmodules": [
-        "stub.mjs"
-    ],
-    "styles": [
-        "stub.css"
-    ],
+    "author": "David Rickey",
+    "esmodules": ["stub.mjs"],
+    "styles": ["stub.css"],
     "languages": [
         {
             "lang": "en",

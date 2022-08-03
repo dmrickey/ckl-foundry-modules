@@ -3,15 +3,11 @@
     "title": "ckl Flank Target (PF1E)",
     "description": "Automatically add flank bonuses when targeting a token",
     "version": "1.0.0",
-    "author": "claudekennilol",
-    "esmodules": [
-        "flank.js"
-    ],
+    "author": "David Rickey",
+    "esmodules": ["flank.js"],
     "minimumCoreVersion": "9",
     "compatibleCoreVersion": "9",
-    "systems": [
-        "pf1"
-    ],
+    "systems": ["pf1"],
     "packs": [
         {
             "name": "ckl-flank",
