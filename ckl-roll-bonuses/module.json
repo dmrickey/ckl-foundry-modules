@@ -1,6 +1,6 @@
 {
-    "name": "ckl-skill-bonuses",
-    "title": "ckl Skill Bonuses",
+    "name": "ckl-roll-bonuses",
+    "title": "ckl Roll Bonuses",
     "description": "Example basic module.",
     "version": "1.0.0",
     "author": "David Rickey",
@@ -11,8 +11,12 @@
             "discord": "david (aka claudekennilol)#2244"
         }
     ],
-    "esmodules": ["main.mjs"],
-    "styles": ["styles.css"],
+    "esmodules": [
+        "main.mjs"
+    ],
+    "styles": [
+        "styles.css"
+    ],
     "languages": [
         {
             "lang": "en",
@@ -20,10 +24,17 @@
             "path": "lang/en.json"
         }
     ],
-    "dependencies": [],
+    "dependencies": [
+        {
+            "name": "warpgate",
+            "type": "module"
+        }
+    ],
     "minimumCoreVersion": "0.9.0",
     "compatibleCoreVersion": "0.9.0",
-    "systems": ["pf1"],
+    "systems": [
+        "pf1"
+    ],
     "license": "LICENSE",
     "readme": "README.md",
     "manifest": "https://github.com/dmrickey/ckl-foundry-modules/ckl-skill-bonuses/module.json",
