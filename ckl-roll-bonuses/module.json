@@ -2,7 +2,7 @@
     "name": "ckl-roll-bonuses",
     "title": "ckl Roll Bonuses",
     "description": "Example basic module.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "author": "David Rickey",
     "authors": [
         {
@@ -30,8 +30,8 @@
             "type": "module"
         }
     ],
-    "minimumCoreVersion": "0.9.0",
-    "compatibleCoreVersion": "0.9.0",
+    "minimumCoreVersion": "9",
+    "compatibleCoreVersion": "9",
     "systems": [
         "pf1"
     ],

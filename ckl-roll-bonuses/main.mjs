@@ -29,55 +29,52 @@ const setSkillData = async (actor, skillId, data) => await actor.setFlag(MODULE_
 const getSkillConfig = (actor) => new CklSkillConfig(actor.getFlag(MODULE_NAME, inspiriationDieKey) || new CklSkillConfig());
 const setSkillConfig = async (actor, config) => await actor.setFlag(MODULE_NAME, inspiriationDieKey, config);
 
-Hooks.once('ready', async () => {
-    Hooks.on('renderActorSheetPF', (app, html, data) => {
-        // add skill config button
-        html.find('.tab.skills .skill-lock-button').each((_, btn) => {
-            const node = document.createElement('a');
-            const id = 'ckl-skill-config';
-            node.id = id;
-            node.style = 'flex: unset;';
-            node.innerHTML = '<i class="ra ra-cog ra-fw"></i>';
-            btn.parentElement.insertBefore(node, btn);
-            setTimeout(() => {
-                const tag = document.querySelector(`#${id}`);
-                tag.addEventListener(
-                    'click',
-                    async () => await showGlobalSkillConfig(data.actor)
-                );
-            });
+Hooks.on('renderActorSheetPF', (app, html, data) => {
+    // add skill config button
+    html.find('.tab.skills .skill-lock-button').each((_, btn) => {
+        const node = document.createElement('a');
+        const id = 'ckl-skill-config';
+        node.id = id;
+        node.style = 'flex: unset;';
+        node.innerHTML = '<i class="ra ra-cog ra-fw"></i>';
+        btn.parentElement.insertBefore(node, btn);
+        setTimeout(() => {
+            const tag = document.querySelector(`#${id}`);
+            tag.addEventListener(
+                'click',
+                async () => await showGlobalSkillConfig(data.actor)
+            );
         });
+    });
 
-        // add skill data buttons
-        html.find('.tab.skills .skills-list li.skill').each((_, li) => {
-            let controls = li.querySelector('.skill-controls');
-            if (!controls) {
-                controls = document.createElement('div');
-                controls.className = 'skill-controls';
-                li.appendChild(controls);
-            }
+    // add skill data buttons
+    html.find('.tab.skills .skills-list li.skill').each((_, li) => {
+        let controls = li.querySelector('.skill-controls');
+        if (!controls) {
+            controls = document.createElement('div');
+            controls.className = 'skill-controls';
+            li.appendChild(controls);
+        }
 
-            const skillId = li.getAttribute('data-main-skill') || li.getAttribute('data-skill');
-            const id = `ckl-skill-${skillId}`
-            const node = document.createElement('a');
-            node.id = id;
-            node.innerHTML = '<i class="ra ra-cog ra-fw"></i>';
-            controls.appendChild(node);
+        const skillId = li.getAttribute('data-main-skill') || li.getAttribute('data-skill');
+        const id = `ckl-skill-${skillId}`
+        const node = document.createElement('a');
+        node.id = id;
+        node.innerHTML = '<i class="ra ra-cog ra-fw"></i>';
+        controls.appendChild(node);
 
-            setTimeout(() => {
-                const tag = document.querySelector(`#${id}`);
-                tag.addEventListener(
-                    'click',
-                    async () => await showSkillOptions(data.actor, skillId)
-                );
-            });
+        setTimeout(() => {
+            const tag = document.querySelector(`#${id}`);
+            tag.addEventListener(
+                'click',
+                async () => await showSkillOptions(data.actor, skillId)
+            );
         });
     });
 });
 
 const getSkillId = (id) => id.includes('.') ? id.split('.')[0] : id;
 
-// todo ensure this hook only runs on the client that used the skill
 Hooks.on('actorRoll', (actor, type, skillId, options) => {
     if (type !== 'skill') {
         return;
@@ -85,7 +82,6 @@ Hooks.on('actorRoll', (actor, type, skillId, options) => {
 
     skillId = getSkillId(skillId);
 
-    // might have to be actor.document or maybe actor.data.getFlag
     const data = getSkillData(actor, skillId);
     if (!data.configured) {
         return;
