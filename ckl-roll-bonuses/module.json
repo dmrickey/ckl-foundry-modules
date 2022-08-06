@@ -37,8 +37,8 @@
     ],
     "license": "LICENSE",
     "readme": "README.md",
-    "manifest": "https://github.com/dmrickey/ckl-foundry-modules/ckl-skill-bonuses/module.json",
-    "download": "todo",
-    "url": "https://github.com/dmrickey/ckl-foundry-modules",
+    "manifest": "https://github.com/dmrickey/ckl-foundry-modules/ckl-roll-bonuses/module.json",
+    "download": "https://github.com/dmrickey/ckl-foundry-modules/ckl-roll-bonuses/ckl-roll-bonuses.zip",
+    "url": "https://github.com/dmrickey/ckl-foundry-modules/ckl-roll-bonuses",
     "bugs": "https://github.com/dmrickey/ckl-foundry-modules/issues"
 }
