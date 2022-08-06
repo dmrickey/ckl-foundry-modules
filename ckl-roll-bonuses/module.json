@@ -37,8 +37,8 @@
     ],
     "license": "LICENSE",
     "readme": "README.md",
-    "manifest": "https://github.com/dmrickey/ckl-foundry-modules/blob/ckl-roll-bonuses/module.json",
-    "download": "https://github.com/dmrickey/ckl-foundry-modules/blob/ckl-roll-bonuses/ckl-roll-bonuses.zip",
-    "url": "https://github.com/dmrickey/ckl-foundry-modules/tree/ckl-roll-bonuses",
+    "manifest": "https://github.com/dmrickey/ckl-foundry-modules/blob/main/ckl-roll-bonuses/module.json",
+    "download": "https://github.com/dmrickey/ckl-foundry-modules/blob/main/ckl-roll-bonuses/ckl-roll-bonuses.zip",
+    "url": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-roll-bonuses",
     "bugs": "https://github.com/dmrickey/ckl-foundry-modules/issues"
 }
