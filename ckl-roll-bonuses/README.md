@@ -1,4 +1,4 @@
-# Skill Bonuses
+# Roll Bonuses
 
 ![image](https://user-images.githubusercontent.com/3664822/183241183-9f899996-6f2a-455a-a711-054039365d31.png)
 
