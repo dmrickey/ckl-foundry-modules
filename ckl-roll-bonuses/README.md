@@ -11,3 +11,8 @@ To the right of each skill there's now a cog you can click that will open a menu
 - the checkbox reads the global skill config inspiration value
 
 If you have static bonuses, use the built in change system -- this is only necessary to cover a limitation in that you can't have changes based on die rolls -- they're cachced when the buff is turned on. So if you have a 1d6 in a change, and turn the buff on, then it rolls immediately when you turn the buff on and keeps that specific value until the buff is toggled later.
+
+TODO
+- localize strings
+- validate inputs and warn the user when they've dropped in an invalid formula
+- add the formula class to the inputs
