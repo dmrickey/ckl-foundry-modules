@@ -1,3 +1,4 @@
+import { CONFIG_BUTTON, MODULE_NAME } from '../consts.mjs';
 import { CklSkillConfig } from './ckl-skill-config.mjs';
 import { CklSkillData } from './ckl-skill-data.mjs';
 
@@ -8,7 +9,7 @@ Hooks.on('renderActorSheetPF', (app, html, data) => {
         const id = 'ckl-skill-config';
         node.id = id;
         node.style = 'flex: unset;';
-        node.innerHTML = '<i class="ra ra-cog ra-fw"></i>';
+        node.innerHTML = CONFIG_BUTTON;
         btn.parentElement.insertBefore(node, btn);
         setTimeout(() => {
             const tag = document.querySelector(`#${id}`);
@@ -32,7 +33,7 @@ Hooks.on('renderActorSheetPF', (app, html, data) => {
         const id = `ckl-skill-${skillId}`
         const node = document.createElement('a');
         node.id = id;
-        node.innerHTML = '<i class="ra ra-cog ra-fw"></i>';
+        node.innerHTML = CONFIG_BUTTON;
         controls.appendChild(node);
 
         setTimeout(() => {
@@ -45,6 +46,7 @@ Hooks.on('renderActorSheetPF', (app, html, data) => {
     });
 });
 
+// grouped skills (Artistry, Craft, Lore, Perform, Perfession) have a compound id and it's simpler to just lump them under their main "group"
 const getSkillId = (id) => id.includes('.') ? id.split('.')[0] : id;
 
 Hooks.on('actorRoll', (actor, type, skillId, options) => {
@@ -77,4 +79,16 @@ Hooks.on('actorRoll', (actor, type, skillId, options) => {
     }
 });
 
-// todo figure out if anything is needed to make it work with custom skills
+// Hooks.once('pf1.postReady', () => {
+//     // libWrapper.register(MODULE_NAME, 'game.pf1.DicePF.d20Roll', function (wrapped, skillId, options) {
+//     libWrapper.register(MODULE_NAME, 'game.pf1.documents.ActorPF.prototype.rollSkill', function (wrapped, skillId, options) {
+
+//         let result = wrapped(...args);
+
+//         if (result) {
+//             // remove key
+//         }
+
+//         return result;
+//     }, 'WRAPPER');
+// });
