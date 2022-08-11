@@ -11,12 +11,8 @@
             "discord": "david (aka claudekennilol)#2244"
         }
     ],
-    "esmodules": [
-        "scripts/main.mjs"
-    ],
-    "styles": [
-        "styles.css"
-    ],
+    "esmodules": ["scripts/main.mjs"],
+    "styles": ["styles.css"],
     "languages": [
         {
             "lang": "en",
@@ -36,9 +32,7 @@
     ],
     "minimumCoreVersion": "9",
     "compatibleCoreVersion": "9",
-    "systems": [
-        "pf1"
-    ],
+    "system": ["pf1"],
     "license": "LICENSE",
     "readme": "README.md",
     "manifest": "https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-roll-bonuses/module.json",
