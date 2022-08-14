@@ -1,4 +1,5 @@
 import { MODULE_NAME } from "../consts.mjs";
+import { localize, localizeFull } from "../util/localize.mjs";
 
 export class CklSkillData {
     constructor({ inspiration, dice, bonus }) {
@@ -17,19 +18,19 @@ export class CklSkillData {
     static async showSkillDataDialog(actor, skillId) {
         const data = this.getSkillData(actor, skillId);
         const buttons = [
-            { label: 'Canel', value: false },
-            { label: 'OK', value: true },
+            { label: localizeFull('PF1.Cancel'), value: false },
+            { label: localize('ok'), value: true },
         ];
         const inputs = [{
-            label: 'Base Dice', // use pf1 lang key
+            label: localizeFull('PF1.BaseDice'),
             type: 'text',
             options: data.dice ?? '',
         }, {
-            label: 'Bonus',
+            label: localizeFull('PF1.Bonus'),
             type: 'text',
             options: data.bonus ?? '',
         }, {
-            label: 'Inspiration',
+            label: localize('skills.inspiration'),
             type: 'checkbox',
             options: data.inspiration ? 'checked' : false,
         }];
@@ -41,7 +42,7 @@ export class CklSkillData {
             const dice = output[0]?.trim() || '';
             const inspiration = output[2] || false;
 
-            // todo verify validity of bonus / dice
+            // todo verify validity of input bonus / dice
 
             await this.setSkillData(actor, skillId, {
                 bonus,

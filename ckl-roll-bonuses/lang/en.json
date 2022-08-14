@@ -1,7 +1,9 @@
 {
-    "skills": {
-        "global": {
-            "title": "Skill Rules"
-        }
+    "ckl-roll-bonuses": {
+        "skills": {
+            "config": "Skill Config",
+            "inspiration": "Inspiration"
+        },
+        "ok": "OK"
     }
 }
