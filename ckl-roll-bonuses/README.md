@@ -15,3 +15,5 @@ If you have static bonuses, use the built in change system -- this is only neces
 TODO
 - validate inputs and warn the user when they've dropped in an invalid formula
 - add the formula class to the inputs
+- consumable buffs - requires foundry v10 / pf1 "v.next"
+    - idea is to create a a flag on a buff that will add the bonus in "prehook" (and/or use built in changes) but use the new pf1 v.next posthook to disable the buff when it is consumed
