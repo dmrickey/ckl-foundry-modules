@@ -35,7 +35,7 @@ export class CklSkillData {
             options: data.inspiration ? 'checked' : false,
         }];
 
-        const title = game.pf1.config.skills[skillId];
+        const title = pf1.config.skills[skillId];
         const { inputs: output, buttons: result } = await warpgate.menu({ buttons, inputs }, { title });
         if (result) {
             const bonus = output[1]?.trim() || '';

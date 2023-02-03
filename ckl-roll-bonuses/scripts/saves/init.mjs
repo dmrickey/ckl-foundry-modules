@@ -1,8 +1,5 @@
 
-Hooks.on('actorRoll', (actor, type, saveId, options) => {
-    if (type !== 'save') {
-        return;
-    }
-
+// before dialog pops up
+Hooks.on('pf1PreActorRollSave', (actor, options, save) => {
     // todo do stuff
 });

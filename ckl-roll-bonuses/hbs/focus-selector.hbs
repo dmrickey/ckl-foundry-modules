@@ -1,0 +1,12 @@
+<div class="form-group">
+    <label>{{localize 'PF1.SpellSchool'}}</label>
+    <div class="form-fields">
+        <select name="school" id="focus-selector">
+            {{#select school}}
+            {{#each spellSchools as |name sch|}}
+            <option value="{{sch}}">{{name}}</option>
+            {{/each}}
+            {{/select}}
+        </select>
+    </div>
+</div>
