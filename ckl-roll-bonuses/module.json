@@ -1,48 +1,76 @@
 {
+    "id": "ckl-roll-bonuses",
     "name": "ckl-roll-bonuses",
     "title": "Roll Bonuses PF1",
     "description": "Example basic module.",
-    "version": "1.1.0",
+    "version": "1.2.0",
+    "url": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-roll-bonuses",
     "author": "David Rickey",
     "authors": [
         {
             "name": "David Rickey",
-            "url": "https://github.com/dmrickey/ckl-foundry-modules",
-            "discord": "david (aka claudekennilol)#2244"
+            "discord": "david aka claudekennilol#2244"
         }
     ],
+    "minimumCoreVersion": 10,
+    "compatibility": {
+        "minimum": "10",
+        "verified": "10"
+    },
+    "scripts": [],
     "esmodules": [
         "scripts/main.mjs"
     ],
     "styles": [
         "styles.css"
     ],
+    "packs": [],
+    "relationships": {
+        "systems": [
+            {
+                "id": "pf1",
+                "type": "system",
+                "manifest": "https://gitlab.com/foundryvtt_pathfinder1e/foundryvtt-pathfinder1/-/releases/permalink/latest/downloads/system.json",
+                "compatibility": {
+                    "minimum": "0.82",
+                    "verified": "0.82.5"
+                }
+            }
+        ],
+        "requires": [
+            {
+                "id": "warpgate",
+                "type": "module",
+                "manifest": "https://github.com/trioderegion/warpgate/releases/latest/download/module.json",
+                "compatibility": {
+                    "verified": "1.15.4"
+                }
+            },
+            {
+                "id": "lib-wrapper",
+                "type": "module",
+                "manifest": "https://github.com/ruipin/fvtt-lib-wrapper/releases/latest/download/module.json",
+                "compatibility": {
+                    "verified": "1.12.11.0"
+                }
+            }
+        ]
+    },
     "languages": [
         {
             "lang": "en",
             "name": "English",
-            "path": "lang/en.json"
+            "path": "lang/en.json",
+            "flags": {}
         }
     ],
-    "dependencies": [
-        {
-            "name": "warpgate",
-            "type": "module"
-        },
-        {
-            "name": "lib-wrapper",
-            "type": "module"
-        }
-    ],
-    "minimumCoreVersion": "9",
-    "compatibleCoreVersion": "9",
-    "system": [
-        "pf1"
-    ],
+    "socket": false,
     "license": "LICENSE",
-    "readme": "README.md",
+    "readme": "https://github.com/dmrickey/ckl-foundry-modules/blob/main/ckl-roll-bonuses/README.md",
     "manifest": "https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-roll-bonuses/module.json",
     "download": "https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-roll-bonuses/ckl-roll-bonuses.zip",
-    "url": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-roll-bonuses",
-    "bugs": "https://github.com/dmrickey/ckl-foundry-modules/issues"
+    "bugs": "https://github.com/dmrickey/ckl-foundry-modules/issues",
+    "library": false,
+    "protected": false,
+    "coreTranslation": false
 }
