@@ -76,40 +76,41 @@ Hooks.on('pf1PreActorRollSkill', (actor, options, skillId) => {
     }
 });
 
+// todo pf1 0.82.6
 // todo no way to know which actor prompted the dialog so it's impossible to do in any sane way right now
 Hooks.on('renderApplication', (app, html, data) => {
-    if (app.options.subject?.skill === undefined) {
-        return;
-    }
+    // if (app.options.subject?.skill === undefined) {
+    //     return;
+    // }
 
-    const dialog = html[0];
-    dialog.style.height = 'unset';
+    // const dialog = html[0];
+    // dialog.style.height = 'unset';
 
-    const lastRow = dialog.querySelector(".dialog-content .form-group:last-child");
-    if (!lastRow) {
-        return;
-    }
+    // const lastRow = dialog.querySelector(".dialog-content .form-group:last-child");
+    // if (!lastRow) {
+    //     return;
+    // }
 
-    const label = document.createElement('label');
-    label.innerText = localize('skills.inspiration');
+    // const label = document.createElement('label');
+    // label.innerText = localize('skills.inspiration');
 
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    // input.checked = <is inspiration checked for this skill?>
+    // const input = document.createElement('input');
+    // input.type = 'checkbox';
+    // // input.checked = <is inspiration checked for this skill?>
 
-    // create hint text that shows what inspiration is
-    const text = document.createElement('div');
-    // CklSkillConfig.loadInspiration(actor)
-    text.innerText = 'inspiration die value from actor';
+    // // create hint text that shows what inspiration is
+    // const text = document.createElement('div');
+    // // CklSkillConfig.loadInspiration(actor)
+    // text.innerText = 'inspiration die value from actor';
 
-    const node = document.createElement('div');
-    node.classList.add('form-group');
+    // const node = document.createElement('div');
+    // node.classList.add('form-group');
 
-    node.appendChild(label);
-    node.appendChild(input);
-    node.appendChild(text);
+    // node.appendChild(label);
+    // node.appendChild(input);
+    // node.appendChild(text);
 
-    lastRow.parentElement.appendChild(node);
+    // lastRow.parentElement.appendChild(node);
 });
 
 // Hooks.once('pf1.postReady', () => {
