@@ -19,6 +19,7 @@ If you have static bonuses, use the built in change system -- this is only neces
 Spell Focus and Greater Spell Focus now both have a drop down on the advanced tab that lets you select a school. When you cast a spell of that school, the DC will automatically be increased.
 - The feat has to be either named exactly "Spell Focus" or "Greater Spell Focus" for the dropdown to show up _*or*_ if it's one of those two feats added to your character sheet from the compendium (it doesn't matter if it's been renamed if it was added from a compendium).
   - If the drop down doesn't show up because the name does not exactly match, or some other reason, you can still add a dictionary flag with the name `spellFocus`/`greaterSpellFocus` and the pf1's system 3-letter abbreviation for the school. You can find this info by opening the console and pasting in `pf1.config.spellSchools` and hitting enter.
+  - Also handles Mythic Spell Focus, if the auto-dropdown doesn't show up, you can add the flag `mythicSpellFocus` following the same rules outline above
 - Because of a bug in pf1 0.82.5, the save button on the chat card will show the correct DC, but the info note at the bottom of the chat card will your base DC -- this is the same bug that happens if you use a conditional modifier to increase an individual spell's DC.
 
 TODO

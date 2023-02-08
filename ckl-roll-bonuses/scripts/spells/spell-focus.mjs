@@ -3,9 +3,11 @@ import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
 
 const spellFocusKey = 'spellFocus';
 const greaterSpellFocusKey = 'greaterSpellFocus';
+const mythicSpellFocusKey = 'mythicSpellFocus';
 
 const spellFocusId = 'Compendium.pf1.feats.V2zY7BltkpSXwejy';
 const greaterSpellFocusId = 'Compendium.pf1.feats.LSykiaxYWzva2boF';
+const mythicSpellFocusId = 'TOMEhAeZsgGHrSH6';
 
 let focusSelectorTemplate;
 Hooks.once(
@@ -23,9 +25,14 @@ Hooks.on('pf1PreActionUse', (actionUse) => {
     const handleFocus = (key) => {
         const focuses = getItemDFlags(actor, key);
         const hasFocus = !!focuses.find(f => f === item.system.school);
-
         if (hasFocus) {
             shared.saveDC += 1;
+
+            const mythicFocuses = getItemDFlags(actor, mythicSpellFocusKey);
+            const hasMythicFocus = !!mythicFocuses.find(f => f === item.system.school);
+            if (hasMythicFocus) {
+                shared.saveDC += 1;
+            }
         }
     }
 
@@ -40,22 +47,38 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
     }
 
     const { item } = data;
+    const name = item?.name?.toLowerCase() ?? '';
+
     let key;
-    if (item.name === 'Spell Focus' || item?.flags.core.sourceId === spellFocusId) {
+    let spellSchools = pf1.config.spellSchools;
+
+    if (name === 'spell focus' || item?.flags.core.sourceId === spellFocusId) {
         key = spellFocusKey;
     }
 
-    if (item.name === 'Greater Spell Focus' || item?.flags.core.sourceId === greaterSpellFocusId) {
-        key = greaterSpellFocusKey;
+    const isGreater = (name.includes('spell focus') && name.includes('greater')) || item?.flags.core.sourceId === greaterSpellFocusId;
+    const isMythic = (name.includes('spell focus') && name.includes('myth')) || item?.flags.core.sourceId.includes(mythicSpellFocusId);
+
+    if (isGreater || isMythic) {
+        key = isGreater ? greaterSpellFocusKey : mythicSpellFocusKey;
+
+        const actor = item.actor;
+        if (actor) {
+            spellSchools = {};
+            const existingSpellFocuses = getItemDFlags(actor, spellFocusKey);
+            existingSpellFocuses.forEach((focus) => {
+                spellSchools[focus] = pf1.config.spellSchools[focus];
+            });
+        }
     }
 
     if (!key) {
         return;
     }
 
-    const school = getItemDFlags(item, key)[0];
+    const currentSchool = getItemDFlags(item, key)[0];
 
-    const templateData = { spellSchools: pf1.config.spellSchools, school };
+    const templateData = { spellSchools, school: currentSchool };
 
     const div = document.createElement('div');
     div.innerHTML = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
