@@ -22,6 +22,9 @@ Spell Focus and Greater Spell Focus now both have a drop down on the advanced ta
   - Also handles Mythic Spell Focus, if the auto-dropdown doesn't show up, you can add the flag `mythicSpellFocus` following the same rules outline above
 - Because of a bug in pf1 0.82.5, the save button on the chat card will show the correct DC, but the info note at the bottom of the chat card will your base DC -- this is the same bug that happens if you use a conditional modifier to increase an individual spell's DC.
 
+## Spell Bonuses (and penalties)
+Add a new dFlag on any item named `genericSpellDC`, then drop in a number (positive or negative) or a formula and when you next cast a spell on that Actor the DC should be adjusted accordingly.
+
 TODO
 - validate inputs and warn the user when they've dropped in an invalid formula
 - add the formula class to the inputs
