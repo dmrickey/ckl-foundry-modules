@@ -38,7 +38,7 @@ Hooks.on('pf1PreActionUse', (actionUse) => {
     }
 
     const damageTypes = action.data.damage.parts
-        .flatMap(([_, { custom, values }]) => ([custom, ...values]))
+        .flatMap(([_, { custom, values }]) => ([...custom.split(';').map(x => x.trim()), ...values]))
         .filter(truthiness);
 
     const handleFocus = (key) => {
