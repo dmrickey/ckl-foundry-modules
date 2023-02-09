@@ -1,5 +1,6 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
+import { setItemHelperHint } from "../util/item-hints.mjs";
 
 const spellFocusKey = 'spellFocus';
 const greaterSpellFocusKey = 'greaterSpellFocus';
@@ -87,6 +88,12 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     const select = div.querySelector('#spell-focus-selector');
     select.addEventListener(
         'change',
-        async (event) => await item.setItemDictionaryFlag(key, event.target.value),
+        async (event) => {
+            await item.setItemDictionaryFlag(key, event.target.value);
+
+            const oldValue = pf1.config.spellSchools[currentSchool] ?? currentSchool;
+            const newValue = pf1.config.spellSchools[event.target.value] ?? event.target.value;
+            await setItemHelperHint(item, oldValue, newValue);
+        },
     );
 });

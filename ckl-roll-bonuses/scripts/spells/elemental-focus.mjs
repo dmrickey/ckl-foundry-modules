@@ -1,5 +1,6 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
+import { setItemHelperHint } from "../util/item-hints.mjs";
 import { truthiness } from "../util/truthiness.mjs";
 
 const elementalFocusKey = 'elementalFocus';
@@ -106,6 +107,12 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     const select = div.querySelector('#elemental-focus-selector');
     select.addEventListener(
         'change',
-        async (event) => await item.setItemDictionaryFlag(key, event.target.value),
+        async (event) => {
+            await item.setItemDictionaryFlag(key, event.target.value);
+
+            const oldValue = pf1.config.damageTypes[currentElement] ?? currentElement;
+            const newValue = pf1.config.damageTypes[event.target.value] ?? event.target.value;
+            await setItemHelperHint(item, oldValue, newValue);
+        },
     );
 });
