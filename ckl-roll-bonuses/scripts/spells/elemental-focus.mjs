@@ -1,13 +1,14 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
+import { truthiness } from "../util/truthiness.mjs";
 
 const elementalFocusKey = 'elementalFocus';
 const greaterElementalFocusKey = 'greaterElementalFocus';
 const mythicElementalFocusKey = 'mythicElementalFocus';
 
-const elementalFocusId = 'Compendium.pf1.feats.';
-const greaterElementalFocusId = 'Compendium.pf1.feats.';
-const mythicElementalFocusId = '';
+const elementalFocusId = '1frgqDSnQFiTq0MC';
+const greaterElementalFocusId = 'l4yE4RGFbORuDfp7';
+const mythicElementalFocusId = 'yelJyBhjWtiIMgci';
 
 const damageElements = [
     'acid',
@@ -36,16 +37,18 @@ Hooks.on('pf1PreActionUse', (actionUse) => {
         return;
     }
 
-    damageParts = action.data.damage.parts.flatMap(x => x[1].values);
+    const damageTypes = action.data.damage.parts
+        .flatMap(([_, { custom, values }]) => ([custom, ...values]))
+        .filter(truthiness);
 
     const handleFocus = (key) => {
         const focuses = getItemDFlags(actor, key);
-        const hasFocus = intersects(damageParts, focuses);
+        const hasFocus = intersects(damageTypes, focuses);
         if (hasFocus) {
             shared.saveDC += 1;
 
             const mythicFocuses = getItemDFlags(actor, mythicElementalFocusKey);
-            const hasMythicFocus = intersects(damageParts, mythicFocuses);
+            const hasMythicFocus = intersects(damageTypes, mythicFocuses);
             if (hasMythicFocus) {
                 shared.saveDC += 1;
             }
@@ -68,11 +71,11 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     let key;
     let elements = Object.fromEntries(damageElements.map(k => [k, pf1.config.damageTypes[k]]));;
 
-    if (name === 'elemental focus' || item?.flags.core.sourceId === elementalFocusId) {
+    if (name.includes('elemental focus') || item?.flags.core.sourceId.includes(elementalFocusId)) {
         key = elementalFocusKey;
     }
 
-    const isGreater = (name.includes('elemental focus') && name.includes('greater')) || item?.flags.core.sourceId === greaterElementalFocusId;
+    const isGreater = (name.includes('elemental focus') && name.includes('greater')) || item?.flags.core.sourceId.includes(greaterElementalFocusId);
     const isMythic = (name.includes('elemental focus') && name.includes('myth')) || item?.flags.core.sourceId.includes(mythicElementalFocusId);
 
     if (isGreater || isMythic) {

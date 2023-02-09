@@ -5,8 +5,8 @@ const spellFocusKey = 'spellFocus';
 const greaterSpellFocusKey = 'greaterSpellFocus';
 const mythicSpellFocusKey = 'mythicSpellFocus';
 
-const spellFocusId = 'Compendium.pf1.feats.V2zY7BltkpSXwejy';
-const greaterSpellFocusId = 'Compendium.pf1.feats.LSykiaxYWzva2boF';
+const spellFocusId = 'V2zY7BltkpSXwejy';
+const greaterSpellFocusId = 'LSykiaxYWzva2boF';
 const mythicSpellFocusId = 'TOMEhAeZsgGHrSH6';
 
 let focusSelectorTemplate;
@@ -52,11 +52,11 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     let key;
     let spellSchools = pf1.config.spellSchools;
 
-    if (name === 'spell focus' || item?.flags.core.sourceId === spellFocusId) {
+    if (name.includes('spell focus') || item?.flags.core.sourceId.includes(spellFocusId)) {
         key = spellFocusKey;
     }
 
-    const isGreater = (name.includes('spell focus') && name.includes('greater')) || item?.flags.core.sourceId === greaterSpellFocusId;
+    const isGreater = (name.includes('spell focus') && name.includes('greater')) || item?.flags.core.sourceId.includes(greaterSpellFocusId);
     const isMythic = (name.includes('spell focus') && name.includes('myth')) || item?.flags.core.sourceId.includes(mythicSpellFocusId);
 
     if (isGreater || isMythic) {
