@@ -12,7 +12,7 @@ const mythicSpellFocusId = 'TOMEhAeZsgGHrSH6';
 let focusSelectorTemplate;
 Hooks.once(
     'setup',
-    async () => focusSelectorTemplate = await getTemplate(`modules/${MODULE_NAME}/hbs/focus-selector.hbs`)
+    async () => focusSelectorTemplate = await getTemplate(`modules/${MODULE_NAME}/hbs/spell-focus-selector.hbs`)
 );
 
 // before dialog pops up
@@ -40,7 +40,7 @@ Hooks.on('pf1PreActionUse', (actionUse) => {
     handleFocus(greaterSpellFocusKey);
 });
 
-Hooks.on('renderItemSheet', (app, [html], data) => {
+Hooks.on('renderItemSheet', (_app, [html], data) => {
     const flagsContainer = html.querySelector('.tab[data-tab="advanced"] .tags');
     if (!flagsContainer) {
         return;
@@ -84,7 +84,7 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
     div.innerHTML = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
 
     flagsContainer.appendChild(div);
-    const select = div.querySelector('#focus-selector');
+    const select = div.querySelector('#spell-focus-selector');
     select.addEventListener(
         'change',
         async (event) => await item.setItemDictionaryFlag(key, event.target.value),
