@@ -27,6 +27,7 @@ Spell Focus, Greater Spell Focus, and Mythic Spell Focus now all have a drop dow
 Follows the same basic setup as Spell Focus above.
 - You can manually configure it by setting a flag on the feat with a key of `elementalFocus`, `greaterElementalFocus`, or `mythicElementalFocus`
 - The accepted values are `acid`, `cold`, `electric`, or `fire`.
+- The damage for the spell you're casting must be configured using one of the system's predefined types (though I suppose typing one of those predefined types into the custom field will also work)
 
 ## Spell Bonuses (and penalties)
 Add a new dFlag on any item named `genericSpellDC`, then drop in a number (positive or negative) or a formula and when you next cast a spell on that Actor the DC should be adjusted accordingly.
