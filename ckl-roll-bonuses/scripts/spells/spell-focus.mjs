@@ -53,12 +53,12 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     let key;
     let spellSchools = pf1.config.spellSchools;
 
-    if (name.includes('spell focus') || item?.flags.core.sourceId.includes(spellFocusId)) {
+    if (name.includes('spell focus') || item?.flags.core?.sourceId.includes(spellFocusId)) {
         key = spellFocusKey;
     }
 
-    const isGreater = (name.includes('spell focus') && name.includes('greater')) || item?.flags.core.sourceId.includes(greaterSpellFocusId);
-    const isMythic = (name.includes('spell focus') && name.includes('myth')) || item?.flags.core.sourceId.includes(mythicSpellFocusId);
+    const isGreater = (name.includes('spell focus') && name.includes('greater')) || item?.flags.core?.sourceId.includes(greaterSpellFocusId);
+    const isMythic = (name.includes('spell focus') && name.includes('myth')) || item?.flags.core?.sourceId.includes(mythicSpellFocusId);
 
     if (isGreater || isMythic) {
         key = isGreater ? greaterSpellFocusKey : mythicSpellFocusKey;
