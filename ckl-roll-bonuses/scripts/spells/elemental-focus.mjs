@@ -1,6 +1,7 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
 import { setItemHelperHint } from "../util/item-hints.mjs";
+import { registerSettingString } from "../util/register-setting.mjs";
 import { truthiness } from "../util/truthiness.mjs";
 
 const elementalFocusKey = 'elementalFocus';
@@ -10,6 +11,17 @@ const mythicElementalFocusKey = 'mythicElementalFocus';
 const elementalFocusId = '1frgqDSnQFiTq0MC';
 const greaterElementalFocusId = 'l4yE4RGFbORuDfp7';
 const mythicElementalFocusId = 'yelJyBhjWtiIMgci';
+
+registerSettingString({ key: elementalFocusKey });
+registerSettingString({ key: greaterElementalFocusKey });
+registerSettingString({ key: mythicElementalFocusKey });
+
+class Settings {
+    static get elementalFocus() { return Settings.#getSetting(elementalFocusKey); }
+    static get greater() { return Settings.#getSetting(greaterElementalFocusKey); }
+    static get mythic() { return Settings.#getSetting(mythicElementalFocusKey); }
+    static #getSetting(key) { return game.settings.get(MODULE_NAME, key).toLowerCase(); }
+}
 
 const damageElements = [
     'acid',
@@ -72,12 +84,12 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     let key;
     let elements = Object.fromEntries(damageElements.map(k => [k, pf1.config.damageTypes[k]]));;
 
-    if (name.includes('elemental focus') || item?.flags.core?.sourceId.includes(elementalFocusId)) {
+    if (name.includes(Settings.elementalFocus) || item?.flags.core?.sourceId.includes(elementalFocusId)) {
         key = elementalFocusKey;
     }
 
-    const isGreater = (name.includes('elemental focus') && name.includes('greater')) || item?.flags.core?.sourceId.includes(greaterElementalFocusId);
-    const isMythic = (name.includes('elemental focus') && name.includes('myth')) || item?.flags.core?.sourceId.includes(mythicElementalFocusId);
+    const isGreater = (name.includes(Settings.elementalFocus) && name.includes(Settings.greater)) || item?.flags.core?.sourceId.includes(greaterElementalFocusId);
+    const isMythic = (name.includes(Settings.elementalFocus) && name.includes(Settings.mythic)) || item?.flags.core?.sourceId.includes(mythicElementalFocusId);
 
     if (isGreater || isMythic) {
         key = isGreater ? greaterElementalFocusKey : mythicElementalFocusKey;

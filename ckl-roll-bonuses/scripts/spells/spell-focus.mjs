@@ -1,6 +1,7 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
 import { setItemHelperHint } from "../util/item-hints.mjs";
+import { registerSettingString } from "../util/register-setting.mjs";
 
 const spellFocusKey = 'spellFocus';
 const greaterSpellFocusKey = 'greaterSpellFocus';
@@ -9,6 +10,17 @@ const mythicSpellFocusKey = 'mythicSpellFocus';
 const spellFocusId = 'V2zY7BltkpSXwejy';
 const greaterSpellFocusId = 'LSykiaxYWzva2boF';
 const mythicSpellFocusId = 'TOMEhAeZsgGHrSH6';
+
+registerSettingString({ key: spellFocusKey });
+registerSettingString({ key: greaterSpellFocusKey });
+registerSettingString({ key: mythicSpellFocusKey });
+
+class Settings {
+    static get spellFocus() { return Settings.#getSetting(spellFocusKey); }
+    static get greater() { return Settings.#getSetting(greaterSpellFocusKey); }
+    static get mythic() { return Settings.#getSetting(mythicSpellFocusKey); }
+    static #getSetting(key) { return game.settings.get(MODULE_NAME, key).toLowerCase(); }
+}
 
 let focusSelectorTemplate;
 Hooks.once(
@@ -53,12 +65,12 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     let key;
     let spellSchools = pf1.config.spellSchools;
 
-    if (name.includes('spell focus') || item?.flags.core?.sourceId.includes(spellFocusId)) {
+    if (name.includes(Settings.spellFocus) || item?.flags.core?.sourceId.includes(spellFocusId)) {
         key = spellFocusKey;
     }
 
-    const isGreater = (name.includes('spell focus') && name.includes('greater')) || item?.flags.core?.sourceId.includes(greaterSpellFocusId);
-    const isMythic = (name.includes('spell focus') && name.includes('myth')) || item?.flags.core?.sourceId.includes(mythicSpellFocusId);
+    const isGreater = (name.includes(Settings.spellFocus) && name.includes(Settings.greater)) || item?.flags.core?.sourceId.includes(greaterSpellFocusId);
+    const isMythic = (name.includes(Settings.spellFocus) && name.includes(Settings.mythic)) || item?.flags.core?.sourceId.includes(mythicSpellFocusId);
 
     if (isGreater || isMythic) {
         key = isGreater ? greaterSpellFocusKey : mythicSpellFocusKey;

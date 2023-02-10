@@ -4,6 +4,38 @@
             "config": "Skill Config",
             "inspiration": "Inspiration"
         },
-        "ok": "OK"
+        "ok": "OK",
+        "settings": {
+            "elementalFocus": {
+                "name": "Elemental Focus",
+                "hint": "The name of the 'Elemental Focus' feat. This is to support translations without having to translate the mod.",
+                "default": "Elemental Focus"
+            },
+            "greaterElementalFocus": {
+                "name": "Greater Elemental Focus",
+                "hint": "The 'Greater' adjective, feat names are checked for this plus 'Elemental Focus'. This is to support translations without having to translate the mod.",
+                "default": "Greater"
+            },
+            "mythicElementalFocus": {
+                "name": "Mythic Elemental Focus",
+                "hint": "The 'Mythic' adjective, feat names are checked for this plus 'Elemental Focus'. This is to support translations without having to translate the mod.",
+                "default": "Mythic"
+            },
+            "spellFocus": {
+                "name": "Spell Focus",
+                "hint": "The name of the 'Spell Focus' feat. This is to support translations without having to translate the mod.",
+                "default": "Spell Focus"
+            },
+            "greaterSpellFocus": {
+                "name": "Greater Spell Focus",
+                "hint": "The 'Greater' adjective, feat names are checked for this plus 'Spell Focus'. This is to support translations without having to translate the mod.",
+                "default": "Greater"
+            },
+            "mythicSpellFocus": {
+                "name": "Mythic Spell Focus",
+                "hint": "The 'Mythic' adjective, feat names are checked for this plus 'Spell Focus'. This is to support translations without having to translate the mod.",
+                "default": "Mythic"
+            }
+        }
     }
 }
