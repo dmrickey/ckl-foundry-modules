@@ -29,7 +29,7 @@ Follows the same basic setup as Spell Focus above.
 - The accepted values are `acid`, `cold`, `electric`, or `fire`.
 - The damage for the spell you're casting must be configured using one of the system's predefined types (though I suppose typing one of those predefined types into the custom field will also work)
 
-## Spell Bonuses (and penalties)
+## Spell DC Bonuses (and penalties)
 Add a new dFlag on any item named `genericSpellDC`, then drop in a number (positive or negative) or a formula and when you next cast a spell on that Actor the DC should be adjusted accordingly.
 
 TODO

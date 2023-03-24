@@ -1,30 +1,26 @@
 {
     "id": "ckl-roll-bonuses",
-    "name": "ckl-roll-bonuses",
     "title": "Roll Bonuses PF1",
     "description": "Example basic module.",
     "version": "1.3.0",
     "url": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-roll-bonuses",
-    "author": "David Rickey",
     "authors": [
         {
             "name": "David Rickey",
-            "discord": "david aka claudekennilol#2244"
+            "discord": "david aka claudekennilol#2244",
+            "flags": {}
         }
     ],
-    "minimumCoreVersion": 10,
     "compatibility": {
         "minimum": "10",
         "verified": "10"
     },
-    "scripts": [],
     "esmodules": [
         "scripts/main.mjs"
     ],
     "styles": [
         "styles.css"
     ],
-    "packs": [],
     "relationships": {
         "systems": [
             {
@@ -64,13 +60,9 @@
             "flags": {}
         }
     ],
-    "socket": false,
     "license": "LICENSE",
     "readme": "https://github.com/dmrickey/ckl-foundry-modules/blob/main/ckl-roll-bonuses/README.md",
     "manifest": "https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-roll-bonuses/module.json",
     "download": "https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-roll-bonuses/ckl-roll-bonuses.zip",
-    "bugs": "https://github.com/dmrickey/ckl-foundry-modules/issues",
-    "library": false,
-    "protected": false,
-    "coreTranslation": false
+    "bugs": "https://github.com/dmrickey/ckl-foundry-modules/issues"
 }
