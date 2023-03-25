@@ -35,5 +35,5 @@ Add a new dFlag on any item named `genericSpellDC`, then drop in a number (posit
 TODO
 - validate inputs and warn the user when they've dropped in an invalid formula
 - add the formula class to skill inputs
-- consumable buffs - requires foundry v10 / pf1 0.82.6
+- consumable buffs - requires foundry v10 / pf1 0.83.0
     - idea is to create a a flag on a buff that will add the bonus in "prehook" (and/or use built in changes) but use the new pf1 v.next posthook to disable the buff when it is consumed
