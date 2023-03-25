@@ -1,4 +1,8 @@
 
+## v1.3.1
+- Added support for sub-skills (so things like extra craft, perform, and profession skills)
+- Fixed missing inspiriation config button with Mana's Little Helper installed
+
 ## v1.3.0
 - Added Mythic Spell Focus
 - Added Elemental Spell Focus, Greater, and Mythic
