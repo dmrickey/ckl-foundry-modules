@@ -11,7 +11,8 @@ const createSkillButton = (id) => {
 }
 
 Hooks.on('renderActorSheetPF', (app, html, data) => {
-    if (!app._skillsLocked) {
+    // this is not a "safe check" so I'm specifically checking for false instead of a falsy value
+    if (app._skillsLocked == false) {
         return;
     }
 
@@ -41,21 +42,38 @@ Hooks.on('renderActorSheetPF', (app, html, data) => {
     });
 
     // add skill data buttons
-    html.find('.tab.skills .skills-list li.skill').each((_, li) => {
-        let controls = li.querySelector('.skill-controls');
-        if (!controls) {
-            controls = document.createElement('div');
-            controls.className = 'skill-controls';
-            li.appendChild(controls);
+    html.find('.tab.skills .skills-list li.skill, .tab.skills .skills-list li.sub-skill').each((_, li) => {
+        const addMissingForSpacing = cls => {
+            let found = li.querySelector(cls);
+            if (!found) {
+                found = document.createElement('div');
+                li.appendChild(found);
+            }
+        };
+        ['.skill-mod', '.skill-rank', '.skill-cs', '.skill-acp', '.skill-rt', '.skill-ability'].forEach(addMissingForSpacing);
+
+        const getSkillId = () => {
+            const skillId = li.getAttribute('data-skill');
+            const mainId = li.getAttribute('data-main-skill');
+            return mainId
+                ? `${mainId}.subSkills.${skillId}`
+                : skillId;
         }
 
-        const skillId = li.getAttribute('data-main-skill') || li.getAttribute('data-skill');
+        const skillId = getSkillId();
         const id = `ckl-skill-${skillId}`
         const button = createSkillButton(id);
         button.addEventListener(
             'click',
             async () => await CklSkillData.showSkillDataDialog(data.actor, skillId)
         );
+
+        let controls = li.querySelector('.skill-controls');
+        if (!controls) {
+            controls = document.createElement('div');
+            controls.className = 'skill-controls';
+            li.appendChild(controls);
+        }
 
         controls.appendChild(button);
     });
@@ -65,8 +83,6 @@ Hooks.on('renderActorSheetPF', (app, html, data) => {
 const getSkillId = (id) => id.includes('.') ? id.split('.')[0] : id;
 
 Hooks.on('pf1PreActorRollSkill', (actor, options, skillId) => {
-    skillId = getSkillId(skillId);
-
     const data = CklSkillData.getSkillData(actor, skillId);
     if (!data.configured) {
         return;
@@ -90,7 +106,7 @@ Hooks.on('pf1PreActorRollSkill', (actor, options, skillId) => {
     }
 });
 
-// todo pf1 0.82.6
+// todo pf1 0.83.0
 // todo no way to know which actor prompted the dialog so it's impossible to do in any sane way right now
 Hooks.on('renderApplication', (app, html, data) => {
     // if (app.options.subject?.skill === undefined) {

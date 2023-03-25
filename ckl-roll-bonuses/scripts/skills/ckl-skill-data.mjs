@@ -12,8 +12,9 @@ export class CklSkillData {
         return !!(this.inspiration || this.dice || this.bonus);
     }
 
-    static getSkillData = (actor, skillId) => new CklSkillData(actor.getFlag(MODULE_NAME, skillId) || {});
-    static setSkillData = async (actor, skillId, data) => await actor.setFlag(MODULE_NAME, skillId, data);
+    static #encodeId = id => `${id}`.replaceAll('.', '');
+    static getSkillData = (actor, skillId) => new CklSkillData(actor.getFlag(MODULE_NAME, this.#encodeId(skillId)) || {});
+    static setSkillData = async (actor, skillId, data) => await actor.setFlag(MODULE_NAME, this.#encodeId(skillId), data);
 
     static async showSkillDataDialog(actor, skillId) {
         const data = this.getSkillData(actor, skillId);
@@ -35,7 +36,9 @@ export class CklSkillData {
             options: data.inspiration ? 'checked' : false,
         }];
 
-        const title = pf1.config.skills[skillId];
+        const title = pf1.config.skills[skillId]
+            || actor.system.skills[skillId]?.name
+            || actor.system.skills[skillId.split('.')[0]].subSkills[skillId.split('.').at(-1)]?.name;
         const { inputs: output, buttons: result } = await warpgate.menu({ buttons, inputs }, { title });
         if (result) {
             const bonus = output[1]?.trim() || '';
