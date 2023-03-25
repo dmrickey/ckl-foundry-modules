@@ -2,21 +2,41 @@ import { CONFIG_BUTTON } from '../consts.mjs';
 import { CklSkillConfig } from './ckl-skill-config.mjs';
 import { CklSkillData } from './ckl-skill-data.mjs';
 
+const createSkillButton = (id) => {
+    const node = document.createElement('a');
+    node.id = id;
+    node.style = 'line-height: 1.5rem; width: 1.5rem;';
+    node.innerHTML = CONFIG_BUTTON;
+    return node;
+}
+
 Hooks.on('renderActorSheetPF', (app, html, data) => {
+    if (!app._skillsLocked) {
+        return;
+    }
+
     // add skill config button
-    html.find('.tab.skills .skill-lock-button').each((_, btn) => {
-        const node = document.createElement('a');
-        const id = 'ckl-skill-config';
-        node.id = id;
-        node.style = 'flex: unset;';
-        node.innerHTML = CONFIG_BUTTON;
-        btn.parentElement.insertBefore(node, btn);
-        setTimeout(() => {
-            const tag = document.querySelector(`#${id}`);
-            tag.addEventListener(
+    setTimeout(() => {
+        html.find('.tab.skills .skill-lock-button').each((_, btn) => {
+            const id = 'ckl-skill-config';
+            const button = createSkillButton(id);
+            button.addEventListener(
                 'click',
                 async () => await CklSkillConfig.showSkillConfigDialog(data.actor)
             );
+
+            const parent = btn.parentElement;
+
+            parent.removeChild(btn);
+            const column = document.createElement('div');
+            const lh = game.modules.get('koboldworks-pf1-little-helper')?.active ? ' flex-direction: column;' : '';
+            column.style = `flex: unset; display: flex; align-items: center; justify-content: center; text-align: center;${lh}`;
+            column.appendChild(button);
+
+            btn.style = 'padding: unset;';
+            column.appendChild(btn);
+
+            parent.appendChild(column);
         });
     });
 
@@ -31,18 +51,13 @@ Hooks.on('renderActorSheetPF', (app, html, data) => {
 
         const skillId = li.getAttribute('data-main-skill') || li.getAttribute('data-skill');
         const id = `ckl-skill-${skillId}`
-        const node = document.createElement('a');
-        node.id = id;
-        node.innerHTML = CONFIG_BUTTON;
-        controls.appendChild(node);
+        const button = createSkillButton(id);
+        button.addEventListener(
+            'click',
+            async () => await CklSkillData.showSkillDataDialog(data.actor, skillId)
+        );
 
-        setTimeout(() => {
-            const tag = document.querySelector(`#${id}`);
-            tag.addEventListener(
-                'click',
-                async () => await CklSkillData.showSkillDataDialog(data.actor, skillId)
-            );
-        });
+        controls.appendChild(button);
     });
 });
 
