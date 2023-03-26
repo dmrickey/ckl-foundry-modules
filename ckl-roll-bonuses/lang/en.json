@@ -1,5 +1,6 @@
 {
     "ckl-roll-bonuses": {
+        "rollBonuses": "Roll Bonuses",
         "skills": {
             "config": "Skill Config",
             "inspiration": "Inspiration"

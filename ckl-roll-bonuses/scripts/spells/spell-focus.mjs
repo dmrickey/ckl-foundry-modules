@@ -1,4 +1,5 @@
 import { MODULE_NAME } from "../consts.mjs";
+import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
 import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
 import { setItemHelperHint } from "../util/item-hints.mjs";
 import { registerSettingString } from "../util/register-setting.mjs";
@@ -56,11 +57,6 @@ Hooks.on('pf1PreActionUse', (actionUse) => {
 });
 
 Hooks.on('renderItemSheet', (_app, [html], data) => {
-    const flagsContainer = html.querySelector('.tab[data-tab="advanced"] .tags');
-    if (!flagsContainer) {
-        return;
-    }
-
     const { item } = data;
     const name = item?.name?.toLowerCase() ?? '';
 
@@ -102,7 +98,6 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     const div = document.createElement('div');
     div.innerHTML = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
 
-    flagsContainer.appendChild(div);
     const select = div.querySelector('#spell-focus-selector');
     select.addEventListener(
         'change',
@@ -114,4 +109,6 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
             await setItemHelperHint(item, oldValue, newValue);
         },
     );
+
+    addElementToRollBonus(html, div);
 });
