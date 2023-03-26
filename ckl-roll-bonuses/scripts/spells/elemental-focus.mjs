@@ -104,7 +104,7 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
 
     if (!key) {
         // check if it has a manual key
-        key = allKeys.find((k) => !!getItemDFlags(item, k)?.[0]);
+        key = allKeys.find((k) => item.system.flags.dictionary[k] !== undefined);
         if (!key) {
             return;
         }
