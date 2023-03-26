@@ -1,4 +1,7 @@
 
+## v1.3.2
+- Made the mod detect when you add a dictionary flag yourself, and then automatically add the dropdown choices.
+
 ## v1.3.1
 - Added support for sub-skills (so things like extra craft, perform, and profession skills)
 - Fixed missing inspiriation config button with Mana's Little Helper installed

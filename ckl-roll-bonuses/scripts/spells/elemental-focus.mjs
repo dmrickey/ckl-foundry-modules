@@ -8,6 +8,8 @@ const elementalFocusKey = 'elementalFocus';
 const greaterElementalFocusKey = 'greaterElementalFocus';
 const mythicElementalFocusKey = 'mythicElementalFocus';
 
+const allKeys = [elementalFocusKey, greaterElementalFocusKey, mythicElementalFocusKey];
+
 const elementalFocusId = '1frgqDSnQFiTq0MC';
 const greaterElementalFocusId = 'l4yE4RGFbORuDfp7';
 const mythicElementalFocusId = 'yelJyBhjWtiIMgci';
@@ -105,7 +107,11 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     }
 
     if (!key) {
-        return;
+        // check if it has a manual key
+        key = allKeys.find((k) => !!getItemDFlags(item, k)?.[0]);
+        if (!key) {
+            return;
+        }
     }
 
     const currentElement = getItemDFlags(item, key)[0];

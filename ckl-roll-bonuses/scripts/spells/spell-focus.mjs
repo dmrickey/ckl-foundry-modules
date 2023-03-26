@@ -7,6 +7,8 @@ const spellFocusKey = 'spellFocus';
 const greaterSpellFocusKey = 'greaterSpellFocus';
 const mythicSpellFocusKey = 'mythicSpellFocus';
 
+const allKeys = [spellFocusKey, greaterSpellFocusKey, mythicSpellFocusKey];
+
 const spellFocusId = 'V2zY7BltkpSXwejy';
 const greaterSpellFocusId = 'LSykiaxYWzva2boF';
 const mythicSpellFocusId = 'TOMEhAeZsgGHrSH6';
@@ -86,7 +88,11 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     }
 
     if (!key) {
-        return;
+        // check if it has a manual key
+        key = allKeys.find((k) => !!getItemDFlags(item, k)?.[0]);
+        if (!key) {
+            return;
+        }
     }
 
     const currentSchool = getItemDFlags(item, key)[0];
