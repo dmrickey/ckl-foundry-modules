@@ -1,5 +1,5 @@
 import { MODULE_NAME } from "../consts.mjs";
-import { localize, localizeFull } from "../util/localize.mjs";
+import { localize } from "../util/localize.mjs";
 
 export class CklSkillData {
     constructor({ inspiration, dice, bonus }) {
@@ -19,15 +19,15 @@ export class CklSkillData {
     static async showSkillDataDialog(actor, skillId) {
         const data = this.getSkillData(actor, skillId);
         const buttons = [
-            { label: localizeFull('PF1.Cancel'), value: false },
+            { label: localize('PF1.Cancel'), value: false },
             { label: localize('ok'), value: true },
         ];
         const inputs = [{
-            label: localizeFull('PF1.BaseDice'),
+            label: localize('PF1.BaseDice'),
             type: 'text',
             options: data.dice ?? '',
         }, {
-            label: localizeFull('PF1.Bonus'),
+            label: localize('PF1.Bonus'),
             type: 'text',
             options: data.bonus ?? '',
         }, {

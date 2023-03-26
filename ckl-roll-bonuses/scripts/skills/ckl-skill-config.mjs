@@ -1,5 +1,5 @@
 import { MODULE_NAME } from "../consts.mjs";
-import { localize, localizeFull } from "../util/localize.mjs";
+import { localize } from "../util/localize.mjs";
 
 export class CklSkillConfig {
     static _inspiriationDieKey = 'inspiriationDie';
@@ -14,7 +14,7 @@ export class CklSkillConfig {
 
     static async showSkillConfigDialog(actor) {
         const buttons = [
-            { label: localizeFull('PF1.Cancel'), value: false },
+            { label: localize('PF1.Cancel'), value: false },
             { label: localize('ok'), value: true },
         ];
         const inputs = [{
