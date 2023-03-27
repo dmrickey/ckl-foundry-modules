@@ -32,28 +32,30 @@ Hooks.once(
 );
 
 // before dialog pops up
-Hooks.on('pf1PreActionUse', (actionUse) => {
-    const { actor, item, shared } = actionUse;
-    if (item?.type !== 'spell') {
-        return;
-    }
+Hooks.on('pf1PostReady', () => {
+    Hooks.on('pf1PreActionUse', (actionUse) => {
+        const { actor, item, shared } = actionUse;
+        if (item?.type !== 'spell') {
+            return;
+        }
 
-    const handleFocus = (key) => {
-        const focuses = getItemDFlags(actor, key);
-        const hasFocus = !!focuses.find(f => f === item.system.school);
-        if (hasFocus) {
-            shared.saveDC += 1;
-
-            const mythicFocuses = getItemDFlags(actor, mythicSpellFocusKey);
-            const hasMythicFocus = !!mythicFocuses.find(f => f === item.system.school);
-            if (hasMythicFocus) {
+        const handleFocus = (key) => {
+            const focuses = getItemDFlags(actor, key);
+            const hasFocus = !!focuses.find(f => f === item.system.school);
+            if (hasFocus) {
                 shared.saveDC += 1;
+
+                const mythicFocuses = getItemDFlags(actor, mythicSpellFocusKey);
+                const hasMythicFocus = !!mythicFocuses.find(f => f === item.system.school);
+                if (hasMythicFocus) {
+                    shared.saveDC += 1;
+                }
             }
         }
-    }
 
-    handleFocus(spellFocusKey);
-    handleFocus(greaterSpellFocusKey);
+        handleFocus(spellFocusKey);
+        handleFocus(greaterSpellFocusKey);
+    });
 });
 
 Hooks.on('renderItemSheet', (_app, [html], data) => {

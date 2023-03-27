@@ -47,32 +47,34 @@ Hooks.once(
 );
 
 // before dialog pops up
-Hooks.on('pf1PreActionUse', (actionUse) => {
-    const { action, actor, item, shared } = actionUse;
-    if (item?.type !== 'spell') {
-        return;
-    }
+Hooks.on('pf1PostReady', () => {
+    Hooks.on('pf1PreActionUse', (actionUse) => {
+        const { action, actor, item, shared } = actionUse;
+        if (item?.type !== 'spell') {
+            return;
+        }
 
-    const damageTypes = action.data.damage.parts
-        .flatMap(([_, { custom, values }]) => ([...custom.split(';').map(x => x.trim()), ...values]))
-        .filter(truthiness);
+        const damageTypes = action.data.damage.parts
+            .flatMap(([_, { custom, values }]) => ([...custom.split(';').map(x => x.trim()), ...values]))
+            .filter(truthiness);
 
-    const handleFocus = (key) => {
-        const focuses = getItemDFlags(actor, key);
-        const hasFocus = intersects(damageTypes, focuses);
-        if (hasFocus) {
-            shared.saveDC += 1;
-
-            const mythicFocuses = getItemDFlags(actor, mythicElementalFocusKey);
-            const hasMythicFocus = intersects(damageTypes, mythicFocuses);
-            if (hasMythicFocus) {
+        const handleFocus = (key) => {
+            const focuses = getItemDFlags(actor, key);
+            const hasFocus = intersects(damageTypes, focuses);
+            if (hasFocus) {
                 shared.saveDC += 1;
+
+                const mythicFocuses = getItemDFlags(actor, mythicElementalFocusKey);
+                const hasMythicFocus = intersects(damageTypes, mythicFocuses);
+                if (hasMythicFocus) {
+                    shared.saveDC += 1;
+                }
             }
         }
-    }
 
-    handleFocus(elementalFocusKey);
-    handleFocus(greaterElementalFocusKey);
+        handleFocus(elementalFocusKey);
+        handleFocus(greaterElementalFocusKey);
+    });
 });
 
 Hooks.on('renderItemSheet', (_app, [html], data) => {

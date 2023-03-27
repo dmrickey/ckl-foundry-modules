@@ -5,6 +5,11 @@
             "config": "Skill Config",
             "inspiration": "Inspiration"
         },
+        "spells": {
+            "elementalFocusEnergy": "Elemental Focus Energy",
+            "schoolClOffset": "School CL Offset",
+            "spellFocusSchool": "Spell Focus School"
+        },
         "ok": "OK",
         "settings": {
             "elementalFocus": {

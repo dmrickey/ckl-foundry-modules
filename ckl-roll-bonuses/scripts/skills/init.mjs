@@ -43,6 +43,7 @@ Hooks.on('renderActorSheetPF', (app, html, data) => {
 
     // add skill data buttons
     html.find('.tab.skills .skills-list li.skill, .tab.skills .skills-list li.sub-skill').each((_, li) => {
+        // fills out spacing for "base skills" (craft, perform, etc) so the settings cog is aligned with the rest
         const addMissingForSpacing = cls => {
             let found = li.querySelector(cls);
             if (!found) {
@@ -79,31 +80,30 @@ Hooks.on('renderActorSheetPF', (app, html, data) => {
     });
 });
 
-// grouped skills (Artistry, Craft, Lore, Perform, Perfession) have a compound id and it's simpler to just lump them under their main "group"
-const getSkillId = (id) => id.includes('.') ? id.split('.')[0] : id;
+Hooks.on('pf1PostReady', () => {
+    Hooks.on('pf1PreActorRollSkill', (actor, options, skillId) => {
+        const data = CklSkillData.getSkillData(actor, skillId);
+        if (!data.configured) {
+            return;
+        }
 
-Hooks.on('pf1PreActorRollSkill', (actor, options, skillId) => {
-    const data = CklSkillData.getSkillData(actor, skillId);
-    if (!data.configured) {
-        return;
-    }
+        if (data.bonus) {
+            options.bonus = options.bonus
+                ? `${options.bonus} + ${data.bonus}`
+                : data.bonus;
+        }
 
-    if (data.bonus) {
-        options.bonus = options.bonus
-            ? `${options.bonus} + ${data.bonus}`
-            : data.bonus;
-    }
+        if (data.inspiration) {
+            const insp = CklSkillConfig.loadInspiration(actor);
+            options.bonus = options.bonus
+                ? `${options.bonus} + ${insp}`
+                : insp;
+        }
 
-    if (data.inspiration) {
-        const insp = CklSkillConfig.loadInspiration(actor);
-        options.bonus = options.bonus
-            ? `${options.bonus} + ${insp}`
-            : insp;
-    }
-
-    if (data.dice) {
-        options.dice = data.dice;
-    }
+        if (data.dice) {
+            options.dice = data.dice;
+        }
+    });
 });
 
 // todo pf1 0.83.0
