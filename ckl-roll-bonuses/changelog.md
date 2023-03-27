@@ -1,6 +1,7 @@
 
-## v1.3.2
-- Made the mod detect when you add a dictionary flag yourself, and then automatically add the dropdown choices.
+## v1.4.0
+- Added support for CL offsets for specific schools of magic
+- Made the mod detect when you add a dictionary flag yourself, and then automatically add associated input.
 
 ## v1.3.1
 - Added support for sub-skills (so things like extra craft, perform, and profession skills)
