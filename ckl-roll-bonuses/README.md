@@ -34,6 +34,7 @@ Add a new dFlag on any item named `genericSpellDC`, then drop in a number (posit
 
 ##  Caster Level Offset for specified Magic School
 Has a formula input which accepts roll data variables plus a dropdown for selecting the school of magic.
+- You must add a dictionary flag `schoolClOffset` to your buff/feature/etc. Once you add that, the inputs will show up below.
 
 TODO
 - add the formula class to skill inputs
