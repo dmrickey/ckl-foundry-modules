@@ -80,30 +80,28 @@ Hooks.on('renderActorSheetPF', (app, html, data) => {
     });
 });
 
-Hooks.on('pf1PostReady', () => {
-    Hooks.on('pf1PreActorRollSkill', (actor, options, skillId) => {
-        const data = CklSkillData.getSkillData(actor, skillId);
-        if (!data.configured) {
-            return;
-        }
+Hooks.on('pf1PreActorRollSkill', (actor, options, skillId) => {
+    const data = CklSkillData.getSkillData(actor, skillId);
+    if (!data.configured) {
+        return;
+    }
 
-        if (data.bonus) {
-            options.bonus = options.bonus
-                ? `${options.bonus} + ${data.bonus}`
-                : data.bonus;
-        }
+    if (data.bonus) {
+        options.bonus = options.bonus
+            ? `${options.bonus} + ${data.bonus}`
+            : data.bonus;
+    }
 
-        if (data.inspiration) {
-            const insp = CklSkillConfig.loadInspiration(actor);
-            options.bonus = options.bonus
-                ? `${options.bonus} + ${insp}`
-                : insp;
-        }
+    if (data.inspiration) {
+        const insp = CklSkillConfig.loadInspiration(actor);
+        options.bonus = options.bonus
+            ? `${options.bonus} + ${insp}`
+            : insp;
+    }
 
-        if (data.dice) {
-            options.dice = data.dice;
-        }
-    });
+    if (data.dice) {
+        options.dice = data.dice;
+    }
 });
 
 // todo pf1 0.83.0

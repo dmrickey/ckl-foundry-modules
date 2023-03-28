@@ -13,39 +13,37 @@ Hooks.once(
     async () => clOffsetTemplate = await getTemplate(`modules/${MODULE_NAME}/hbs/school-cl-offset.hbs`)
 );
 
-Hooks.on('pf1PostReady', () => {
-    Hooks.on('pf1GetRollData', (action, result) => {
-        const item = action?.item;
-        if (item?.type !== 'spell' || !item.system?.school || !result) {
-            return;
+Hooks.on('pf1GetRollData', (action, result) => {
+    const item = action?.item;
+    if (item?.type !== 'spell' || !item.system?.school || !result) {
+        return;
+    }
+
+    const offsets = getFlagsFromDFlags(result.dFlags, schoolClOffset, schoolClOffsetTotal);
+    const matches = offsets.filter((o) => o[schoolClOffset] === item.system.school);
+
+    if (!matches.length) {
+        return;
+    }
+
+    const offsetCl = (value) => {
+        if (result.hasOwnProperty('cl')) {
+            result.cl ||= 0;
+            result.cl += value;
         }
+    }
 
-        const offsets = getFlagsFromDFlags(result.dFlags, schoolClOffset, schoolClOffsetTotal);
-        const matches = offsets.filter((o) => o[schoolClOffset] === item.system.school);
+    const values = matches.map((x) => x[schoolClOffsetTotal] || 0);
 
-        if (!matches.length) {
-            return;
-        }
+    const max = Math.max(...values);
+    if (max > 0) {
+        offsetCl(max);
+    }
 
-        const offsetCl = (value) => {
-            if (result.hasOwnProperty('cl')) {
-                result.cl ||= 0;
-                result.cl += value;
-            }
-        }
-
-        const values = matches.map((x) => x[schoolClOffsetTotal] || 0);
-
-        const max = Math.max(...values);
-        if (max > 0) {
-            offsetCl(max);
-        }
-
-        const min = Math.min(...values);
-        if (min < 0) {
-            offsetCl(min);
-        }
-    });
+    const min = Math.min(...values);
+    if (min < 0) {
+        offsetCl(min);
+    }
 });
 
 Hooks.on('renderItemSheet', (app, [html], data) => {
