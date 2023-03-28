@@ -10,7 +10,19 @@ const getItemDFlags = (doc, key) => {
     }
 
     // else read the flag off the item
-    return [doc.getItemDictionaryFlag(key)];
+    return [doc.getItemDictionaryFlag(key)].filter(truthiness);
 }
 
-export { getItemDFlags }
+const getFlagsFromDFlags = (dFlags, ...flags) => {
+    const results = [];
+    for (const item in (dFlags || {})) {
+        if (flags.every((flag) => dFlags[item].hasOwnProperty(flag))) {
+            const obj = {};
+            flags.forEach((flag) => obj[flag] = dFlags[item][flag]);
+            results.push(obj);
+        }
+    }
+    return results;
+}
+
+export { getFlagsFromDFlags, getItemDFlags }

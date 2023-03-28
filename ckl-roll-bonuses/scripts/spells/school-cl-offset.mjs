@@ -1,6 +1,6 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
-import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
+import { getFlagsFromDFlags, getItemDFlags } from "../util/actor-has-flagged-item.mjs";
 import { setItemHelperHint } from "../util/item-hints.mjs";
 
 const schoolClOffset = 'schoolClOffset';
@@ -15,37 +15,33 @@ Hooks.once(
 
 Hooks.on('pf1PostReady', () => {
     Hooks.on('pf1GetRollData', (action, result) => {
-        const actor = action?.parent?.actor;
         const item = action?.item;
-        if (item?.type !== 'spell' || !actor) {
+        if (item?.type !== 'spell' || !item.system?.school || !result) {
             return;
         }
 
-        const currentSchools = getItemDFlags(actor, schoolClOffset);
-        const totals = getItemDFlags(actor, schoolClOffsetTotal);
-
-        const matches = [];
-        for (let i = 0; i < currentSchools.length; i++) {
-            const school = currentSchools[i];
-            if (school === item.system.school) {
-                matches.push({ school, total: totals[i] });
-            }
-        }
+        const offsets = getFlagsFromDFlags(result.dFlags, schoolClOffset, schoolClOffsetTotal);
+        const matches = offsets.filter((o) => o[schoolClOffset] === item.system.school);
 
         if (!matches.length) {
             return;
         }
 
         const offsetCl = (value) => {
-            result.cl += value;
+            if (result.hasOwnProperty('cl')) {
+                result.cl ||= 0;
+                result.cl += value;
+            }
         }
 
-        const max = Math.max(...matches.map((x) => x.total));
+        const values = matches.map((x) => x[schoolClOffsetTotal] || 0);
+
+        const max = Math.max(...values);
         if (max > 0) {
             offsetCl(max);
         }
 
-        const min = Math.min(...matches.map((x) => x.total));
+        const min = Math.min(...values);
         if (min < 0) {
             offsetCl(min);
         }

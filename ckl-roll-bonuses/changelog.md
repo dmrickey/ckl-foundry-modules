@@ -1,3 +1,5 @@
+## v1.4.1
+- Fixed getRollData blowing up when swapping scenes
 
 ## v1.4.0
 - Added support for CL offsets for specific schools of magic
