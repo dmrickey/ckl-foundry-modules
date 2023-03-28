@@ -14,6 +14,10 @@ Hooks.once(
 );
 
 Hooks.on('pf1GetRollData', (action, result) => {
+    if (!(action instanceof pf1.components.ItemAction)) {
+        return;
+    }
+
     const item = action?.item;
     if (item?.type !== 'spell' || !item.system?.school || !result) {
         return;
