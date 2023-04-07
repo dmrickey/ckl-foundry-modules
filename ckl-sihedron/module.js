@@ -2,11 +2,19 @@
 
 import { createHealCard } from './chat-card-maker.js';
 
-const MODULE_NAME = 'ckl-sihedron';
+const MODULE_ID = 'ckl-sihedron';
+const COMPENDIUM_ID = 'ckl-sihedron';
+
+Hooks.once('pf1PostReady', () => {
+    const wrapped = pf1.applications.actor.ActorSheetPF.prototype._onItemGive;
+    pf1.applications.actor.ActorSheetPF.prototype._onItemGive = function _(event) {
+        _onItemGive(this, event, wrapped);
+    };
+});
 
 let socket;
 Hooks.once("socketlib.ready", () => {
-    socket = socketlib.registerModule(MODULE_NAME);
+    socket = socketlib.registerModule(MODULE_ID);
     socket.register('takeSihedron', takeSihedron);
 
     window.Sihedron = { setSihedronEquip, useSihedron };
@@ -14,7 +22,6 @@ Hooks.once("socketlib.ready", () => {
 
 // This requires `Warpgate`
 //   - for showing the button menu
-//   - for adding SLAs from the different Sihedron buffs
 // This requires `socketlib` - for making sure the equip happens on the expected client so the menu shows up as expected
 // This requires that Noon's `applyBuff` macro be in your world - I highly suggest changing the default notification level to 1 or even 0.
 // This requires that you have configured Buffs in your world for this macro to swap between
@@ -32,23 +39,26 @@ const love = 'love';
 const temperance = 'temperance';
 const zeal = 'zeal';
 
+const sihedronId = 'OHK1X2ARPQ9ABa87';
+const sihedronBuffId = 'oH1JmY5FV5wpghop';
+
 const buffs = {
-    [charity]: { name: 'Sihedron - Charity', value: '+4AC, Dimensional Anchor', opposed: new Set([kindness, temperance]) },
-    [generosity]: { name: 'Sihedron - Generosity', value: '+4 Attack Rolls, Beast Shape', opposed: new Set([humility, love]) },
-    [humility]: { name: 'Sihedron - Humility', value: '+8 Skill Checks, Greater Invisibility', opposed: new Set([generosity, zeal]) },
-    [kindness]: { name: 'Sihedron - Kindness', value: '+4 Weapon Damage, Ice Storm', opposed: new Set([charity, zeal]) },
-    [love]: { name: 'Sihedron - Love', value: '+8 Initiative, Charm Monster', opposed: new Set([generosity, temperance]) },
-    [temperance]: { name: 'Sihedron - Temperance', value: 'Fast Healing 10, Fear', opposed: new Set([charity, love]) },
-    [zeal]: { name: 'Sihedron - Zeal', value: '+8 Concentration/Caster Level Checks, Dimension Door', opposed: new Set([humility, kindness]) },
+    [charity]: { id: 'OAmMMUJVd6yrLmk4', name: 'Sihedron - Charity', value: '+4AC, Dimensional Anchor', opposed: new Set([kindness, temperance]) },
+    [generosity]: { id: '6ikCkdJTRdTHfScE', name: 'Sihedron - Generosity', value: '+4 Attack Rolls, Beast Shape', opposed: new Set([humility, love]) },
+    [humility]: { id: '6DvE3p04LPHjyjFC', name: 'Sihedron - Humility', value: '+8 Skill Checks, Greater Invisibility', opposed: new Set([generosity, zeal]) },
+    [kindness]: { id: 'NHgaOdTqUSoaXrKk', name: 'Sihedron - Kindness', value: '+4 Weapon Damage, Ice Storm', opposed: new Set([charity, zeal]) },
+    [love]: { id: 'o8SBJYa8XbzLQRPk', name: 'Sihedron - Love', value: '+8 Initiative, Charm Monster', opposed: new Set([generosity, temperance]) },
+    [temperance]: { id: 'yqNgMklrjyNQlRzi', name: 'Sihedron - Temperance', value: 'Fast Healing 10, Fear', opposed: new Set([charity, love]) },
+    [zeal]: { id: 'le90gLs6bWbDJw9P', name: 'Sihedron - Zeal', value: '+8 Concentration/Caster Level Checks, Dimension Door', opposed: new Set([humility, kindness]) },
 }
 const allVirtues = Object.keys(buffs);
 
+const coreId = (id) => `Compendium.${MODULE_ID}.${COMPENDIUM_ID}.${id}`;
+
 const give = 'give';
 
-// todo create pack and get id
-const sihedronItemPackId = '';
 const getItem = async (name) => {
-    const pack = game.packs.get(sihedronItemPackId);
+    const pack = game.packs.get(`${MODULE_ID}.${COMPENDIUM_ID}`);
     const itemId = pack.index.getName(name)._id;
     return await pack.getDocument(itemId);
 };
@@ -63,7 +73,7 @@ const turnOffAllBuffs = (actor) => allVirtues.forEach((virtue) => {
     executeApplyBuff(actor, `Remove ${buffs[virtue].name} from ${actor.name}`);
 });
 
-const applyBuff = (actor, buffName) => executeApplyBuff(actor, buffName);
+const applyBuff = (actor, buffCommand) => executeApplyBuff(actor, buffCommand);
 
 const capitalizeFirstLetter = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -72,7 +82,7 @@ const getOwningUserId = (doc) => {
         return undefined;
     }
 
-    const playerOwnerId = Object.entries(doc.data.permission)
+    const playerOwnerId = Object.entries(doc.ownership)
         .find(([id, level]) => !game.users.get(id)?.isGM && game.users.get(id)?.active && level === 3)
         ?.[0];
 
@@ -88,17 +98,13 @@ const healActor = async (actor, item) => {
     const toHeal = RollPF.safeRoll('2d8 + 10');
     console.log(`healed '${toHeal.total}' to '${actor.name}'`);
     await actor.applyDamage(-toHeal.total);
-    // todo get token
-    // const token = [...canvas.scene.tokens].find((x) => x.actor.id === actor.id)?.object;
-    // createHealCard(item, actor, token, toHeal);
 
-    // todo - does this work?
-    // let chatOptions = {
-    //     user: game.user._id,
-    //     speaker: ChatMessage.getSpeaker(),
-    //     content: `${`actor`.name} automatically healed for [[${amount}[positive]]].`
-    // };
-    // ChatMessage.create(chatOptions);
+    const chatOptions = {
+        user: game.user._id,
+        speaker: ChatMessage.getSpeaker(),
+        content: `The Sihedron healed ${actor.name} for [[${toHeal.total}]].`
+    };
+    ChatMessage.create(chatOptions);
 }
 
 const takeItem = async (targetActorId, fromActorId, itemId) => {
@@ -117,10 +123,12 @@ async function takeSihedron(targetActorId, fromActorId, itemId) {
     const targetActor = game.actors.get(targetActorId);
     await healActor(targetActor, item);
     applyBuff(targetActor, `Apply Sihedron! to ${targetActor.name}`);
+
+    return true;
 }
 
 const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
-    const currentVirtue = sihedronItem.getFlag(MODULE_NAME, 'virtue');
+    const currentVirtue = sihedronItem.getFlag(MODULE_ID, 'virtue');
     const buttons = allVirtues
         .filter((virtue) => !buffs[currentVirtue]?.opposed.has(virtue))
         .filter((virtue) => !currentVirtue || virtue !== currentVirtue)
@@ -146,52 +154,21 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
         inputs.push({ type: 'info', label: `Currently opposed: ${opp[0]} and ${opp[1]}` });
     }
 
-    const { buttons: chosenVirtue } = await warpgate.menu({ buttons, inputs }, { title: 'Choose a point' });
+    const { buttons: chosenVirtue } = await warpgate.menu({ buttons, inputs }, { title: `${actor.name}: Choose a point` });
 
     if (!chosenVirtue) {
-        return;
+        return false;
     }
-
-    turnOffAllBuffs(actor);
 
     if (allVirtues.includes(chosenVirtue)) {
-        await sihedronItem.setFlag(MODULE_NAME, 'virtue', chosenVirtue);
+        turnOffAllBuffs(actor);
+        await sihedronItem.setFlag(MODULE_ID, 'virtue', chosenVirtue);
 
         applyBuff(actor, `Apply ${buffs[chosenVirtue].name} to ${actor.name}`);
-        return;
+        return false;
     }
-
-    if (chosenVirtue === give) {
-        const playerActorsInScene = canvas.tokens.placeables
-            .filter(t => t.actor.hasPlayerOwner)
-            .map(t => t.actor);
-        const playerActors = game.users
-            .map(x => x.character)
-            .filter(x => !!x);
-        const actors = [...playerActorsInScene, ...playerActors]
-            .filter((x, i, arr) => arr.findIndex((y) => y.id === x.id) === i)
-            .filter(x => x.id !== actor.id);
-
-        const targetData = await game.pf1.utils.dialogGetActor('Give Sihedron to', actors);
-        if (!targetData) {
-            return false;
-        }
-
-        await healActor(actor, sihedronItem);
-        applyBuff(actor, `Apply Sihedron! to ${actor.name}`);
-
-        // execute on player owner's client
-        const target = game.actors.get(targetData.id);
-        try {
-            const targetUserId = getOwningUserId(target);
-            await socket.executeAsUser('takeSihedron', targetUserId, target.id, actor.id, sihedronItem.id);
-        }
-        catch {
-            // if fails (e.g. user isn't logged in), then execute on GM client -- should never happen though
-            await socket.executeAsGM('takeSihedron', target.id, actor.id, sihedronItem.id);
-        }
-
-        await sihedronItem.delete();
+    else if (chosenVirtue === give) {
+        await handleItemGive(actor, sihedronItem);
     }
 
     return true;
@@ -199,7 +176,7 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
 
 async function setSihedronEquip(actor, sihedronItem, shared, equipped) {
     try {
-        await sihedronItem.unsetFlag(MODULE_NAME, 'virtue');
+        await sihedronItem.unsetFlag(MODULE_ID, 'virtue');
     }
     catch {
         // do nothing, the item has been deleted
@@ -217,5 +194,62 @@ async function useSihedron(actor, sihedronItem, shared) {
     var madeChoice = await makeMenuChoice(actor, sihedronItem, true);
     if (!madeChoice) {
         shared.reject = true;
+    }
+}
+
+async function _onItemGive(actorSheet, event, wrapped) {
+    event.preventDefault();
+
+    const itemId = event.currentTarget.closest(".item").dataset.itemId;
+    const item = actorSheet.document.items.get(itemId);
+    const { actor } = actorSheet;
+    const isSihedron = item?.flags?.core?.sourceId === coreId(sihedronId);
+
+    return isSihedron
+        ? handleItemGive(actor, item)
+        : wrapped(event);
+}
+
+async function handleItemGive(actor, item) {
+    const targets = [
+        ...game.actors.contents.filter((o) => o.testUserPermission(game.user, "OWNER") && o.id !== actor.id && o.type !== 'basic'),
+        ...game.actors.contents.filter(
+            (o) => o.hasPlayerOwner && o.id !== actor.id && !o.testUserPermission(game.user, "OWNER") && o.type !== 'basic'),
+    ];
+    const targetData = await pf1.utils.dialog.dialogGetActor(`Give item to actor`, targets);
+
+    if (!targetData) return;
+    let target;
+    if (targetData.type === "actor") {
+        target = game.actors.get(targetData.id);
+    }
+
+    if (target) {
+        // execute on player owner's client
+        let handled = false;
+        try {
+            const targetUserId = getOwningUserId(target);
+            handled = await socket.executeAsUser('takeSihedron', targetUserId, target.id, actor.id, item.id);
+        }
+        catch {
+            // if fails (e.g. user isn't logged in), then execute on GM client
+            handled = await socket.executeAsGM('takeSihedron', target.id, actor.id, item.id);
+        }
+
+        if (!handled) {
+            ui.notifications.error(`${target.name} was unable to accept the Sihedron.`);
+            return;
+        }
+
+        const chatOptions = {
+            user: game.user._id,
+            speaker: ChatMessage.getSpeaker(),
+            content: `${actor.name} sends the Sihedron to ${target.name}!`
+        };
+        ChatMessage.create(chatOptions);
+
+        turnOffAllBuffs(actor);
+        await healActor(actor, item);
+        await item.delete();
     }
 }
