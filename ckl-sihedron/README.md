@@ -1,4 +1,4 @@
-# Stub Module
+# Sihedron
 
 The Sihedron is a powerful artifact in PF1 lore. The star has 7 points associated with it and with each point a powerful buff.
 
