@@ -1,5 +1,5 @@
 {
-    "name": "ckl-sihedron",
+    "id": "ckl-sihedron",
     "title": "Sihedron! pf1",
     "description": "Example basic module.",
     "version": "1.0.0",
@@ -14,7 +14,7 @@
         "module.js"
     ],
     "styles": [
-        "stub.css"
+        "ckl-sihedron.css"
     ],
     "languages": [
         {
@@ -24,6 +24,17 @@
         }
     ],
     "relationships": {
+        "systems": [
+            {
+                "id": "pf1",
+                "type": "system",
+                "manifest": "https://gitlab.com/foundryvtt_pathfinder1e/foundryvtt-pathfinder1/-/releases/permalink/latest/downloads/system.json",
+                "compatibility": {
+                    "minimum": "0.82",
+                    "verified": "0.82.5"
+                }
+            }
+        ],
         "requires": [
             {
                 "id": "socketlib",
@@ -35,14 +46,14 @@
             }
         ]
     },
-    "minimumCoreVersion": "0.9.0",
-    "compatibleCoreVersion": "0.9.0",
+    "compatibility": {
+        "minimum": "10",
+        "verified": "10"
+    },
     "license": "LICENSE",
-    "readme": "README.md",
-    "manifest": "https://example.com/latest/module.json",
-    "download": "https://example.com/download/1.0.0/stub.zip",
-    "url": "https://example.com/",
-    "bugs": "https://example.com/bees",
+    "readme": "https://github.com/dmrickey/ckl-foundry-modules/blob/main/ckl-sihedron/README.md",
+    "manifest": "https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-sihedron/module.json",
+    "download": "https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-sihedron/ckl-sihedron.zip",
     "socket": true,
     "packs": [
         {

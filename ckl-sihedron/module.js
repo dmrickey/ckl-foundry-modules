@@ -1,14 +1,15 @@
-// Hooks.once('init', () => console.log('¡¡¡ STUB MODULE !!!', game.i18n.localize('STUB.Message')));
-
-import { createHealCard } from './chat-card-maker.js';
+// This requires `Warpgate`
+//   - for showing the button menu
+// This requires `socketlib` - for making sure the equip happens on the expected client so the menu shows up as expected
+// this supports Koboldworks - Regeneration for the Temperence buff which grants Fast Healing
 
 const MODULE_ID = 'ckl-sihedron';
 const COMPENDIUM_ID = 'ckl-sihedron';
 
 Hooks.once('pf1PostReady', () => {
     const wrapped = pf1.applications.actor.ActorSheetPF.prototype._onItemGive;
-    pf1.applications.actor.ActorSheetPF.prototype._onItemGive = function _(event) {
-        _onItemGive(this, event, wrapped);
+    pf1.applications.actor.ActorSheetPF.prototype._onItemGive = function (event) {
+        _onItemGive(this, event, () => wrapped.apply(this, arguments));
     };
 });
 
@@ -17,19 +18,20 @@ Hooks.once("socketlib.ready", () => {
     socket = socketlib.registerModule(MODULE_ID);
     socket.register('takeSihedron', takeSihedron);
 
+    // goes in `On Use` and `On Equip` advanced script calls
     window.Sihedron = { setSihedronEquip, useSihedron };
 });
 
-// This requires `Warpgate`
-//   - for showing the button menu
-// This requires `socketlib` - for making sure the equip happens on the expected client so the menu shows up as expected
-// This requires that Noon's `applyBuff` macro be in your world - I highly suggest changing the default notification level to 1 or even 0.
-// This requires that you have configured Buffs in your world for this macro to swap between
-//   - import the buffs into your world from the included compendium
-//   - OR add the compendium to your `applyBuff` macro configuration
-//   - OR create your own - (see `buffs` variable below for expected names) - plus a buff for +2 bonus to saves called `Sihedron!`
-
-// goes in `On Use` and `On Equip` advanced script calls
+// I couldn't find a clean way to delete the item in _all_ ways it could be deactivated -- this fails when it is deactivated from time passing
+// Hooks.on("updateItem", (item, change) => {
+//     if (item.flags?.core?.sourceId === coreId(sihedronBuffId)
+//         && change.system?.hasOwnProperty('active')
+//         && !change.system.active
+//         && shouldHandleDoc(item)
+//     ) {
+//         setTimeout(async () => await item.delete());
+//     }
+// });
 
 const charity = 'charity';
 const generosity = 'generosity';
@@ -57,26 +59,35 @@ const coreId = (id) => `Compendium.${MODULE_ID}.${COMPENDIUM_ID}.${id}`;
 
 const give = 'give';
 
-const getItem = async (name) => {
+const addCompendiumBuffToActor = async (actor, buffId) => {
     const pack = game.packs.get(`${MODULE_ID}.${COMPENDIUM_ID}`);
-    const itemId = pack.index.getName(name)._id;
-    return await pack.getDocument(itemId);
-};
+    const item = await pack.getDocument(buffId);
+    const buff = item.toObject();
+    buff.system.active = true;
+    buff.flags ||= {};
+    buff.flags.core ||= {};
+    buff.flags.core.sourceId = coreId(item._id);
 
-const executeApplyBuff = (actor, command) => {
-    window.macroChain = [command];
-    game.macros.getName('applyBuff')?.execute();
-    // todo chat card
+    const created = (await actor.createEmbeddedDocuments("Item", [buff]))[0];
+    return created;
+};
+const addSihedronBuff = async (actor) => {
+    const hasBuff = actor?.items.some((item) => item?.flags?.core?.sourceId === coreId(sihedronBuffId));
+    if (!hasBuff) {
+        await addCompendiumBuffToActor(actor, sihedronBuffId);
+    }
 }
 
-const turnOffAllBuffs = (actor) => allVirtues.forEach((virtue) => {
-    executeApplyBuff(actor, `Remove ${buffs[virtue].name} from ${actor.name}`);
-});
-
-const applyBuff = (actor, buffCommand) => executeApplyBuff(actor, buffCommand);
+const turnOffAllBuffs = async (actor) => {
+    const buffs = (actor?.items || []).filter((item) => item?.flags?.[MODULE_ID]?.tempBuff);
+    if (buffs.length) {
+        await actor.deleteEmbeddedDocuments("Item", buffs.map((buff) => buff.id));
+    }
+};
 
 const capitalizeFirstLetter = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
+const shouldHandleDoc = (doc) => getOwningUserId(doc) === game.userId;
 const getOwningUserId = (doc) => {
     if (!doc) {
         return undefined;
@@ -90,19 +101,21 @@ const getOwningUserId = (doc) => {
     return playerOwnerId || game.users.find(u => u.isGM && u.active)?.id;
 }
 
-const healActor = async (actor, item) => {
+const healActor = async (actor) => {
     if (typeof actor === 'undefined' || !actor) {
         return;
     }
 
-    const toHeal = RollPF.safeRoll('2d8 + 10');
-    console.log(`healed '${toHeal.total}' to '${actor.name}'`);
-    await actor.applyDamage(-toHeal.total);
+    const healRoll = RollPF.safeRoll('2d8 + 10');
+    console.log(`healed '${healRoll.total}' to '${actor.name}'`);
+    await actor.applyDamage(-healRoll.total);
 
     const chatOptions = {
         user: game.user._id,
         speaker: ChatMessage.getSpeaker(),
-        content: `The Sihedron healed ${actor.name} for [[${toHeal.total}]].`
+        rolls: [healRoll],
+        content: `The Sihedron heals ${actor.name} for ${healRoll.total}.`,
+        type: CONST.CHAT_MESSAGE_TYPES.ROLL,
     };
     ChatMessage.create(chatOptions);
 }
@@ -121,8 +134,8 @@ async function takeSihedron(targetActorId, fromActorId, itemId) {
     const item = await takeItem(targetActorId, fromActorId, itemId);
 
     const targetActor = game.actors.get(targetActorId);
-    await healActor(targetActor, item);
-    applyBuff(targetActor, `Apply Sihedron! to ${targetActor.name}`);
+    await healActor(targetActor);
+    await addSihedronBuff(targetActor);
 
     return true;
 }
@@ -161,10 +174,10 @@ const makeMenuChoice = async (actor, sihedronItem, showGive = true) => {
     }
 
     if (allVirtues.includes(chosenVirtue)) {
-        turnOffAllBuffs(actor);
+        await turnOffAllBuffs(actor);
         await sihedronItem.setFlag(MODULE_ID, 'virtue', chosenVirtue);
-
-        applyBuff(actor, `Apply ${buffs[chosenVirtue].name} to ${actor.name}`);
+        const buff = await addCompendiumBuffToActor(actor, buffs[chosenVirtue].id);
+        buff.use();
         return false;
     }
     else if (chosenVirtue === give) {
@@ -183,7 +196,7 @@ async function setSihedronEquip(actor, sihedronItem, shared, equipped) {
     }
 
     if (!equipped) {
-        turnOffAllBuffs(actor);
+        await turnOffAllBuffs(actor);
         return;
     }
 
@@ -197,7 +210,7 @@ async function useSihedron(actor, sihedronItem, shared) {
     }
 }
 
-async function _onItemGive(actorSheet, event, wrapped) {
+async function _onItemGive(actorSheet, event, originalFunc) {
     event.preventDefault();
 
     const itemId = event.currentTarget.closest(".item").dataset.itemId;
@@ -207,7 +220,7 @@ async function _onItemGive(actorSheet, event, wrapped) {
 
     return isSihedron
         ? handleItemGive(actor, item)
-        : wrapped(event);
+        : originalFunc();
 }
 
 async function handleItemGive(actor, item) {
@@ -248,8 +261,8 @@ async function handleItemGive(actor, item) {
         };
         ChatMessage.create(chatOptions);
 
-        turnOffAllBuffs(actor);
-        await healActor(actor, item);
+        await addSihedronBuff(actor);
+        await healActor(actor);
         await item.delete();
     }
 }
