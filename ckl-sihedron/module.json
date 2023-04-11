@@ -3,11 +3,11 @@
     "title": "Sihedron! pf1",
     "description": "Example basic module.",
     "version": "1.0.0",
-    "author": "David Rickey",
     "authors": [
         {
             "name": "David Rickey",
-            "discord": "david (aka claudekennilol)#2244"
+            "discord": "david (aka claudekennilol)#2244",
+            "flags": {}
         }
     ],
     "esmodules": [
@@ -20,7 +20,8 @@
         {
             "lang": "en",
             "name": "English",
-            "path": "lang/en.json"
+            "path": "lang/en.json",
+            "flags": {}
         }
     ],
     "relationships": {
@@ -38,11 +39,13 @@
         "requires": [
             {
                 "id": "socketlib",
-                "type": "module"
+                "type": "module",
+                "compatibility": {}
             },
             {
                 "id": "warpgate",
-                "type": "module"
+                "type": "module",
+                "compatibility": {}
             }
         ]
     },
@@ -61,8 +64,9 @@
             "label": "Sihedron (ckl)",
             "system": "pf1",
             "path": "packs/ckl-sihedron.db",
-            "entity": "Item",
-            "module": "ckl-sihedron"
+            "type": "Item",
+            "private": false,
+            "flags": {}
         }
     ]
 }
