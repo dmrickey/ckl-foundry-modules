@@ -1,7 +1,7 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
 import { getFlagsFromDFlags, getItemDFlags } from "../util/actor-has-flagged-item.mjs";
-import { setItemHint } from "../util/item-hints.mjs";
+import { registerItemHint } from "../util/item-hints.mjs";
 
 const schoolClOffset = 'schoolClOffset';
 const schoolClOffsetFormula = 'schoolClOffsetFormula';
@@ -64,7 +64,6 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
 
     const currentSchool = getItemDFlags(item, schoolClOffset)[0];
     const formula = getItemDFlags(item, schoolClOffsetFormula)[0];
-    const total = getItemDFlags(item, schoolClOffsetTotal)[0];
 
     const templateData = { spellSchools, school: currentSchool, formula };
 
@@ -74,12 +73,6 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
     const input = div.querySelector('#school-cl-offset-formula');
     const select = div.querySelector('#school-cl-offset');
 
-    const getHint = (t, s) => {
-        const signed = `+${t}`.replace("+-", "-");
-        return `CL ${signed} (${spellSchools[s] ?? s})`;
-    }
-    const currentHint = getHint(total, currentSchool);
-
     input.addEventListener(
         'change',
         async (event) => {
@@ -88,9 +81,6 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
 
             const newTotal = RollPF.safeTotal(newFormula, actor.getRollData());
             await item.setItemDictionaryFlag(schoolClOffsetTotal, newTotal);
-
-            const newValue = getHint(newTotal, currentSchool)
-            await setItemHint(item, currentHint, newValue);
         },
     );
 
@@ -98,11 +88,30 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
         'change',
         async (event) => {
             await item.setItemDictionaryFlag(schoolClOffset, event.target.value);
-
-            const newValue = getHint(total, event.target.value)
-            await setItemHint(item, currentHint, newValue);
         },
     );
 
     addElementToRollBonus(html, div);
+});
+
+registerItemHint((hintcls, _actor, item, _data) => {
+    const currentSchool = getItemDFlags(item, schoolClOffset)[0];
+    if (!currentSchool) {
+        return [];
+    }
+
+    const { spellSchools } = pf1.config;
+    const total = getItemDFlags(item, schoolClOffsetTotal)[0];
+    if (!total) {
+        return;
+    }
+
+    const getHint = (t, s) => {
+        const signed = `+${t}`.replace("+-", "-");
+        return `CL ${signed} (${spellSchools[s] ?? s})`;
+    }
+    const label = getHint(total, currentSchool);
+
+    const hint = hintcls.create(label, [], {});
+    return [hint];
 });

@@ -1,7 +1,7 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
 import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
-import { setItemHint } from "../util/item-hints.mjs";
+import { registerItemHint } from "../util/item-hints.mjs";
 import { registerSettingString } from "../util/register-setting.mjs";
 import { truthiness } from "../util/truthiness.mjs";
 
@@ -124,12 +124,25 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
         'change',
         async (event) => {
             await item.setItemDictionaryFlag(key, event.target.value);
-
-            const oldValue = pf1.config.damageTypes[currentElement] ?? currentElement;
-            const newValue = pf1.config.damageTypes[event.target.value] ?? event.target.value;
-            await setItemHint(item, oldValue, newValue);
         },
     );
 
     addElementToRollBonus(html, div);
+});
+
+registerItemHint((hintcls, actor, item, data) => {
+    const key = allKeys.find((k) => item.system.flags.dictionary[k] !== undefined);
+    if (!key) {
+        return;
+    }
+
+    const currentElement = getItemDFlags(item, key)[0];
+    if (!currentElement) {
+        return;
+    }
+
+    const label = pf1.config.damageTypes[currentElement] ?? currentElement;
+
+    const hint = hintcls.create(label, [], {});
+    return [hint];
 });

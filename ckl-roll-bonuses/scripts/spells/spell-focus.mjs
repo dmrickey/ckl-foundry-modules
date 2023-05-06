@@ -1,7 +1,7 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
 import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
-import { setItemHint } from "../util/item-hints.mjs";
+import { registerItemHint } from "../util/item-hints.mjs";
 import { registerSettingString } from "../util/register-setting.mjs";
 
 const spellFocusKey = 'spellFocus';
@@ -61,7 +61,7 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     const name = item?.name?.toLowerCase() ?? '';
 
     let key;
-    let spellSchools = pf1.config.spellSchools;
+    let { spellSchools } = pf1.config;
 
     if (name.includes(Settings.spellFocus) || item?.flags.core?.sourceId.includes(spellFocusId)) {
         key = spellFocusKey;
@@ -103,12 +103,25 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
         'change',
         async (event) => {
             await item.setItemDictionaryFlag(key, event.target.value);
-
-            const oldValue = pf1.config.spellSchools[currentSchool] ?? currentSchool;
-            const newValue = pf1.config.spellSchools[event.target.value] ?? event.target.value;
-            await setItemHint(item, oldValue, newValue);
         },
     );
 
     addElementToRollBonus(html, div);
+});
+
+registerItemHint((hintcls, actor, item, data) => {
+    const key = allKeys.find((k) => item.system.flags.dictionary[k] !== undefined);
+    if (!key) {
+        return;
+    }
+
+    const currentSchool = getItemDFlags(item, key)[0];
+    if (!currentSchool) {
+        return;
+    }
+
+    const label = pf1.config.spellSchools[currentSchool] ?? currentSchool;
+
+    const hint = hintcls.create(label, [], {});
+    return [hint];
 });
