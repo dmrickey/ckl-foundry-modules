@@ -1,7 +1,7 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
 import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
-import { setItemHelperHint } from "../util/item-hints.mjs";
+import { setItemHint } from "../util/item-hints.mjs";
 import { registerSettingString } from "../util/register-setting.mjs";
 import { truthiness } from "../util/truthiness.mjs";
 
@@ -86,8 +86,10 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
         key = elementalFocusKey;
     }
 
-    const isGreater = (name.includes(Settings.elementalFocus) && name.includes(Settings.greater)) || item?.flags.core?.sourceId.includes(greaterElementalFocusId);
-    const isMythic = (name.includes(Settings.elementalFocus) && name.includes(Settings.mythic)) || item?.flags.core?.sourceId.includes(mythicElementalFocusId);
+    const isGreater = (name.includes(Settings.elementalFocus) && name.includes(Settings.greater))
+        || item?.flags.core?.sourceId.includes(greaterElementalFocusId);
+    const isMythic = (name.includes(Settings.elementalFocus) && name.includes(Settings.mythic))
+        || item?.flags.core?.sourceId.includes(mythicElementalFocusId);
 
     if (isGreater || isMythic) {
         key = isGreater ? greaterElementalFocusKey : mythicElementalFocusKey;
@@ -125,7 +127,7 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
 
             const oldValue = pf1.config.damageTypes[currentElement] ?? currentElement;
             const newValue = pf1.config.damageTypes[event.target.value] ?? event.target.value;
-            await setItemHelperHint(item, oldValue, newValue);
+            await setItemHint(item, oldValue, newValue);
         },
     );
 

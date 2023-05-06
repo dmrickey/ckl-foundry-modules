@@ -1,7 +1,7 @@
 
 const key = 'itemHints';
 
-export const setItemHelperHint = async (item, oldValue, newValue) => {
+export const setItemHint = async (item, oldValue, newValue) => {
     const current = item.getItemDictionaryFlag(key);
     if (!current) {
         // if no current item hint

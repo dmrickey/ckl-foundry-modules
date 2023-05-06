@@ -1,7 +1,7 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
 import { getFlagsFromDFlags, getItemDFlags } from "../util/actor-has-flagged-item.mjs";
-import { setItemHelperHint } from "../util/item-hints.mjs";
+import { setItemHint } from "../util/item-hints.mjs";
 
 const schoolClOffset = 'schoolClOffset';
 const schoolClOffsetFormula = 'schoolClOffsetFormula';
@@ -90,7 +90,7 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
             await item.setItemDictionaryFlag(schoolClOffsetTotal, newTotal);
 
             const newValue = getHint(newTotal, currentSchool)
-            await setItemHelperHint(item, currentHint, newValue);
+            await setItemHint(item, currentHint, newValue);
         },
     );
 
@@ -100,7 +100,7 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
             await item.setItemDictionaryFlag(schoolClOffset, event.target.value);
 
             const newValue = getHint(total, event.target.value)
-            await setItemHelperHint(item, currentHint, newValue);
+            await setItemHint(item, currentHint, newValue);
         },
     );
 

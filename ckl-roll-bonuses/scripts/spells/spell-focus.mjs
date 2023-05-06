@@ -1,7 +1,7 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
 import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
-import { setItemHelperHint } from "../util/item-hints.mjs";
+import { setItemHint } from "../util/item-hints.mjs";
 import { registerSettingString } from "../util/register-setting.mjs";
 
 const spellFocusKey = 'spellFocus';
@@ -106,7 +106,7 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
 
             const oldValue = pf1.config.spellSchools[currentSchool] ?? currentSchool;
             const newValue = pf1.config.spellSchools[event.target.value] ?? event.target.value;
-            await setItemHelperHint(item, oldValue, newValue);
+            await setItemHint(item, oldValue, newValue);
         },
     );
 
