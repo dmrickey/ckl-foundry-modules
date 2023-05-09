@@ -2,6 +2,8 @@
     "ckl-roll-bonuses": {
         "fortune": "Fortune",
         "misfortune": "Misfortune",
+        "fortune-skill": "Fortune (skill)",
+        "misfortune-skill": "Misfortune (skill)",
         "rollBonuses": "Roll Bonuses",
         "skills": {
             "config": "Skill Config",

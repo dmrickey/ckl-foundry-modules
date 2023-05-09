@@ -25,6 +25,7 @@ const getFlagsFromDFlags = (dFlags, ...flags) => {
     return results;
 }
 
+// item.system.flags.boolean - note to self for later
 const countBFlags = (items, flag) => (items || []).filter((item) => item.isActive && item.hasItemBooleanFlag(flag)).length;
 
 
