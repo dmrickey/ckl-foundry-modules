@@ -25,4 +25,7 @@ const getFlagsFromDFlags = (dFlags, ...flags) => {
     return results;
 }
 
-export { getFlagsFromDFlags, getItemDFlags }
+const countBFlags = (items, flag) => (items || []).filter((item) => item.isActive && item.hasItemBooleanFlag(flag)).length;
+
+
+export { countBFlags, getFlagsFromDFlags, getItemDFlags }

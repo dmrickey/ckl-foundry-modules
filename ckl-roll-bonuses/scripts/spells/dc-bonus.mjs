@@ -1,4 +1,4 @@
-import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
+import { getItemDFlags } from "../util/flag-helpers.mjs";
 
 const key = 'genericSpellDC'
 

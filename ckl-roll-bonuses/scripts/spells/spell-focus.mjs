@@ -1,6 +1,6 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
-import { getItemDFlags } from "../util/actor-has-flagged-item.mjs";
+import { getItemDFlags } from "../util/flag-helpers.mjs";
 import { registerItemHint } from "../util/item-hints.mjs";
 import { registerSettingString } from "../util/register-setting.mjs";
 

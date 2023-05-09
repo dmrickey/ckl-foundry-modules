@@ -24,6 +24,6 @@ function itemHintsRegistration() {
     }
 }
 
-export const registerItemHint = (func) => funcs.push(func);
+Hooks.once('ready', itemHintsRegistration);
 
-export const init = () => Hooks.once('ready', itemHintsRegistration);
+export const registerItemHint = (func) => funcs.push(func);
