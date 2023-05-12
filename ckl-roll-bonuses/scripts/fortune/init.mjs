@@ -90,10 +90,10 @@ Hooks.on(localHooks.itemUse, (item, options) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    if (options.dice === rolls.fortune) {
+    if (rolls.fortune.includes(options.dice)) {
         fortuneCount++;
     }
-    else if (options.dice === rolls.misfortune) {
+    else if (rolls.misfortune.includes(options.dice)) {
         misfortuneCount++;
     }
 
@@ -103,6 +103,9 @@ Hooks.on(localHooks.itemUse, (item, options) => {
     else if (item.hasItemBooleanFlag(selfMisfortune)) {
         misfortuneCount++;
     }
+
+    fortuneCount += countBFlags(item.parent?.items, fortune);
+    misfortuneCount += countBFlags(item.parent?.items, misfortune);
 
     const roll = fortuneCount > misfortuneCount
         ? rolls.fortune[0]
@@ -121,10 +124,10 @@ Hooks.on('pf1PreActorRollSkill', (actor, options, skillId) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    if (options.dice === rolls.fortune) {
+    if (rolls.fortune.includes(options.dice)) {
         fortuneCount++;
     }
-    else if (options.dice === rolls.misfortune) {
+    else if (rolls.misfortune.includes(options.dice)) {
         misfortuneCount++;
     }
 
@@ -153,10 +156,10 @@ Hooks.on('pf1PreActorRollAttack', (actor, options) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    if (options.dice === rolls.fortune) {
+    if (rolls.fortune.includes(options.dice)) {
         fortuneCount++;
     }
-    else if (options.dice === rolls.misfortune) {
+    else if (rolls.misfortune.includes(options.dice)) {
         misfortuneCount++;
     }
 
@@ -190,10 +193,10 @@ Hooks.on('pf1PreActorRollBab', (actor, options) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    if (options.dice === rolls.fortune) {
+    if (rolls.fortune.includes(options.dice)) {
         fortuneCount++;
     }
-    else if (options.dice === rolls.misfortune) {
+    else if (rolls.misfortune.includes(options.dice)) {
         misfortuneCount++;
     }
 
@@ -219,10 +222,10 @@ Hooks.on('pf1PreActorRollCl', (actor, options) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    if (options.dice === rolls.fortune) {
+    if (rolls.fortune.includes(options.dice)) {
         fortuneCount++;
     }
-    else if (options.dice === rolls.misfortune) {
+    else if (rolls.misfortune.includes(options.dice)) {
         misfortuneCount++;
     }
 
@@ -248,10 +251,10 @@ Hooks.on('pf1PreActorRollConcentration', (actor, options) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    if (options.dice === rolls.fortune) {
+    if (rolls.fortune.includes(options.dice)) {
         fortuneCount++;
     }
-    else if (options.dice === rolls.misfortune) {
+    else if (rolls.misfortune.includes(options.dice)) {
         misfortuneCount++;
     }
 
@@ -280,10 +283,10 @@ Hooks.on('pf1PreActorRollAbility', (actor, options, ability) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    if (options.dice === rolls.fortune) {
+    if (rolls.fortune.includes(options.dice)) {
         fortuneCount++;
     }
-    else if (options.dice === rolls.misfortune) {
+    else if (rolls.misfortune.includes(options.dice)) {
         misfortuneCount++;
     }
 
@@ -313,10 +316,10 @@ Hooks.on('pf1PreActorRollCmb', (actor, options, ability) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    if (options.dice === rolls.fortune) {
+    if (rolls.fortune.includes(options.dice)) {
         fortuneCount++;
     }
-    else if (options.dice === rolls.misfortune) {
+    else if (rolls.misfortune.includes(options.dice)) {
         misfortuneCount++;
     }
 
@@ -344,10 +347,10 @@ Hooks.on('pf1PreActorRollSave', (actor, options, savingThrowId) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    if (options.dice === rolls.fortune) {
+    if (rolls.fortune.includes(options.dice)) {
         fortuneCount++;
     }
-    else if (options.dice === rolls.misfortune) {
+    else if (rolls.misfortune.includes(options.dice)) {
         misfortuneCount++;
     }
 
