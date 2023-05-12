@@ -104,6 +104,9 @@ Hooks.on(localHooks.itemUse, (item, options) => {
         misfortuneCount++;
     }
 
+    fortuneCount += countBFlags(item.parent?.items, attackFortune);
+    misfortuneCount += countBFlags(item.parent?.items, attackMisfortune);
+
     fortuneCount += countBFlags(item.parent?.items, fortune);
     misfortuneCount += countBFlags(item.parent?.items, misfortune);
 
@@ -272,10 +275,7 @@ Hooks.on('pf1PreActorRollConcentration', (actor, options) => {
     options.dice = roll;
 });
 
-// does not work in 0.82.5
-
-// does not work in 082.5
-Hooks.on('pf1PreActorRollAbility', (actor, options, ability) => {
+const handleAbility = (actor, options, ability) => {
     if (options.dice && !allRolls.includes(options.dice)) {
         return;
     }
@@ -305,10 +305,12 @@ Hooks.on('pf1PreActorRollAbility', (actor, options, ability) => {
             : undefined;
 
     options.dice = roll;
-});
+};
+// does not work in 0.82.5
+Hooks.on('pf1PreActorRollAbility', handleAbility);
+Hooks.on(localHooks.rollAbilityTest, (actor, abilityId, options) => handleAbility(actor, options, abilityId));
 
-// does not work in 082.5
-Hooks.on('pf1PreActorRollCmb', (actor, options, ability) => {
+const handleCmb = (actor, options) => {
     if (options.dice && !allRolls.includes(options.dice)) {
         return;
     }
@@ -337,9 +339,12 @@ Hooks.on('pf1PreActorRollCmb', (actor, options, ability) => {
             : undefined;
 
     options.dice = roll;
-});
-// does not work in 082.5
-Hooks.on('pf1PreActorRollSave', (actor, options, savingThrowId) => {
+};
+// does not work in 0.82.5
+// Hooks.on('pf1PreActorRollCmb', handleCmb);
+Hooks.on(localHooks.rollCMB, handleCmb);
+
+const handleSavingThrow = (actor, options, savingThrowId) => {
     if (options.dice && !allRolls.includes(options.dice)) {
         return;
     }
@@ -369,4 +374,7 @@ Hooks.on('pf1PreActorRollSave', (actor, options, savingThrowId) => {
             : undefined;
 
     options.dice = roll;
-});
+};
+// does not work in 0.82.5
+// Hooks.on('pf1PreActorRollSave', handleSavingThrow);
+Hooks.on(localHooks.rollSavingThrow, (actor, savingThrowId, options) => handleSavingThrow(actor, options, savingThrowId));

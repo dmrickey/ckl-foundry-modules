@@ -3,6 +3,8 @@ import { getEmptyAdjacentMeSquares, isAdjacent, isFlanking, isSharingSquare } fr
 import { canBeFlanked, hasGangUp, hasImprovedOutflank, hasMenacing, hasOutflank, hasSoloTactics, isMouser, isRatfolk, isThreatening } from "./utils/token-examiners.mjs";
 import { amILowestOwner } from "./utils/utils.mjs";
 
+// look into https://github.com/foundryvtt/pf2e/blob/021ba22e7af041bd3bb0881e29e967c77b29a64c/src/module/canvas/token/object.ts#L67
+
 const rankedBuffs = {
     [flankId]: 1,
     [outflankId]: 2,
@@ -24,10 +26,10 @@ const handleFlanking = async (meToken, targetToken, friends = null) => {
     await turnOffFlankAsync(meToken);
 
     if (!targetToken
-        || !canBeFlanked(targetToken)
-        || !isThreatening(meToken, targetToken)
         || meToken === targetToken
         || meToken.document.disposition === targetToken.document.disposition
+        || !canBeFlanked(targetToken)
+        || !isThreatening(meToken, targetToken)
     ) {
         return;
     }
@@ -126,7 +128,7 @@ Hooks.on('updateToken', async (token, update, _options, _userId) => {
     }
 
     const myTargets = game.user.targets;
-    if (!myTargets.length) {
+    if (!myTargets.size) {
         await Promise.all(myTokens.map(async (myToken) => await turnOffFlankAsync(myToken)));
         return;
     }
@@ -138,7 +140,7 @@ Hooks.on('updateToken', async (token, update, _options, _userId) => {
     }
     // else if my target moves
     else if (myTargets.some(x => x.id === token.id)) {
-        const myMovingTargetedToken = myTargets.find(x => x.id === token.id).clone();
+        const myMovingTargetedToken = myTargets.find(x => x.id === token.id).clone(); // this doesn't work.. create a DTO that wraps this and gets x,y,w,h,items (and anything else needed)
         await Promise.all(myTokens.map(async (myToken) => await handleFlanking(myToken, myMovingTargetedToken)));
     }
     // else if a friendly player that I could be flanking with moves

@@ -12,9 +12,29 @@ function itemUseWrapper(wrapped, options = {}) {
     return wrapped.call(this, options);
 }
 
+Hooks.once('setup', () => libWrapper.register(MODULE_NAME, 'pf1.documents.item.ItemPF.prototype.use', itemUseWrapper, libWrapper.WRAPPER));
+
+/** this block can be removed after updated for 0.83.0 */
+
+function rollAbilityTestWrapper(wrapped, abilityId, options = {}) {
+    Hooks.call(localHooks.rollAbilityTest, this, abilityId, options);
+    return wrapped.call(this, abilityId, options);
+}
+function rollCMBWrapper(wrapped, options = {}) {
+    Hooks.call(localHooks.rollCMB, this, options);
+    return wrapped.call(this, options);
+}
+function rollSavingThrowWrapper(wrapped, savingThrowId, options = {}) {
+    Hooks.call(localHooks.rollSavingThrow, this, savingThrowId, options);
+    return wrapped.call(this, savingThrowId, options);
+}
+
 Hooks.once('setup', () => {
-    /* global libWrapper */
-    libWrapper.register(MODULE_NAME, 'pf1.documents.item.ItemPF.prototype.use', itemUseWrapper, libWrapper.WRAPPER);
+    libWrapper.register(MODULE_NAME, 'pf1.documents.actor.ActorPF.prototype.rollAbilityTest', rollAbilityTestWrapper, libWrapper.WRAPPER);
+    libWrapper.register(MODULE_NAME, 'pf1.documents.actor.ActorPF.prototype.rollCMB', rollCMBWrapper, libWrapper.WRAPPER);
+    libWrapper.register(MODULE_NAME, 'pf1.documents.actor.ActorPF.prototype.rollSavingThrow', rollSavingThrowWrapper, libWrapper.WRAPPER);
 });
+
+/** end block */
 
 Hooks.once('init', () => console.log('ckl roll bonuses loaded'));
