@@ -217,7 +217,8 @@ Hooks.on('pf1PreActorRollBab', (actor, options) => {
     options.dice = roll;
 });
 
-Hooks.on('pf1PreActorRollCl', (actor, options) => {
+// todo add book handler
+Hooks.on('pf1PreActorRollCl', (actor, bookId, options) => {
     if (options.dice && !allRolls.includes(options.dice)) {
         return;
     }
@@ -246,7 +247,8 @@ Hooks.on('pf1PreActorRollCl', (actor, options) => {
     options.dice = roll;
 });
 
-Hooks.on('pf1PreActorRollConcentration', (actor, options) => {
+// todo add book handler
+Hooks.on('pf1PreActorRollConcentration', (actor, options, bookId) => {
     if (options.dice && !allRolls.includes(options.dice)) {
         return;
     }
