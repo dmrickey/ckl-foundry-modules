@@ -2,7 +2,7 @@ import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
 import { getItemDFlags } from "../util/flag-helpers.mjs";
 import { registerItemHint } from "../util/item-hints.mjs";
-import { registerSettingString } from "../util/register-setting.mjs";
+import { registerSetting } from "../util/settings.mjs";
 
 const spellFocusKey = 'spellFocus';
 const greaterSpellFocusKey = 'greaterSpellFocus';
@@ -14,9 +14,9 @@ const spellFocusId = 'V2zY7BltkpSXwejy';
 const greaterSpellFocusId = 'LSykiaxYWzva2boF';
 const mythicSpellFocusId = 'TOMEhAeZsgGHrSH6';
 
-registerSettingString({ key: spellFocusKey });
-registerSettingString({ key: greaterSpellFocusKey });
-registerSettingString({ key: mythicSpellFocusKey });
+registerSetting({ key: spellFocusKey });
+registerSetting({ key: greaterSpellFocusKey });
+registerSetting({ key: mythicSpellFocusKey });
 
 class Settings {
     static get spellFocus() { return Settings.#getSetting(spellFocusKey); }

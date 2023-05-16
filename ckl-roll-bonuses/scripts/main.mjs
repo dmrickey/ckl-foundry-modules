@@ -12,7 +12,15 @@ function itemUseWrapper(wrapped, options = {}) {
     return wrapped.call(this, options);
 }
 
-Hooks.once('setup', () => libWrapper.register(MODULE_NAME, 'pf1.documents.item.ItemPF.prototype.use', itemUseWrapper, libWrapper.WRAPPER));
+function d20RollWrapper(wrapped, options = {}) {
+    Hooks.call(localHooks.d20Roll, options);
+    return wrapped.call(this, options);
+}
+
+Hooks.once('setup', () => {
+    libWrapper.register(MODULE_NAME, 'pf1.documents.item.ItemPF.prototype.use', itemUseWrapper, libWrapper.WRAPPER);
+    libWrapper.register(MODULE_NAME, 'pf1.dice.d20Roll', d20RollWrapper, libWrapper.WRAPPER);
+});
 
 /** this block can be removed after updated for 0.83.0 */
 

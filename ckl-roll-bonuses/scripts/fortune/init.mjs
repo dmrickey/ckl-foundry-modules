@@ -1,170 +1,216 @@
+import { MODULE_NAME } from '../consts.mjs';
 import { countBFlags } from '../util/flag-helpers.mjs';
 import { localHooks } from '../util/hooks.mjs';
 import { registerItemHint } from '../util/item-hints.mjs';
 import { localize } from '../util/localize.mjs';
+import { registerSetting } from '../util/settings.mjs';
 import { truthiness } from '../util/truthiness.mjs';
 
 const fortune = 'fortune';
 const misfortune = 'misfortune';
 
-const selfFortune = 'self-fortune';
-const selfMisfortune = 'self-misfortune';
-
+const abilityFortune = 'fortune-ability';
+const abilityMisfortune = 'misfortune-ability';
+const attackFortune = 'fortune-attack';
+const attackMisfortune = 'misfortune-attack';
+const babFortune = 'fortune-bab';
+const babMisfortune = 'misfortune-bab';
+const clFortune = 'fortune-cl';
+const clMisfortune = 'misfortune-cl';
+const concentrationFortune = 'fortune-concentration';
+const concentrationMisfortune = 'misfortune-concentration';
+const initFortune = 'fortune-init';
+const initWarsightFortune = 'fortune-warsight-init';
+const initMisfortune = 'misfortune-init';
+const saveFortune = 'fortune-save';
+const saveMisfortune = 'misfortune-save';
+const selfFortune = 'fortune-self-item';
+const selfMisfortune = 'misfortune-self-item';
 const skillFortune = 'fortune-skill';
 const skillMisfortune = 'misfortune-skill';
 
-const abilityFortune = 'fortune-ability';
-const abilityMisfortune = 'misfortune-ability';
+const fortunesLookup = {
+    [abilityFortune]: (key) => key ? pf1.config.abilities[key] : localize('PF1.Ability'),
+    [attackFortune]: (key) => !key ? localize('PF1.Attack') : key === 'melee' ? localize('PF1.Melee') : localize('PF1.Ranged'),
+    [babFortune]: () => localize('PF1.BABAbbr'),
+    [initFortune]: () => localize('PF1.Initiative'),
+    [initWarsightFortune]: localize('PF1.Initiative'),
+    [saveFortune]: (key) => key ? pf1.config.savingThrows[key] : localize('PF1.Save'),
+    [selfFortune]: () => localize('PF1.TargetSelf'),
+    [skillFortune]: (key, actor) => !key ? localize('PF1.Skills') : pf1.config.skills[key] || getProperty(actor.system.skills, skillId)?.name,
 
-const attackFortune = 'fortune-attack';
-const attackMisfortune = 'misfortune-attack';
+    // todo add book handler
+    [clFortune]: (_key) => localize('PF1.CasterLevel'),
+    [concentrationFortune]: (_key) => localize('PF1.Concentration'),
+};
 
-const babFortune = 'fortune-bab';
-const babMisfortune = 'misfortune-bab';
+const fortuneStacks = 'fortuneStacks';
+registerSetting({ key: fortuneStacks, settingType: Boolean, defaultValue: true });
 
-const clFortune = 'fortune-cl';
-const clMisfortune = 'misfortune-cl';
-
-const concentrationFortune = 'fortune-concentration';
-const concentrationMisfortune = 'misfortune-concentration';
-
-const saveFortune = 'fortune-save';
-const saveMisfortune = 'misfortune-save';
-
-const languageLookup = {
-    [fortune]: fortune,
-    [selfFortune]: fortune,
-    [skillFortune]: fortune,
-    [abilityFortune]: fortune,
-    [attackFortune]: fortune,
-    [babFortune]: fortune,
-    [clFortune]: fortune,
-    [concentrationFortune]: fortune,
-    [saveFortune]: fortune,
-
-    [misfortune]: misfortune,
-    [selfMisfortune]: misfortune,
-    [skillMisfortune]: misfortune,
-    [abilityMisfortune]: misfortune,
-    [attackMisfortune]: misfortune,
-    [babMisfortune]: misfortune,
-    [clMisfortune]: misfortune,
-    [concentrationMisfortune]: misfortune,
-    [saveMisfortune]: misfortune,
+class Settings {
+    static get fortuneStacks() { return Settings.#getSetting(fortuneStacks); }
+    static #getSetting(key) { return game.settings.get(MODULE_NAME, key); }
 }
 
-const rolls = {
-    fortune: ['2d20kh', '2d20dl'],
-    misfortune: ['2d20kl', '2d20dh'],
-};
-const allRolls = Object.values(rolls).flatMap(x => x);
+registerItemHint((hintcls, actor, item, _data) => {
+    const bFlags = Object.entries(item.system?.flags?.boolean ?? {})
+        .filter(([_, value]) => !!value)
+        .map(([key, _]) => key);
 
-registerItemHint((hintcls, _actor, item, _data) => {
-    const hints = Object.keys(languageLookup).map((key) => {
-        if (!item.hasItemBooleanFlag(key)) {
-            return;
+    const fortunes = bFlags.filter(flag => flag.startsWith('fortune'));
+    const misfortunes = bFlags.filter(flag => flag.startsWith('misfortune'));
+
+    const hints = [];
+
+    const buildHint = (found, isFortune) => {
+        const base = isFortune ? fortune : misfortune;
+        let label = localize(base);
+        let extra = [];
+
+        found.forEach(f => {
+            if (f === base) return;
+
+            const [fType, key] = f.split('_');
+            extra.push(fortunesLookup[fType.slice(isFortune ? 0 : 3)](key, actor));
+        });
+
+        if (extra.length) {
+            label = `label (${extra.join(', ')})`;
         }
+        hints.push(hintcls.create(label, [], {}));
+    }
 
-        const label = localize(languageLookup[key]);
-
-        const hint = hintcls.create(label, [], {});
-        return hint;
-    }).filter(truthiness);
-
-    [skillFortune, skillMisfortune].forEach((key) => {
-        if (Object.keys(item.system.flags.boolean).some((flag) => flag.startsWith(`${key}-`))) {
-            const label = localize(key);
-            const hint = hintcls.create(label, [], {});
-            hints.push(hint);
-        }
-    });
+    buildHint(fortunes, true);
+    buildHint(misfortunes, false);
 
     return hints;
 });
 
-Hooks.on(localHooks.itemUse, (item, options) => {
-    if (options.dice && !allRolls.includes(options.dice)) {
+const handleFortune = (options) => {
+    options.dice ||= '1d20';
+    options.fortuneCount ||= 0;
+    options.misfortuneCount ||= 0;
+
+    {
+        const test = new Roll(options.dice).roll({ async: false });
+        const dice = test.dice[0];
+        const { modifiers, results } = dice;
+        const totalThrown = results.length;
+        if (test.dice.length !== 1 // if there was more than a single dice term
+            || dice.faces !== 20 // if the die is not a d20
+            || modifiers.length > 1 // if there were somehow multiple dice modifier text on the throw
+            || results.filter(x => !x.discarded).length !== 1 // if more than a single die was kept into the result
+        ) {
+            // then don't calculat fortune/misfortune because it's either a single normal die or a weird roll that either I can't assume the rules for or the system won't allow
+            return;
+        }
+
+        const mod = modifiers[0] || '';
+        if (mod.includes('dh') || mod.includes('kl')) {
+            options.misfortuneCount += (totalThrown - 1);
+        }
+        else if (mod.includes('kh') || mod.includes('dl')) {
+            options.fortuneCount += (totalThrown - 1);
+        }
+    }
+
+    if (options.fortuneCount === options.misfortuneCount) {
         return;
     }
 
-    let fortuneCount = 0;
-    let misfortuneCount = 0;
+    const qty = Settings.fortuneStacks
+        ? Math.abs(options.fortuneCount - options.misfortuneCount) + 1
+        : 2;
 
-    if (rolls.fortune.includes(options.dice)) {
-        fortuneCount++;
+    if (options.fortuneCount > options.misfortuneCount) {
+        options.dice = `${qty}d20kh`;
     }
-    else if (rolls.misfortune.includes(options.dice)) {
-        misfortuneCount++;
+    else if (options.misfortuneCount > options.fortuneCount) {
+        options.dice = `${qty}d20kl`;
     }
+};
+
+const handleInitiative = (actor, formula) => {
+    formula ||= '1d20';
+
+    /** BEGIN OVERRIDE */
+    // this gets the original formula before "extra" stuff that's this base method adds in case something else is wrapping this method
+    formula = formula.split('@attributes.init.total[')[0];
+
+    if (actor?.items?.size) {
+        const options = {
+            dice: formula,
+            fortuneCount: 0,
+            misfortuneCount: 0,
+        };
+
+        options.fortuneCount += countBFlags(actor.items, fortune);
+        options.misfortuneCount += countBFlags(actor.items, misfortune);
+
+        options.fortuneCount += countBFlags(actor.items, initFortune);
+        options.misfortuneCount += countBFlags(actor.items, initMisfortune);
+
+        if (countBFlags(actor.items, initWarsightFortune)) {
+            options.fortuneCount += 2;
+        }
+
+        handleFortune(options);
+        formula = options.dice;
+    }
+    /** END OVERRIDE */
+
+    const defaultParts = [formula, `@attributes.init.total[${game.i18n.localize("PF1.Initiative")}]`];
+    if (actor && game.settings.get("pf1", "initiativeTiebreaker"))
+        defaultParts.push(`(@attributes.init.total / 100)[${game.i18n.localize("PF1.Tiebreaker")}]`);
+    const parts = CONFIG.Combat.initiative.formula ? CONFIG.Combat.initiative.formula.split(/\s*\+\s*/) : defaultParts;
+    if (!actor) return parts[0] || "0";
+    return parts.filter((p) => p !== null).join(" + ");
+};
+
+Hooks.once('setup', () => libWrapper.register(MODULE_NAME, 'pf1.documents.CombatPF.prototype._getInitiativeFormula', handleInitiative, libWrapper.OVERRIDE));
+
+// item use does not fire through this hook, so it needs its own dice handling below
+Hooks.on(localHooks.d20Roll, (options) => handleFortune(options));
+
+Hooks.on(localHooks.itemUse, (item, options) => {
+    options.fortuneCount ||= 0;
+    options.misfortuneCount ||= 0;
 
     if (item.hasItemBooleanFlag(selfFortune)) {
-        fortuneCount++;
+        options.fortuneCount++;
     }
     else if (item.hasItemBooleanFlag(selfMisfortune)) {
-        misfortuneCount++;
+        options.misfortuneCount++;
     }
 
-    fortuneCount += countBFlags(item.parent?.items, attackFortune);
-    misfortuneCount += countBFlags(item.parent?.items, attackMisfortune);
+    options.fortuneCount += countBFlags(item.parent?.items, attackFortune);
+    options.misfortuneCount += countBFlags(item.parent?.items, attackMisfortune);
 
-    fortuneCount += countBFlags(item.parent?.items, fortune);
-    misfortuneCount += countBFlags(item.parent?.items, misfortune);
+    options.fortuneCount += countBFlags(item.parent?.items, fortune);
+    options.misfortuneCount += countBFlags(item.parent?.items, misfortune);
 
-    const roll = fortuneCount > misfortuneCount
-        ? rolls.fortune[0]
-        : misfortuneCount > fortuneCount
-            ? rolls.misfortune[0]
-            : '';
-
-    options.dice = roll;
+    handleFortune(options);
 });
 
 Hooks.on('pf1PreActorRollSkill', (actor, options, skillId) => {
-    if (options.dice && !allRolls.includes(options.dice)) {
-        return;
-    }
-
     let fortuneCount = 0;
     let misfortuneCount = 0;
-
-    if (rolls.fortune.includes(options.dice)) {
-        fortuneCount++;
-    }
-    else if (rolls.misfortune.includes(options.dice)) {
-        misfortuneCount++;
-    }
 
     fortuneCount += countBFlags(actor?.items, fortune);
     misfortuneCount += countBFlags(actor?.items, misfortune);
     fortuneCount += countBFlags(actor?.items, skillFortune);
     misfortuneCount += countBFlags(actor?.items, skillMisfortune);
 
-    fortuneCount += countBFlags(actor?.items, `${skillFortune}-${skillId}`);
-    misfortuneCount += countBFlags(actor?.items, `${skillMisfortune}-${skillId}`);
+    fortuneCount += countBFlags(actor?.items, `${skillFortune}_${skillId}`);
+    misfortuneCount += countBFlags(actor?.items, `${skillMisfortune}_${skillId}`);
 
-    const roll = fortuneCount > misfortuneCount
-        ? rolls.fortune[0]
-        : misfortuneCount > fortuneCount
-            ? rolls.misfortune[0]
-            : undefined;
-
-    options.dice = roll;
+    options.fortuneCount = fortuneCount;
+    options.misfortuneCount = misfortuneCount;;
 });
 
 Hooks.on('pf1PreActorRollAttack', (actor, options) => {
-    if (options.dice && !allRolls.includes(options.dice)) {
-        return;
-    }
-
     let fortuneCount = 0;
     let misfortuneCount = 0;
-
-    if (rolls.fortune.includes(options.dice)) {
-        fortuneCount++;
-    }
-    else if (rolls.misfortune.includes(options.dice)) {
-        misfortuneCount++;
-    }
 
     fortuneCount += countBFlags(actor?.items, fortune);
     misfortuneCount += countBFlags(actor?.items, misfortune);
@@ -172,160 +218,79 @@ Hooks.on('pf1PreActorRollAttack', (actor, options) => {
     misfortuneCount += countBFlags(actor?.items, attackMisfortune);
 
     if (options.melee) {
-        fortuneCount += countBFlags(actor?.items, `${attackFortune}-melee`);
-        misfortuneCount += countBFlags(actor?.items, `${attackMisfortune}-melee`);
+        fortuneCount += countBFlags(actor?.items, `${attackFortune}_melee`);
+        misfortuneCount += countBFlags(actor?.items, `${attackMisfortune}_melee`);
     } {
-        fortuneCount += countBFlags(actor?.items, `${attackFortune}-ranged}`);
-        misfortuneCount += countBFlags(actor?.items, `${attackMisfortune}-ranged}`);
+        fortuneCount += countBFlags(actor?.items, `${attackFortune}_ranged}`);
+        misfortuneCount += countBFlags(actor?.items, `${attackMisfortune}_ranged}`);
     }
 
-    const roll = fortuneCount > misfortuneCount
-        ? rolls.fortune[0]
-        : misfortuneCount > fortuneCount
-            ? rolls.misfortune[0]
-            : undefined;
-
-    options.dice = roll;
+    options.fortuneCount = fortuneCount;
+    options.misfortuneCount = misfortuneCount;;
 });
 
 Hooks.on('pf1PreActorRollBab', (actor, options) => {
-    if (options.dice && !allRolls.includes(options.dice)) {
-        return;
-    }
-
     let fortuneCount = 0;
     let misfortuneCount = 0;
-
-    if (rolls.fortune.includes(options.dice)) {
-        fortuneCount++;
-    }
-    else if (rolls.misfortune.includes(options.dice)) {
-        misfortuneCount++;
-    }
 
     fortuneCount += countBFlags(actor?.items, fortune);
     misfortuneCount += countBFlags(actor?.items, misfortune);
     fortuneCount += countBFlags(actor?.items, babFortune);
     misfortuneCount += countBFlags(actor?.items, babMisfortune);
 
-    const roll = fortuneCount > misfortuneCount
-        ? rolls.fortune[0]
-        : misfortuneCount > fortuneCount
-            ? rolls.misfortune[0]
-            : undefined;
-
-    options.dice = roll;
+    options.fortuneCount = fortuneCount;
+    options.misfortuneCount = misfortuneCount;;
 });
 
 // todo add book handler
 Hooks.on('pf1PreActorRollCl', (actor, bookId, options) => {
-    if (options.dice && !allRolls.includes(options.dice)) {
-        return;
-    }
-
     let fortuneCount = 0;
     let misfortuneCount = 0;
-
-    if (rolls.fortune.includes(options.dice)) {
-        fortuneCount++;
-    }
-    else if (rolls.misfortune.includes(options.dice)) {
-        misfortuneCount++;
-    }
 
     fortuneCount += countBFlags(actor?.items, fortune);
     misfortuneCount += countBFlags(actor?.items, misfortune);
     fortuneCount += countBFlags(actor?.items, clFortune);
     misfortuneCount += countBFlags(actor?.items, clMisfortune);
 
-    const roll = fortuneCount > misfortuneCount
-        ? rolls.fortune[0]
-        : misfortuneCount > fortuneCount
-            ? rolls.misfortune[0]
-            : undefined;
-
-    options.dice = roll;
+    options.fortuneCount = fortuneCount;
+    options.misfortuneCount = misfortuneCount;;
 });
 
 // todo add book handler
 Hooks.on('pf1PreActorRollConcentration', (actor, options, bookId) => {
-    if (options.dice && !allRolls.includes(options.dice)) {
-        return;
-    }
-
     let fortuneCount = 0;
     let misfortuneCount = 0;
-
-    if (rolls.fortune.includes(options.dice)) {
-        fortuneCount++;
-    }
-    else if (rolls.misfortune.includes(options.dice)) {
-        misfortuneCount++;
-    }
 
     fortuneCount += countBFlags(actor?.items, fortune);
     misfortuneCount += countBFlags(actor?.items, misfortune);
     fortuneCount += countBFlags(actor?.items, concentrationFortune);
     misfortuneCount += countBFlags(actor?.items, concentrationMisfortune);
 
-    const roll = fortuneCount > misfortuneCount
-        ? rolls.fortune[0]
-        : misfortuneCount > fortuneCount
-            ? rolls.misfortune[0]
-            : undefined;
-
-    options.dice = roll;
+    options.fortuneCount = fortuneCount;
+    options.misfortuneCount = misfortuneCount;;
 });
 
 const handleAbility = (actor, options, ability) => {
-    if (options.dice && !allRolls.includes(options.dice)) {
-        return;
-    }
-
     let fortuneCount = 0;
     let misfortuneCount = 0;
-
-    if (rolls.fortune.includes(options.dice)) {
-        fortuneCount++;
-    }
-    else if (rolls.misfortune.includes(options.dice)) {
-        misfortuneCount++;
-    }
 
     fortuneCount += countBFlags(actor?.items, fortune);
     misfortuneCount += countBFlags(actor?.items, misfortune);
     fortuneCount += countBFlags(actor?.items, abilityFortune);
     misfortuneCount += countBFlags(actor?.items, abilityMisfortune);
 
-    fortuneCount += countBFlags(actor?.items, `${abilityFortune}-${ability}`);
-    misfortuneCount += countBFlags(actor?.items, `${abilityMisfortune}-${ability}`);
+    fortuneCount += countBFlags(actor?.items, `${abilityFortune}_${ability}`);
+    misfortuneCount += countBFlags(actor?.items, `${abilityMisfortune}_${ability}`);
 
-    const roll = fortuneCount > misfortuneCount
-        ? rolls.fortune[0]
-        : misfortuneCount > fortuneCount
-            ? rolls.misfortune[0]
-            : undefined;
-
-    options.dice = roll;
+    options.fortuneCount = fortuneCount;
+    options.misfortuneCount = misfortuneCount;;
 };
-// does not work in 0.82.5
-Hooks.on('pf1PreActorRollAbility', handleAbility);
+// Hooks.on('pf1PreActorRollAbility', handleAbility); // does not work in 0.82.5
 Hooks.on(localHooks.rollAbilityTest, (actor, abilityId, options) => handleAbility(actor, options, abilityId));
 
 const handleCmb = (actor, options) => {
-    if (options.dice && !allRolls.includes(options.dice)) {
-        return;
-    }
-
     let fortuneCount = 0;
     let misfortuneCount = 0;
-
-    if (rolls.fortune.includes(options.dice)) {
-        fortuneCount++;
-    }
-    else if (rolls.misfortune.includes(options.dice)) {
-        misfortuneCount++;
-    }
 
     fortuneCount += countBFlags(actor?.items, fortune);
     misfortuneCount += countBFlags(actor?.items, misfortune);
@@ -334,49 +299,26 @@ const handleCmb = (actor, options) => {
     fortuneCount += countBFlags(actor?.items, babFortune);
     misfortuneCount += countBFlags(actor?.items, babMisfortune);
 
-    const roll = fortuneCount > misfortuneCount
-        ? rolls.fortune[0]
-        : misfortuneCount > fortuneCount
-            ? rolls.misfortune[0]
-            : undefined;
-
-    options.dice = roll;
+    options.fortuneCount = fortuneCount;
+    options.misfortuneCount = misfortuneCount;;
 };
-// does not work in 0.82.5
-// Hooks.on('pf1PreActorRollCmb', handleCmb);
+// Hooks.on('pf1PreActorRollCmb', handleCmb); // does not work in 0.82.5
 Hooks.on(localHooks.rollCMB, handleCmb);
 
 const handleSavingThrow = (actor, options, savingThrowId) => {
-    if (options.dice && !allRolls.includes(options.dice)) {
-        return;
-    }
-
     let fortuneCount = 0;
     let misfortuneCount = 0;
-
-    if (rolls.fortune.includes(options.dice)) {
-        fortuneCount++;
-    }
-    else if (rolls.misfortune.includes(options.dice)) {
-        misfortuneCount++;
-    }
 
     fortuneCount += countBFlags(actor?.items, fortune);
     misfortuneCount += countBFlags(actor?.items, misfortune);
     fortuneCount += countBFlags(actor?.items, saveFortune);
     misfortuneCount += countBFlags(actor?.items, saveMisfortune);
 
-    fortuneCount += countBFlags(actor?.items, `${saveFortune}-${savingThrowId}`);
-    misfortuneCount += countBFlags(actor?.items, `${saveMisfortune}-${savingThrowId}`);
+    fortuneCount += countBFlags(actor?.items, `${saveFortune}_${savingThrowId}`);
+    misfortuneCount += countBFlags(actor?.items, `${saveMisfortune}_${savingThrowId}`);
 
-    const roll = fortuneCount > misfortuneCount
-        ? rolls.fortune[0]
-        : misfortuneCount > fortuneCount
-            ? rolls.misfortune[0]
-            : undefined;
-
-    options.dice = roll;
+    options.fortuneCount = fortuneCount;
+    options.misfortuneCount = misfortuneCount;;
 };
-// does not work in 0.82.5
-// Hooks.on('pf1PreActorRollSave', handleSavingThrow);
+// Hooks.on('pf1PreActorRollSave', handleSavingThrow); // does not work in 0.82.5
 Hooks.on(localHooks.rollSavingThrow, (actor, savingThrowId, options) => handleSavingThrow(actor, options, savingThrowId));
