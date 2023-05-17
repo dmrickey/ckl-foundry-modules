@@ -26,7 +26,23 @@ const getFlagsFromDFlags = (dFlags, ...flags) => {
 }
 
 // item.system.flags.boolean - note to self for later
-const countBFlags = (items, flag) => (items || []).filter((item) => item.isActive && item.hasItemBooleanFlag(flag)).length;
+const countBFlag = (items, flag) => (items || []).filter((item) => item.isActive && item.hasItemBooleanFlag(flag)).length;
+
+const countBFlags = (items, ...flags) => {
+    const count = Object.fromEntries(flags.map((flag) => [flag, 0]));
+
+    (items || []).forEach((item) => {
+        if (!item.isActive) return;
+
+        flags.forEach((flag) => {
+            if (item.hasItemBooleanFlag(flag)) {
+                count[flag]++;
+            }
+        });
+    });
+
+    return count;
+}
 
 
-export { countBFlags, getFlagsFromDFlags, getItemDFlags }
+export { countBFlag, countBFlags, getFlagsFromDFlags, getItemDFlags }

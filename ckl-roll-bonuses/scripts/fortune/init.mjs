@@ -4,7 +4,6 @@ import { localHooks } from '../util/hooks.mjs';
 import { registerItemHint } from '../util/item-hints.mjs';
 import { localize } from '../util/localize.mjs';
 import { registerSetting } from '../util/settings.mjs';
-import { truthiness } from '../util/truthiness.mjs';
 
 const fortune = 'fortune';
 const misfortune = 'misfortune';
@@ -29,20 +28,22 @@ const selfMisfortune = 'misfortune-self-item';
 const skillFortune = 'fortune-skill';
 const skillMisfortune = 'misfortune-skill';
 
-const fortunesLookup = {
-    [abilityFortune]: (key) => key ? pf1.config.abilities[key] : localize('PF1.Ability'),
-    [attackFortune]: (key) => !key ? localize('PF1.Attack') : key === 'melee' ? localize('PF1.Melee') : localize('PF1.Ranged'),
-    [babFortune]: () => localize('PF1.BABAbbr'),
-    [initFortune]: () => localize('PF1.Initiative'),
-    [initWarsightFortune]: localize('PF1.Initiative'),
-    [saveFortune]: (key) => key ? pf1.config.savingThrows[key] : localize('PF1.Save'),
-    [selfFortune]: () => localize('PF1.TargetSelf'),
-    [skillFortune]: (key, actor) => !key ? localize('PF1.Skills') : pf1.config.skills[key] || getProperty(actor.system.skills, skillId)?.name,
+let fortunesLookup = {};
 
-    // todo add book handler
-    [clFortune]: (_key) => localize('PF1.CasterLevel'),
-    [concentrationFortune]: (_key) => localize('PF1.Concentration'),
-};
+Hooks.once('ready', () => {
+    fortunesLookup = {
+        [abilityFortune]: (key) => key ? pf1.config.abilities[key] : localize('PF1.Ability'),
+        [attackFortune]: (key) => !key ? localize('PF1.Attack') : key === 'melee' ? localize('PF1.Melee') : localize('PF1.Ranged'),
+        [babFortune]: () => localize('PF1.BABAbbr'),
+        [initFortune]: () => localize('PF1.Initiative'),
+        [initWarsightFortune]: localize('PF1.Initiative'),
+        [saveFortune]: (key) => key ? pf1.config.savingThrows[key] : localize('PF1.Save'),
+        [selfFortune]: () => localize('PF1.TargetSelf'),
+        [skillFortune]: (key, actor) => !key ? localize('PF1.Skills') : pf1.config.skills[key] || getProperty(actor.system.skills, key)?.name,
+        [clFortune]: (_key) => localize('PF1.CasterLevel'),
+        [concentrationFortune]: (_key) => localize('PF1.Concentration'),
+    };
+});
 
 const fortuneStacks = 'fortuneStacks';
 registerSetting({ key: fortuneStacks, settingType: Boolean, defaultValue: true });
@@ -63,6 +64,8 @@ registerItemHint((hintcls, actor, item, _data) => {
     const hints = [];
 
     const buildHint = (found, isFortune) => {
+        if (!found.length) return;
+
         const base = isFortune ? fortune : misfortune;
         let label = localize(base);
         let extra = [];
@@ -70,12 +73,13 @@ registerItemHint((hintcls, actor, item, _data) => {
         found.forEach(f => {
             if (f === base) return;
 
-            const [fType, key] = f.split('_');
+            let [fType, ...rest] = f.split('_');
+            const key = rest.join('_');
             extra.push(fortunesLookup[fType.slice(isFortune ? 0 : 3)](key, actor));
         });
 
         if (extra.length) {
-            label = `label (${extra.join(', ')})`;
+            label = `${label} (${extra.join(', ')})`;
         }
         hints.push(hintcls.create(label, [], {}));
     }
@@ -144,13 +148,15 @@ const handleInitiative = (actor, formula) => {
             misfortuneCount: 0,
         };
 
-        options.fortuneCount += countBFlags(actor.items, fortune);
-        options.misfortuneCount += countBFlags(actor.items, misfortune);
+        const count = countBFlags(actor.items, fortune, misfortune, initFortune, initMisfortune, initWarsightFortune);
 
-        options.fortuneCount += countBFlags(actor.items, initFortune);
-        options.misfortuneCount += countBFlags(actor.items, initMisfortune);
+        options.fortuneCount += count[fortune];
+        options.misfortuneCount += count[misfortune];
 
-        if (countBFlags(actor.items, initWarsightFortune)) {
+        options.fortuneCount += count[initFortune];
+        options.misfortuneCount += count[initMisfortune];
+
+        if (count[initWarsightFortune]) {
             options.fortuneCount += 2;
         }
 
@@ -183,11 +189,13 @@ Hooks.on(localHooks.itemUse, (item, options) => {
         options.misfortuneCount++;
     }
 
-    options.fortuneCount += countBFlags(item.parent?.items, attackFortune);
-    options.misfortuneCount += countBFlags(item.parent?.items, attackMisfortune);
+    const count = countBFlags(item.parent?.items, fortune, misfortune, attackFortune, attackMisfortune);
 
-    options.fortuneCount += countBFlags(item.parent?.items, fortune);
-    options.misfortuneCount += countBFlags(item.parent?.items, misfortune);
+    options.fortuneCount += count[fortune];
+    options.misfortuneCount += count[misfortune];
+
+    options.fortuneCount += count[attackFortune];
+    options.misfortuneCount += count[attackMisfortune];
 
     handleFortune(options);
 });
@@ -196,13 +204,15 @@ Hooks.on('pf1PreActorRollSkill', (actor, options, skillId) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    fortuneCount += countBFlags(actor?.items, fortune);
-    misfortuneCount += countBFlags(actor?.items, misfortune);
-    fortuneCount += countBFlags(actor?.items, skillFortune);
-    misfortuneCount += countBFlags(actor?.items, skillMisfortune);
+    const count = countBFlags(actor?.items, fortune, misfortune, skillFortune, skillMisfortune, `${skillFortune}_${skillId}`, `${skillMisfortune}_${skillId}`);
 
-    fortuneCount += countBFlags(actor?.items, `${skillFortune}_${skillId}`);
-    misfortuneCount += countBFlags(actor?.items, `${skillMisfortune}_${skillId}`);
+    fortuneCount += count[fortune];
+    misfortuneCount += count[misfortune];
+    fortuneCount += count[skillFortune];
+    misfortuneCount += count[skillMisfortune];
+
+    fortuneCount += count[`${skillFortune}_${skillId}`];
+    misfortuneCount += count[`${skillMisfortune}_${skillId}`];
 
     options.fortuneCount = fortuneCount;
     options.misfortuneCount = misfortuneCount;;
@@ -212,17 +222,19 @@ Hooks.on('pf1PreActorRollAttack', (actor, options) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    fortuneCount += countBFlags(actor?.items, fortune);
-    misfortuneCount += countBFlags(actor?.items, misfortune);
-    fortuneCount += countBFlags(actor?.items, attackFortune);
-    misfortuneCount += countBFlags(actor?.items, attackMisfortune);
+    const count = countBFlags(actor?.items, fortune, misfortune, attackFortune, attackMisfortune, `${attackFortune}_melee`, `${attackMisfortune}_melee`, `${attackFortune}_ranged`, `${attackMisfortune}_ranged`);
+
+    fortuneCount += count[fortune];
+    misfortuneCount += count[misfortune];
+    fortuneCount += count[attackFortune];
+    misfortuneCount += count[attackMisfortune];
 
     if (options.melee) {
-        fortuneCount += countBFlags(actor?.items, `${attackFortune}_melee`);
-        misfortuneCount += countBFlags(actor?.items, `${attackMisfortune}_melee`);
+        fortuneCount += count[`${attackFortune}_melee`];
+        misfortuneCount += count[`${attackMisfortune}_melee`];
     } {
-        fortuneCount += countBFlags(actor?.items, `${attackFortune}_ranged}`);
-        misfortuneCount += countBFlags(actor?.items, `${attackMisfortune}_ranged}`);
+        fortuneCount += count[`${attackFortune}_ranged}`];
+        misfortuneCount += count[`${attackMisfortune}_ranged}`];
     }
 
     options.fortuneCount = fortuneCount;
@@ -233,38 +245,64 @@ Hooks.on('pf1PreActorRollBab', (actor, options) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    fortuneCount += countBFlags(actor?.items, fortune);
-    misfortuneCount += countBFlags(actor?.items, misfortune);
-    fortuneCount += countBFlags(actor?.items, babFortune);
-    misfortuneCount += countBFlags(actor?.items, babMisfortune);
+    const count = countBFlags(actor?.items, fortune, misfortune, babFortune, babMisfortune);
+
+    fortuneCount += count[fortune];
+    misfortuneCount += count[misfortune];
+    fortuneCount += count[babFortune];
+    misfortuneCount += count[babMisfortune];
 
     options.fortuneCount = fortuneCount;
     options.misfortuneCount = misfortuneCount;;
 });
 
-// todo add book handler
 Hooks.on('pf1PreActorRollCl', (actor, bookId, options) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    fortuneCount += countBFlags(actor?.items, fortune);
-    misfortuneCount += countBFlags(actor?.items, misfortune);
-    fortuneCount += countBFlags(actor?.items, clFortune);
-    misfortuneCount += countBFlags(actor?.items, clMisfortune);
+    const name = options.rollData.spells[bookId].name;
+    const ids = Object.entries(options.rollData.spells)
+        .filter(([_id, value]) => value.name === name)
+        .map(([id, _value]) => id);
+
+    const idFortunes = ids.map((id) => `${clFortune}_${id}`);
+    const idMisfortunes = ids.map((id) => `${clMisfortune}_${id}`);
+
+    const count = countBFlags(actor?.items, fortune, misfortune, clFortune, clMisfortune, ...idFortunes, ...idMisfortunes);
+
+    fortuneCount += count[fortune];
+    misfortuneCount += count[misfortune];
+    fortuneCount += count[clFortune];
+    misfortuneCount += count[clMisfortune];
+
+    idFortunes.forEach((id) => fortuneCount += count(id));
+    idMisfortunes.forEach((id) => misfortuneCount += count(id));
 
     options.fortuneCount = fortuneCount;
     options.misfortuneCount = misfortuneCount;;
 });
 
-// todo add book handler
 Hooks.on('pf1PreActorRollConcentration', (actor, options, bookId) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    fortuneCount += countBFlags(actor?.items, fortune);
-    misfortuneCount += countBFlags(actor?.items, misfortune);
-    fortuneCount += countBFlags(actor?.items, concentrationFortune);
-    misfortuneCount += countBFlags(actor?.items, concentrationMisfortune);
+    const name = options.rollData.spells[bookId].name;
+    const ids = Object.entries(options.rollData.spells)
+        .filter(([_id, value]) => value.name === name)
+        .map(([id, _value]) => id);
+
+    const idFortunes = ids.map((id) => `${concentrationFortune}_${id}`);
+    const idMisfortunes = ids.map((id) => `${concentrationMisfortune}_${id}`);
+
+    const count = countBFlags(actor?.items, fortune, misfortune, concentrationFortune, concentrationMisfortune, ...idFortunes, ...idMisfortunes);
+
+    fortuneCount += count[fortune];
+    misfortuneCount += count[misfortune];
+    fortuneCount += count[concentrationFortune];
+    misfortuneCount += count[concentrationMisfortune];
+
+    idFortunes.forEach((id) => fortuneCount += count(id));
+    idMisfortunes.forEach((id) => misfortuneCount += count(id));
 
     options.fortuneCount = fortuneCount;
     options.misfortuneCount = misfortuneCount;;
@@ -274,13 +312,15 @@ const handleAbility = (actor, options, ability) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    fortuneCount += countBFlags(actor?.items, fortune);
-    misfortuneCount += countBFlags(actor?.items, misfortune);
-    fortuneCount += countBFlags(actor?.items, abilityFortune);
-    misfortuneCount += countBFlags(actor?.items, abilityMisfortune);
+    const count = countBFlags(actor?.items, fortune, misfortune, abilityFortune, abilityMisfortune, `${abilityFortune}_${ability}`, `${abilityMisfortune}_${ability}`);
 
-    fortuneCount += countBFlags(actor?.items, `${abilityFortune}_${ability}`);
-    misfortuneCount += countBFlags(actor?.items, `${abilityMisfortune}_${ability}`);
+    fortuneCount += count[fortune];
+    misfortuneCount += count[misfortune];
+    fortuneCount += count[abilityFortune];
+    misfortuneCount += count[abilityMisfortune];
+
+    fortuneCount += count[`${abilityFortune}_${ability}`];
+    misfortuneCount += count[`${abilityMisfortune}_${ability}`];
 
     options.fortuneCount = fortuneCount;
     options.misfortuneCount = misfortuneCount;;
@@ -292,12 +332,14 @@ const handleCmb = (actor, options) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    fortuneCount += countBFlags(actor?.items, fortune);
-    misfortuneCount += countBFlags(actor?.items, misfortune);
-    fortuneCount += countBFlags(actor?.items, attackFortune);
-    misfortuneCount += countBFlags(actor?.items, attackMisfortune);
-    fortuneCount += countBFlags(actor?.items, babFortune);
-    misfortuneCount += countBFlags(actor?.items, babMisfortune);
+    const count = countBFlags(actor?.items, fortune, misfortune, attackFortune, attackMisfortune, babFortune, babMisfortune);
+
+    fortuneCount += count[fortune];
+    misfortuneCount += count[misfortune];
+    fortuneCount += count[attackFortune];
+    misfortuneCount += count[attackMisfortune];
+    fortuneCount += count[babFortune];
+    misfortuneCount += count[babMisfortune];
 
     options.fortuneCount = fortuneCount;
     options.misfortuneCount = misfortuneCount;;
@@ -309,13 +351,15 @@ const handleSavingThrow = (actor, options, savingThrowId) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    fortuneCount += countBFlags(actor?.items, fortune);
-    misfortuneCount += countBFlags(actor?.items, misfortune);
-    fortuneCount += countBFlags(actor?.items, saveFortune);
-    misfortuneCount += countBFlags(actor?.items, saveMisfortune);
+    const count = countBFlags(actor?.items, fortune, misfortune, saveFortune, saveMisfortune, `${saveFortune}_${savingThrowId}`, `${saveMisfortune}_${savingThrowId}`);
 
-    fortuneCount += countBFlags(actor?.items, `${saveFortune}_${savingThrowId}`);
-    misfortuneCount += countBFlags(actor?.items, `${saveMisfortune}_${savingThrowId}`);
+    fortuneCount += count[fortune];
+    misfortuneCount += count[misfortune];
+    fortuneCount += count[saveFortune];
+    misfortuneCount += count[saveMisfortune];
+
+    fortuneCount += count[`${saveFortune}_${savingThrowId}`];
+    misfortuneCount += count[`${saveMisfortune}_${savingThrowId}`];
 
     options.fortuneCount = fortuneCount;
     options.misfortuneCount = misfortuneCount;;
