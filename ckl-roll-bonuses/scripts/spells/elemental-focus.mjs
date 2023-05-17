@@ -2,7 +2,7 @@ import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
 import { getItemDFlags } from "../util/flag-helpers.mjs";
 import { registerItemHint } from "../util/item-hints.mjs";
-import { registerSettingString } from "../util/register-setting.mjs";
+import { registerSetting } from "../util/settings.mjs";
 import { truthiness } from "../util/truthiness.mjs";
 
 const elementalFocusKey = 'elementalFocus';
@@ -15,9 +15,9 @@ const elementalFocusId = '1frgqDSnQFiTq0MC';
 const greaterElementalFocusId = 'l4yE4RGFbORuDfp7';
 const mythicElementalFocusId = 'yelJyBhjWtiIMgci';
 
-registerSettingString({ key: elementalFocusKey });
-registerSettingString({ key: greaterElementalFocusKey });
-registerSettingString({ key: mythicElementalFocusKey });
+registerSetting({ key: elementalFocusKey });
+registerSetting({ key: greaterElementalFocusKey });
+registerSetting({ key: mythicElementalFocusKey });
 
 class Settings {
     static get elementalFocus() { return Settings.#getSetting(elementalFocusKey); }
