@@ -1,6 +1,6 @@
 # Roll Bonuses
 
-Provides bonuses to various types of rolls. Some of these are for variable changes that the system can't handle (like Inspiration). Some are a fake implementation of changes that the system just doesn't support.
+Provides bonuses to various types of rolls. Some of these are for variable changes that the system can't handle (like Inspiration). Some are a fake implementation of changes that the system just doesn't support. Support for Mana's mod [Item Hints](https://gitlab.com/koboldworks/pf1/item-hints) has been included.
 
 ## Skill Bonuses
 ![image](https://user-images.githubusercontent.com/3664822/183241183-9f899996-6f2a-455a-a711-054039365d31.png)
