@@ -15,7 +15,7 @@ To the right of each skill there's now a cog you can click that will open a menu
 
 If you have static bonuses, use the built in change system -- this is only necessary to cover a limitation in that you can't have changes based on die rolls -- they're cachced when the buff is turned on. So if you have a 1d6 in a change, and turn the buff on, then it rolls immediately when you turn the buff on and keeps that specific value until the buff is toggled later.
 
-## Fortune and Mistfortune
+## Fortune and Misfortune
 ![image](https://github.com/dmrickey/ckl-foundry-modules/assets/3664822/66d2135b-27e4-44de-8098-f6a5ed4572df)
 
 Fortune and Misfortune can now be added as flags onto your buffs, feats, abilities, etc. Simply add a boolean flag `fortune` or `misfortune`. If you have a specific Weapon, Attack, Ability, Feat that only rolls twice for itself, you can add `fortune-self-item` (or `misfortune-self-item`).  There are lots of ways to configure this for individual features. You can have misfortune only for saves or even a specific save. For all skills, an indvidual skill, etc. The following has all of the details on how you can configure it. There is one special case `fortune-warsight-init` that makes it so you roll three times on initiative for the oracle ability (must have "fortune stacks" setting enabled (it is enabled by default) for this ability to work).
