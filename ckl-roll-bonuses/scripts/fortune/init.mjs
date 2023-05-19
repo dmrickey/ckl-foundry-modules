@@ -16,6 +16,8 @@ const babFortune = 'fortune-bab';
 const babMisfortune = 'misfortune-bab';
 const clFortune = 'fortune-cl';
 const clMisfortune = 'misfortune-cl';
+const cmbFortune = 'fortune-cmb';
+const cmbMisfortune = 'misfortune-cmb';
 const concentrationFortune = 'fortune-concentration';
 const concentrationMisfortune = 'misfortune-concentration';
 const initFortune = 'fortune-init';
@@ -35,13 +37,14 @@ Hooks.once('ready', () => {
         [abilityFortune]: (key) => key ? pf1.config.abilities[key] : localize('PF1.Ability'),
         [attackFortune]: (key) => !key ? localize('PF1.Attack') : key === 'melee' ? localize('PF1.Melee') : localize('PF1.Ranged'),
         [babFortune]: () => localize('PF1.BABAbbr'),
+        [clFortune]: (_key) => localize('PF1.CasterLevel'),
+        [cmbFortune]: (_key) => localize('PF1.CMBAbbr'),
+        [concentrationFortune]: (_key) => localize('PF1.Concentration'),
         [initFortune]: () => localize('PF1.Initiative'),
         [initWarsightFortune]: localize('PF1.Initiative'),
         [saveFortune]: (key) => key ? pf1.config.savingThrows[key] : localize('PF1.Save'),
         [selfFortune]: () => localize('PF1.TargetSelf'),
         [skillFortune]: (key, actor) => !key ? localize('PF1.Skills') : pf1.config.skills[key] || getProperty(actor.system.skills, key)?.name,
-        [clFortune]: (_key) => localize('PF1.CasterLevel'),
-        [concentrationFortune]: (_key) => localize('PF1.Concentration'),
     };
 });
 
@@ -79,6 +82,7 @@ registerItemHint((hintcls, actor, item, _data) => {
         });
 
         if (extra.length) {
+            extra.sort();
             label = `${label} (${extra.join(', ')})`;
         }
         hints.push(hintcls.create(label, [], {}));
@@ -105,7 +109,7 @@ const handleFortune = (options) => {
             || modifiers.length > 1 // if there were somehow multiple dice modifier text on the throw
             || results.filter(x => !x.discarded).length !== 1 // if more than a single die was kept into the result
         ) {
-            // then don't calculat fortune/misfortune because it's either a single normal die or a weird roll that either I can't assume the rules for or the system won't allow
+            // then don't calculate fortune/misfortune because it's a weird roll that either I can't assume the rules for or the system won't allow
             return;
         }
 
@@ -190,27 +194,39 @@ Hooks.on(localHooks.itemUse, (item, options) => {
     }
 
     const action = options.actionID ? item.actions.get(options.actionID) : item.firstAction;
-    let rangeFortune = attackFortune;
-    let rangeMisfortune = attackMisfortune;
-    if (['touch', 'melee', 'reach'].includes(action.data.range.units)) {
-        rangeFortune += '_melee';
-        rangeMisfortune += '_melee';
+
+    const fortunesToFind = [fortune, attackFortune];
+    const misfortunesToFind = [misfortune, attackMisfortune];
+
+    switch (action.data.actionType) {
+        case 'msak':
+        case 'mwak':
+            fortunesToFind.push(`${attackFortune}_melee`);
+            misfortunesToFind.push(`${attackMisfortune}_melee`);
+            break;
+        case 'rsak':
+        case 'rwak':
+            fortunesToFind.push(`${attackFortune}_ranged`);
+            misfortunesToFind.push(`${attackMisfortune}_ranged`);
+            break;
+        case 'mcman':
+            fortunesToFind.push(`${attackFortune}_melee`);
+            fortunesToFind.push(`${cmbFortune}_melee`);
+            misfortunesToFind.push(`${attackMisfortune}_melee`);
+            misfortunesToFind.push(`${cmbMisfortune}_melee`);
+            break;
+        case 'rcman':
+            fortunesToFind.push(`${attackFortune}_ranged`);
+            fortunesToFind.push(`${cmbFortune}_ranged`);
+            misfortunesToFind.push(`${attackMisfortune}_ranged`);
+            misfortunesToFind.push(`${cmbMisfortune}_ranged`);
+            break;
     }
-    else {
-        rangeFortune += '_ranged';
-        rangeMisfortune += '_ranged';
-    }
 
-    const count = countBFlags(item.parent?.items, fortune, misfortune, attackFortune, attackMisfortune, rangeFortune, rangeMisfortune);
+    const count = countBFlags(item.parent?.items, ...fortunesToFind, ...misfortunesToFind);
 
-    options.fortuneCount += count[fortune];
-    options.misfortuneCount += count[misfortune];
-
-    options.fortuneCount += count[attackFortune];
-    options.misfortuneCount += count[attackMisfortune];
-
-    options.fortuneCount += count[rangeFortune];
-    options.misfortuneCount += count[rangeMisfortune];
+    options.fortuneCount.forEach((f) => options.fortuneCount += count[f]);
+    options.misfortuneCount.forEach((f) => options.misfortuneCount += count[f]);
 
     handleFortune(options);
 });
@@ -352,7 +368,7 @@ const handleCmb = (actor, options) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    const count = countBFlags(actor?.items, fortune, misfortune, attackFortune, attackMisfortune, babFortune, babMisfortune);
+    const count = countBFlags(actor?.items, fortune, misfortune, attackFortune, attackMisfortune, babFortune, babMisfortune, cmbFortune, cmbMisfortune);
 
     fortuneCount += count[fortune];
     misfortuneCount += count[misfortune];
@@ -360,6 +376,8 @@ const handleCmb = (actor, options) => {
     misfortuneCount += count[attackMisfortune];
     fortuneCount += count[babFortune];
     misfortuneCount += count[babMisfortune];
+    fortuneCount += count[cmbFortune];
+    misfortuneCount += count[cmbMisfortune];
 
     options.fortuneCount = fortuneCount;
     options.misfortuneCount = misfortuneCount;;

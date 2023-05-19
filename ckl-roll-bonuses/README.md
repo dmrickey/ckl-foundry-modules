@@ -40,7 +40,8 @@ Fortune and Misfortune can now be added as flags onto your buffs, feats, abiliti
     - `fortune-attack`
       - `fortune-attack_melee` 
       - `fortune-attack_ranged`
-    Attack also counts towards CMB checks. But melee/ranged do not, because I have no way of knowing if you're attempting a standard melee CMB check, or one of the few ranged CMB options
+    - attacks also use bab
+    - if the action is configured as a Melee/Ranged Combat Maneuver, it will also use cmb
 
     ### Base Attack Bonus
     - `fortune-bab`
@@ -52,6 +53,13 @@ Fortune and Misfortune can now be added as flags onto your buffs, feats, abiliti
       - `fortune-cl_tertiary`
       - `fortune-cl_spelllike
       - can also use the class configured for the spell book e.g. `fortune-cl_druid`
+
+    ### Combat Maneuver Checks
+    - `fortune-cmb`
+      - `fortune-cmb_melee`
+      - `fortune-cmb_ranged`
+        - melee/ranged only work for Actions configured as melee/ranged CMB, not for when rolling "CMB" directly off the character sheet because there's no way to tell if  that's for melee or one of the few ranged options
+    - cmb also use bab
 
     ### Concentration Checks
     - `fortune-concentration`

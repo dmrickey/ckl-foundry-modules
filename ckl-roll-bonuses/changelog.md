@@ -1,3 +1,6 @@
+## v1.5.1
+- Added missing fortune/misfortune for cmb (see readme)
+
 ## v1.5.0
 - Added fortune/misfortune
 
