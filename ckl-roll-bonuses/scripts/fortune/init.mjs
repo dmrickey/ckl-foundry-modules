@@ -225,8 +225,8 @@ Hooks.on(localHooks.itemUse, (item, options) => {
 
     const count = countBFlags(item.parent?.items, ...fortunesToFind, ...misfortunesToFind);
 
-    options.fortuneCount.forEach((f) => options.fortuneCount += count[f]);
-    options.misfortuneCount.forEach((f) => options.misfortuneCount += count[f]);
+    fortunesToFind.forEach((f) => options.fortuneCount += count[f]);
+    misfortunesToFind.forEach((f) => options.misfortuneCount += count[f]);
 
     handleFortune(options);
 });

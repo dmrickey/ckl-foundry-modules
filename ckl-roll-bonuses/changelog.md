@@ -1,3 +1,6 @@
+## v1.5.2
+- Fixed error-causing copy/paste mistake
+
 ## v1.5.1
 - Added missing fortune/misfortune for cmb (see readme)
 
