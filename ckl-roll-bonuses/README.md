@@ -1,5 +1,7 @@
 # Roll Bonuses
 
+Provides bonuses to various types of rolls. Some of these are for variable changes that the system can't handle (like Inspiration). Some are a fake implementation of changes that the system just doesn't support.
+
 ## Skill Bonuses
 ![image](https://user-images.githubusercontent.com/3664822/183241183-9f899996-6f2a-455a-a711-054039365d31.png)
 
@@ -12,6 +14,76 @@ To the right of each skill there's now a cog you can click that will open a menu
 - the checkbox reads the global skill config inspiration value
 
 If you have static bonuses, use the built in change system -- this is only necessary to cover a limitation in that you can't have changes based on die rolls -- they're cachced when the buff is turned on. So if you have a 1d6 in a change, and turn the buff on, then it rolls immediately when you turn the buff on and keeps that specific value until the buff is toggled later.
+
+## Fortune and Mistfortune
+![image](https://github.com/dmrickey/ckl-foundry-modules/assets/3664822/66d2135b-27e4-44de-8098-f6a5ed4572df)
+
+Fortune and Misfortune can now be added as flags onto your buffs, feats, abilities, etc. Simply add a boolean flag `fortune` or `misfortune`. If you have a specific Weapon, Attack, Ability, Feat that only rolls twice for itself, you can add `fortune-self-item` (or `misfortune-self-item`).  There are lots of ways to configure this for individual features. You can have misfortune only for saves or even a specific save. For all skills, an indvidual skill, etc. The following has all of the details on how you can configure it. There is one special case `fortune-warsight-init` that makes it so you roll three times on initiative for the oracle ability (must have "fortune stacks" setting enabled (it is enabled by default) for this ability to work).
+
+<details>
+  <summary>All of the different ways for customizing fortune/misfortune</summary>
+
+    For brevity, I'll only list `fortune-`, but everything also applies to `misfortune-`.
+
+    ### Everything
+    - `fortune`
+
+    ### Only for the Item that has the flag
+    - `fortune-self-item`
+
+    ### Ability Checks
+    - `fortune-ability`
+      - You can fortune a specific ability by appending its 3-letter abbreviation `fortune_ability_xxx`
+      - e.g. `fortune-ability_str`
+
+    ### Attacks
+    - `fortune-attack`
+      - `fortune-attack_melee` 
+      - `fortune-attack_ranged`
+    Attack also counts towards CMB checks. But melee/ranged do not, because I have no way of knowing if you're attempting a standard melee CMB check, or one of the few ranged CMB options
+
+    ### Base Attack Bonus
+    - `fortune-bab`
+
+    ### Caster Level Checks
+    - `fortune-cl`
+      - `fortune-cl_primary`
+      - `fortune-cl_secondary`
+      - `fortune-cl_tertiary`
+      - `fortune-cl_spelllike
+      - can also use the class configured for the spell book e.g. `fortune-cl_druid`
+
+    ### Concentration Checks
+    - `fortune-concentration`
+      - `fortune-concentration_primary`
+      - `fortune-concentration_secondary`
+      - `fortune-concentration_tertiary`
+      - `fortune-concentration_spelllike
+      - can also use the class configured for the spell book e.g. `fortune-concentration_druid`
+
+    ### Initiative Checks
+    - `fortune-init`
+    - `fortune-warsight-init`
+      - special oracle ability that allows choosing one of the three dice (I will not let you choose a lower dice, I pick the highest, you can delay if you want)
+      - must have the setting "fortune stacks" enabled
+
+    ### Saving Throws
+    - `fortune-save`
+      - `fortune-save_fort`
+      - `fortune-save_ref`
+      - `fortune-save_will`
+
+    ### Skill Checks
+    - `fortune-skill`
+      - You can fortune a specific ability by appending its 3-letter abbreviation `fortune_skill_xxx`
+        - e.g. `fortune-skill_ken`
+      - It will work with perform/craft/profession subskills
+        - e.g. `fortune-skill_crf.subSkills.crf1
+      - It will work with custom skills
+        - e.g. `fortune-skill_theIdYouPutInTheInput
+        - e.g. `fortune-skill_newSkill2
+
+</details>
 
 ## Spell Focus
 ![image](https://user-images.githubusercontent.com/3664822/216522228-0968c234-3b89-47c0-b0e9-addf9accad34.png)
