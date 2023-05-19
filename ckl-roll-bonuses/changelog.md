@@ -1,3 +1,6 @@
+## v1.5.0
+- Added fortune/misfortune
+
 ## v1.4.1
 - Fixed getRollData blowing up when swapping scenes
 

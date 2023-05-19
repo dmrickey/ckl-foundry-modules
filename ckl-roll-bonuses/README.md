@@ -107,11 +107,3 @@ Add a new dFlag on any item named `genericSpellDC`, then drop in a number (posit
 ##  Caster Level Offset for specified Magic School
 Has a formula input which accepts roll data variables plus a dropdown for selecting the school of magic.
 - You must add a dictionary flag `schoolClOffset` to your buff/feature/etc. Once you add that, the inputs will show up below.
-
-TODO
-- add the formula class to skill inputs
-- consumable buffs - requires foundry v10 / pf1 0.83.0
-    - idea is to create a a flag on a buff that will add the bonus in "prehook" (and/or use built in changes) but use the new pf1 v.next posthook to disable the buff when it is consumed
-- Air Affinity: Sylph sorcerers with the elemental (air) bloodline treat their Charisma scores as 2 points higher for the purposes of all sorcerer spells and class abilities
-    - Specifically just "treat <ability score> higher/lower for <spell book>"
-    - maybe also "treat <ability score> higher/lower for <class ability>" -- would need to be based off of class key and ability that has a parent as that class
