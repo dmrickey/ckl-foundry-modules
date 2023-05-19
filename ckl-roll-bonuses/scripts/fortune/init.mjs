@@ -189,13 +189,28 @@ Hooks.on(localHooks.itemUse, (item, options) => {
         options.misfortuneCount++;
     }
 
-    const count = countBFlags(item.parent?.items, fortune, misfortune, attackFortune, attackMisfortune);
+    const action = options.actionID ? item.actions.get(options.actionID) : item.firstAction;
+    let rangeFortune = attackFortune;
+    let rangeMisfortune = attackMisfortune;
+    if (['touch', 'melee', 'reach'].includes(action.data.range.units)) {
+        rangeFortune += '_melee';
+        rangeMisfortune += '_melee';
+    }
+    else {
+        rangeFortune += '_ranged';
+        rangeMisfortune += '_ranged';
+    }
+
+    const count = countBFlags(item.parent?.items, fortune, misfortune, attackFortune, attackMisfortune, rangeFortune, rangeMisfortune);
 
     options.fortuneCount += count[fortune];
     options.misfortuneCount += count[misfortune];
 
     options.fortuneCount += count[attackFortune];
     options.misfortuneCount += count[attackMisfortune];
+
+    options.fortuneCount += count[rangeFortune];
+    options.misfortuneCount += count[rangeMisfortune];
 
     handleFortune(options);
 });
@@ -222,20 +237,25 @@ Hooks.on('pf1PreActorRollAttack', (actor, options) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
 
-    const count = countBFlags(actor?.items, fortune, misfortune, attackFortune, attackMisfortune, `${attackFortune}_melee`, `${attackMisfortune}_melee`, `${attackFortune}_ranged`, `${attackMisfortune}_ranged`);
+    let rangeFortune = attackFortune;
+    let rangeMisfortune = attackMisfortune;
+    if (options.melee) {
+        rangeFortune += '_melee';
+        rangeMisfortune += '_melee';
+    }
+    else {
+        rangeFortune += '_ranged';
+        rangeMisfortune += '_ranged';
+    }
+
+    const count = countBFlags(actor?.items, fortune, misfortune, attackFortune, attackMisfortune, rangeFortune, rangeMisfortune);
 
     fortuneCount += count[fortune];
     misfortuneCount += count[misfortune];
     fortuneCount += count[attackFortune];
     misfortuneCount += count[attackMisfortune];
-
-    if (options.melee) {
-        fortuneCount += count[`${attackFortune}_melee`];
-        misfortuneCount += count[`${attackMisfortune}_melee`];
-    } {
-        fortuneCount += count[`${attackFortune}_ranged}`];
-        misfortuneCount += count[`${attackMisfortune}_ranged}`];
-    }
+    fortuneCount += count[rangeFortune];
+    misfortuneCount += count[rangeMisfortune];
 
     options.fortuneCount = fortuneCount;
     options.misfortuneCount = misfortuneCount;;
@@ -275,8 +295,8 @@ Hooks.on('pf1PreActorRollCl', (actor, bookId, options) => {
     fortuneCount += count[clFortune];
     misfortuneCount += count[clMisfortune];
 
-    idFortunes.forEach((id) => fortuneCount += count(id));
-    idMisfortunes.forEach((id) => misfortuneCount += count(id));
+    idFortunes.forEach((id) => fortuneCount += count[id]);
+    idMisfortunes.forEach((id) => misfortuneCount += count[id]);
 
     options.fortuneCount = fortuneCount;
     options.misfortuneCount = misfortuneCount;;
@@ -301,8 +321,8 @@ Hooks.on('pf1PreActorRollConcentration', (actor, options, bookId) => {
     fortuneCount += count[concentrationFortune];
     misfortuneCount += count[concentrationMisfortune];
 
-    idFortunes.forEach((id) => fortuneCount += count(id));
-    idMisfortunes.forEach((id) => misfortuneCount += count(id));
+    idFortunes.forEach((id) => fortuneCount += count[id]);
+    idMisfortunes.forEach((id) => misfortuneCount += count[id]);
 
     options.fortuneCount = fortuneCount;
     options.misfortuneCount = misfortuneCount;;
