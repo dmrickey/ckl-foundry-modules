@@ -1,0 +1,4 @@
+{
+    "js/ts.implicitProjectConfig.checkJs": true,
+    "js/ts.implicitProjectConfig.experimentalDecorators": false
+}
