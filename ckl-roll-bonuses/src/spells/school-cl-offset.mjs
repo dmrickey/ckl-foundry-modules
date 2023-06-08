@@ -1,10 +1,12 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
-import { getFlagsFromDFlags, getItemDFlags } from "../util/flag-helpers.mjs";
+import { getDocDFlags, KeyedDFlagHelper } from "../util/flag-helpers.mjs";
 import { registerItemHint } from "../util/item-hints.mjs";
 
 const schoolClOffset = 'schoolClOffset';
 const schoolClOffsetFormula = 'schoolClOffsetFormula';
+
+// todo get rid of total and just calculate it from roll data as needed (if it can be done without getting stuck in a recursive loop)
 const schoolClOffsetTotal = 'schoolClOffsetTotal';
 
 let clOffsetTemplate;
@@ -13,7 +15,10 @@ Hooks.once(
     async () => clOffsetTemplate = await getTemplate(`modules/${MODULE_NAME}/hbs/school-cl-offset.hbs`)
 );
 
-Hooks.on('pf1GetRollData', (action, result) => {
+Hooks.on('pf1GetRollData', (
+    /** @type {{ item: any; }} */ action,
+    /** @type {{ dFlags: DictionaryFlags; cl: number; }} */ result
+) => {
     if (!(action instanceof pf1.components.ItemAction)) {
         return;
     }
@@ -23,21 +28,23 @@ Hooks.on('pf1GetRollData', (action, result) => {
         return;
     }
 
-    const offsets = getFlagsFromDFlags(result.dFlags, schoolClOffset, schoolClOffsetTotal);
-    const matches = offsets.filter((o) => o[schoolClOffset] === item.system.school);
+    const flags = new KeyedDFlagHelper(result.dFlags, schoolClOffset, schoolClOffsetTotal)
+        .getDFlagsWithAllFlagsByItem();
+    const matches = Object.values(flags)
+        .filter((offset) => offset[schoolClOffset] === item.system.school);
 
     if (!matches.length) {
         return;
     }
 
-    const offsetCl = (value) => {
+    const offsetCl = (/** @type {number} */ value) => {
         if (result.hasOwnProperty('cl')) {
             result.cl ||= 0;
             result.cl += value;
         }
     }
 
-    const values = matches.map((x) => x[schoolClOffsetTotal] || 0);
+    const values = matches.map((x) => +x[schoolClOffsetTotal] || 0);
 
     const max = Math.max(...values);
     if (max > 0) {
@@ -62,8 +69,8 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
         return;
     }
 
-    const currentSchool = getItemDFlags(item, schoolClOffset)[0];
-    const formula = getItemDFlags(item, schoolClOffsetFormula)[0];
+    const currentSchool = getDocDFlags(item, schoolClOffset)[0];
+    const formula = getDocDFlags(item, schoolClOffsetFormula)[0];
 
     const templateData = { spellSchools, school: currentSchool, formula };
 
@@ -76,6 +83,7 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
     input.addEventListener(
         'change',
         async (event) => {
+            // @ts-ignore - target is HTMLInputElement
             const newFormula = event.target.value;
             await item.setItemDictionaryFlag(schoolClOffsetFormula, newFormula);
 
@@ -87,6 +95,7 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
     select.addEventListener(
         'change',
         async (event) => {
+            // @ts-ignore - target is HTMLInputElement
             await item.setItemDictionaryFlag(schoolClOffset, event.target.value);
         },
     );
@@ -95,13 +104,13 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
 });
 
 registerItemHint((hintcls, _actor, item, _data) => {
-    const currentSchool = getItemDFlags(item, schoolClOffset)[0];
+    const currentSchool = getDocDFlags(item, schoolClOffset)[0];
     if (!currentSchool) {
         return [];
     }
 
     const { spellSchools } = pf1.config;
-    const total = getItemDFlags(item, schoolClOffsetTotal)[0];
+    const total = getDocDFlags(item, schoolClOffsetTotal)[0];
     if (!total) {
         return;
     }

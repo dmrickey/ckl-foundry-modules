@@ -16,7 +16,7 @@
         "verified": "10"
     },
     "esmodules": [
-        "scripts/main.mjs"
+        "src/main.mjs"
     ],
     "styles": [
         "styles.css"

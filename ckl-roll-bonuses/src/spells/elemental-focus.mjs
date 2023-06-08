@@ -1,6 +1,6 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
-import { getItemDFlags } from "../util/flag-helpers.mjs";
+import { getDocDFlags } from "../util/flag-helpers.mjs";
 import { registerItemHint } from "../util/item-hints.mjs";
 import { registerSetting } from "../util/settings.mjs";
 import { truthiness } from "../util/truthiness.mjs";
@@ -58,12 +58,12 @@ Hooks.on('pf1PreActionUse', (actionUse) => {
         .filter(truthiness);
 
     const handleFocus = (key) => {
-        const focuses = getItemDFlags(actor, key);
+        const focuses = getDocDFlags(actor, key);
         const hasFocus = intersects(damageTypes, focuses);
         if (hasFocus) {
             shared.saveDC += 1;
 
-            const mythicFocuses = getItemDFlags(actor, mythicElementalFocusKey);
+            const mythicFocuses = getDocDFlags(actor, mythicElementalFocusKey);
             const hasMythicFocus = intersects(damageTypes, mythicFocuses);
             if (hasMythicFocus) {
                 shared.saveDC += 1;
@@ -97,7 +97,7 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
         const actor = item.actor;
         if (actor) {
             elements = {};
-            const existingElementalFocuses = getItemDFlags(actor, elementalFocusKey);
+            const existingElementalFocuses = getDocDFlags(actor, elementalFocusKey);
             existingElementalFocuses.forEach((focus) => {
                 elements[focus] = pf1.config.damageTypes[focus];
             });
@@ -112,7 +112,7 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
         }
     }
 
-    const currentElement = getItemDFlags(item, key)[0];
+    const currentElement = getDocDFlags(item, key)[0];
 
     const templateData = { elements, element: currentElement };
 
@@ -136,7 +136,7 @@ registerItemHint((hintcls, actor, item, data) => {
         return;
     }
 
-    const currentElement = getItemDFlags(item, key)[0];
+    const currentElement = getDocDFlags(item, key)[0];
     if (!currentElement) {
         return;
     }

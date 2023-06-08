@@ -1,6 +1,6 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
-import { getItemDFlags } from "../util/flag-helpers.mjs";
+import { getDocDFlags } from "../util/flag-helpers.mjs";
 import { registerItemHint } from "../util/item-hints.mjs";
 import { registerSetting } from "../util/settings.mjs";
 
@@ -39,12 +39,12 @@ Hooks.on('pf1PreActionUse', (actionUse) => {
     }
 
     const handleFocus = (key) => {
-        const focuses = getItemDFlags(actor, key);
+        const focuses = getDocDFlags(actor, key);
         const hasFocus = !!focuses.find(f => f === item.system.school);
         if (hasFocus) {
             shared.saveDC += 1;
 
-            const mythicFocuses = getItemDFlags(actor, mythicSpellFocusKey);
+            const mythicFocuses = getDocDFlags(actor, mythicSpellFocusKey);
             const hasMythicFocus = !!mythicFocuses.find(f => f === item.system.school);
             if (hasMythicFocus) {
                 shared.saveDC += 1;
@@ -76,7 +76,7 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
         const actor = item.actor;
         if (actor) {
             spellSchools = {};
-            const existingSpellFocuses = getItemDFlags(actor, spellFocusKey);
+            const existingSpellFocuses = getDocDFlags(actor, spellFocusKey);
             existingSpellFocuses.forEach((focus) => {
                 spellSchools[focus] = pf1.config.spellSchools[focus];
             });
@@ -91,7 +91,7 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
         }
     }
 
-    const currentSchool = getItemDFlags(item, key)[0];
+    const currentSchool = getDocDFlags(item, key)[0];
 
     const templateData = { spellSchools, school: currentSchool };
 
@@ -115,7 +115,7 @@ registerItemHint((hintcls, actor, item, data) => {
         return;
     }
 
-    const currentSchool = getItemDFlags(item, key)[0];
+    const currentSchool = getDocDFlags(item, key)[0];
     if (!currentSchool) {
         return;
     }

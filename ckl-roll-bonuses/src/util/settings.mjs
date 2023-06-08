@@ -3,7 +3,7 @@ import { localize } from "./localize.mjs";
 
 export const registerSetting = ({
     key,
-    defaultValue,
+    defaultValue = null,
     scope = 'world',
     settingType = String
 }) =>

@@ -5,6 +5,8 @@ import './skills/init.mjs';
 import './saves/init.mjs';
 import './spells/init.mjs';
 import './fortune/init.mjs';
+import './critical/critical.mjs';
+
 import './util/item-hints.mjs';
 
 function itemUseWrapper(wrapped, options = {}) {
