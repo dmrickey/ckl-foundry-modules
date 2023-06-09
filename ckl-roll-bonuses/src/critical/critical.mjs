@@ -13,7 +13,7 @@ const critOffsetAll = 'crit-offset-all';
 const critOffsetId = ({ id }) => `crit-offset_${id}`;
 
 // register keen
-registerItemHint((hintcls, _actor, item, _data) => {
+registerItemHint((/** @type {{ create: (arg0: any, arg1: any[], arg2: {}) => any; }} */ hintcls, /** @type {any} */ _actor, /** @type {{ system: { flags: { boolean: any; }; }; }} */ item, /** @type {any} */ _data) => {
     const bFlags = Object.entries(item.system?.flags?.boolean ?? {})
         .filter(([_, value]) => !!value)
         .map(([key, _]) => key);
@@ -29,7 +29,12 @@ registerItemHint((hintcls, _actor, item, _data) => {
 });
 
 // register crit mod - making assumptions that there aren't really positives and negatives on the same "buff"
-registerItemHint((hintcls, actor, item, _data) => {
+registerItemHint((
+    /** @type {{ create: (arg0: any, arg1: any[], arg2: {}) => any; }} */ hintcls,
+    /** @type {ActorPF} */actor,
+    /** @type {BaseDocument} */ item,
+    /** @type {any} */ _data,
+) => {
     const dFlags = getDocDFlagsStartsWith(item, 'crit-offset');
     const values = Object.values(dFlags)
         .flatMap((x) => x)
@@ -56,6 +61,9 @@ registerItemHint((hintcls, actor, item, _data) => {
     return hint;
 });
 
+/**
+ * @param {() => any} wrapped
+ */
 function critRange(wrapped) {
     const current = wrapped();
     const item = this.action.item;
@@ -74,7 +82,9 @@ function critRange(wrapped) {
 
     const flags = [critOffsetAll, critOffsetId(item), critOffsetId(this.action)];
     const mod = new KeyedDFlagHelper(item.parentActor.itemFlags.dictionary, ...flags)
-        .sumAll(this.rollData);
+        .sumAll(this.rollData)
+        + new KeyedDFlagHelper(item.system.flags.dictionary, critOffsetSelf)
+            .sumAll(this.rollData);
 
     range += mod;
     range = Math.clamped(range, 2, 20);

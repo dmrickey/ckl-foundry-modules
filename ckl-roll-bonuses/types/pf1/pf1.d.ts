@@ -1,8 +1,9 @@
+import EmbeddedCollection from "../foundry/common/abstract/EmbeddedCollection";
+
 export { }
 
 declare global {
     abstract class BaseDocument {
-        items: BaseDocument[];
     }
 
     class D20RollPF {
@@ -19,10 +20,19 @@ declare global {
          * Gets the actor's roll data.
          * @param {{refresh - pass true to force the roll data to recalculate }}
          */
-        getRollData(): RollData;
-        // getRollData({ refresh: boolean = false }): RollData; // todo ?
+        // getRollData(): RollData;
+        getRollData({
+            /** @defaultValue `false` */
+            refresh: boolean,
+        }: {} = { refresh: false }): RollData;
 
         itemFlags: Flags;
+
+        // items: EmbeddedCollection<string, ItemPF>;
+        items: {
+            find: Array.prototype.find,
+            // map: function<,
+        }
     }
 
     interface DictionaryFlag {
@@ -57,6 +67,8 @@ declare global {
          * Gets the Item's dictionary flags.
          */
         getItemDictionaryFlags(): DictionaryFlags;
+
+        isActive: boolean;
     }
 
     /**

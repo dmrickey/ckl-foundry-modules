@@ -9,7 +9,7 @@ import { truthiness } from "./truthiness.mjs";
  */
 const getDocDFlags = (doc, key) => {
     // if doc is an actor
-    if (doc.items) {
+    if (doc instanceof pf1.documents.actor.ActorPF) {
         const flags = doc.items
             .map(i => i.isActive && i.getItemDictionaryFlag(key))
             .filter(truthiness);
@@ -17,7 +17,11 @@ const getDocDFlags = (doc, key) => {
     }
 
     // else read the flag off the item
-    return [doc.getItemDictionaryFlag(key)].filter(truthiness);
+    if (doc instanceof pf1.documents.item.ItemPF) {
+        return [doc.getItemDictionaryFlag(key)].filter(truthiness);
+    }
+
+    return [];
 }
 
 /**
@@ -39,7 +43,6 @@ const getDocDFlagsStartsWith = (doc, keyStart) => {
 
         return found;
     }
-
     if (doc instanceof pf1.documents.item.ItemPF) {
         const found = {};
         Object.entries(doc.getItemDictionaryFlags()).forEach(([flag, value]) => {
