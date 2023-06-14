@@ -109,7 +109,7 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     addElementToRollBonus(html, div);
 });
 
-registerItemHint((hintcls, actor, item, data) => {
+registerItemHint((hintcls, _actor, item, _data) => {
     const key = allKeys.find((k) => item.system.flags.dictionary[k] !== undefined);
     if (!key) {
         return;
@@ -123,5 +123,5 @@ registerItemHint((hintcls, actor, item, data) => {
     const label = pf1.config.spellSchools[currentSchool] ?? currentSchool;
 
     const hint = hintcls.create(label, [], {});
-    return [hint];
+    return hint;
 });

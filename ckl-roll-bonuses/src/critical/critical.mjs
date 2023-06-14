@@ -6,35 +6,28 @@ import { signed } from "../util/to-signed-string.mjs";
 
 const selfKeen = 'keen-self';
 const keenAll = 'keen-all';
-const keenId = ({ id }) => `keen_${id}`;
+const keenId = (/** @type {IdObject} */ { id }) => `keen_${id}`;
 
 const critOffsetSelf = 'crit-offset-self';
 const critOffsetAll = 'crit-offset-all';
-const critOffsetId = ({ id }) => `crit-offset_${id}`;
+const critOffsetId = (/** @type {IdObject} */ { id }) => `crit-offset_${id}`;
 
 // register keen
-registerItemHint((/** @type {{ create: (arg0: any, arg1: any[], arg2: {}) => any; }} */ hintcls, /** @type {any} */ _actor, /** @type {{ system: { flags: { boolean: any; }; }; }} */ item, /** @type {any} */ _data) => {
+registerItemHint((hintcls, _actor, item, _data) => {
     const bFlags = Object.entries(item.system?.flags?.boolean ?? {})
         .filter(([_, value]) => !!value)
         .map(([key, _]) => key);
 
     const keens = bFlags.filter(flag => flag.startsWith('keen'));
 
-    const hints = [];
     if (!keens.length) return;
 
-    hints.push(hintcls.create(localize('keen'), [], {}));
-
-    return hints;
+    const hint = hintcls.create(localize('keen'), [], {});
+    return hint;
 });
 
 // register crit mod - making assumptions that there aren't really positives and negatives on the same "buff"
-registerItemHint((
-    /** @type {{ create: (arg0: any, arg1: any[], arg2: {}) => any; }} */ hintcls,
-    /** @type {ActorPF} */actor,
-    /** @type {BaseDocument} */ item,
-    /** @type {any} */ _data,
-) => {
+registerItemHint((hintcls, actor, item, _data,) => {
     const dFlags = getDocDFlagsStartsWith(item, 'crit-offset');
     const values = Object.values(dFlags)
         .flatMap((x) => x)
@@ -57,12 +50,12 @@ registerItemHint((
 
     const label = localize('crit-offset', { mod: signed(mod) });
     const hint = hintcls.create(label, [], {});
-
     return hint;
 });
 
 /**
  * @param {() => any} wrapped
+ * @this {ChatAttack}
  */
 function critRange(wrapped) {
     const current = wrapped();

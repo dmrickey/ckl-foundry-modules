@@ -1,75 +1,154 @@
-import EmbeddedCollection from "../foundry/common/abstract/EmbeddedCollection";
-
 export { }
 
 declare global {
-    abstract class BaseDocument {
+    abstract class BaseDocument { }
+
+    abstract class ItemDocument extends BaseDocument { }
+
+    interface Abilities {
+        str: 'Strength',
+        dex: 'Dexterity',
+        con: 'Constitution',
+        int: 'Intelligence',
+        wis: 'Wisdom',
+        cha: 'Charisma'
     }
 
-    class D20RollPF {
-        /**
-         *
-         * @param formula - The string that should resolve to a number
-         * @param {RollData} rollData - The roll data used for resolving any variables in the formula
-         */
-        static safeTotal(formula: string | number, rollData: Object): number;
+    type ActionType = 'msak'
+        | 'mwak'
+        | 'rsak'
+        | 'rwak'
+        | 'mcman'
+        | 'rcman'
+
+    class Action {
+        id: string;
+        data: {
+            actionType: ActionType;
+            damage: {
+                parts: [string, { custom: string, values: string[] }][]
+            }
+        }
+        item: ItemPF;
     }
 
-    class ActorPF extends Document {
+    class ActorPF extends BaseDocument {
         /**
          * Gets the actor's roll data.
-         * @param {{refresh - pass true to force the roll data to recalculate }}
+         * @param refresh - pass true to force the roll data to recalculate
+         * @returns The actor's roll data
          */
-        // getRollData(): RollData;
-        getRollData({
-            /** @defaultValue `false` */
-            refresh: boolean,
-        }: {} = { refresh: false }): RollData;
+        getRollData(args?: {
+            refresh?: boolean
+        }): RollData;
 
         itemFlags: Flags;
 
-        // items: EmbeddedCollection<string, ItemPF>;
-        items: {
-            find: Array.prototype.find,
-            // map: function<,
-        }
+        items: EmbeddedCollection<ItemPF>;
+
+        system: {
+            skills: { [key: string]: unknown }
+        };
     }
 
-    interface DictionaryFlag {
-        [key: string]: Flag
+    class ActionUse {
+        action: Action;
+        actor: ActorePF;
+        item: ItemPF;
+        shared: Shared;
     }
 
+    class ChatAttack {
+        action: Action;
+        rollData: RollData;
+    }
+
+    /**
+     * Colletion of dictionary flags
+     * {key: Flag}
+     */
     interface DictionaryFlags {
-        [key: string]: DictionaryFlag,
+        [key: string]: FlagValue,
     }
 
-    type Flag = string | number;
+    interface ItemDictionaryFlags {
+        [key: string]: DictionaryFlags,
+    }
+
+    type FlagValue = string | number;
 
     interface Flags {
-        dictionary: DictionaryFlags,
+        dictionary: ItemDictionaryFlags,
 
         /**
          * The tags for Items that are active with a boolean flag
          */
-        boolean: string[],
+        boolean: { [key: string]: { sources: ItemDocument[] } },
     }
 
     interface ItemAction { }
 
-    interface ItemPF extends Document {
+    interface ItemPF extends ItemDocument {
+        actions: EmbeddedCollection<Action>;
+
+        firstAction: Action;
+
+        type: ItemType;
+
         /**
          * Gets value for the given dictionary flag key
          * @param key
          */
         getItemDictionaryFlag(key: string): string | number;
 
+        // example output
+        // item.getItemDictionaryFlags()
+        // {
+        //   "greaterElementalFocus": "cold",
+        //   "schoolClOffset": "evo",
+        //   "spellFocus": "",
+        //   "schoolClOffsetFormula": "-3",
+        //   "schoolClOffsetTotal": -3
+        // }
         /**
          * Gets the Item's dictionary flags.
          */
         getItemDictionaryFlags(): DictionaryFlags;
 
+        /**
+         * Sets teh given dictionary flag on the item
+         * @param key
+         * @param value
+         */
+        setItemDictionaryFlag(key: string, value: FlagValue);
+
+        /**
+         * @param key - THe key for the boolean flag
+         * @returns True if the item has the boolean flag
+         */
+        hasItemBooleanFlag(key: string): boolean;
+
+        id: string;
         isActive: boolean;
+        parent: ActorPF;
+        parentActor: ActorPF;
+
+        system: {
+            broken: boolean;
+            flags: Flags,
+        }
     }
+
+    type ItemType =
+        'attack'
+        | 'buff'
+        | 'class'
+        | 'consumable'
+        | 'equipment'
+        | 'feat'
+        | 'loot'
+        | 'spell'
+        | 'weapon';
 
     /**
      * Roll Data used for resolving formulas
@@ -78,18 +157,25 @@ declare global {
         [key: string]: any,
     }
 
+    class RollPF {
+        /**
+         * Safely get the result of a roll, returns 0 if unsafe.
+         * @param formula - The string that should resolve to a number
+         * @param rollData - The roll data used for resolving any variables in the formula
+         */
+        static safeTotal(formula: string | number, rollData: RollData): number;
+    }
+
     interface pf1 {
         components: {
             ItemAction: { new(): ItemAction }
         };
         config: {
             abilities,
-            savingThrows,
+            damageTypes: { [key: string]: string },
+            savingThrows: SavingThrows,
             skills,
             spellSchools
-        };
-        dice: {
-            D20RollPF: { new(): D20RollPF }
         };
         documents: {
             actor: {
@@ -99,5 +185,11 @@ declare global {
                 ItemPF: { new(): ItemPF }
             }
         };
+    }
+
+    interface SavingThrows {
+        fort: 'Fortitude',
+        ref: 'Reflex',
+        will: 'Will'
     }
 }

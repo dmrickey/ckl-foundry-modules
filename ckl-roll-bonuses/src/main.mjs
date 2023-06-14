@@ -9,11 +9,24 @@ import './critical/critical.mjs';
 
 import './util/item-hints.mjs';
 
+/**
+ * @param {*} wrapped - original method
+ * @param {*} options - options passed to ItemPF.use
+ * @this {ItemPF}
+ * @returns The result of the original method.
+ */
 function itemUseWrapper(wrapped, options = {}) {
     Hooks.call(localHooks.itemUse, this, options);
     return wrapped.call(this, options);
 }
 
+/**
+ *
+ * @param {*} wrapped
+ * @param {*} options
+ * @this {d20Roll}
+ * @returns The result of the original method.
+ */
 function d20RollWrapper(wrapped, options = {}) {
     Hooks.call(localHooks.d20Roll, options);
     return wrapped.call(this, options);

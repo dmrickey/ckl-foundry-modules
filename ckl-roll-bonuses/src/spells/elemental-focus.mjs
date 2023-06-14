@@ -23,7 +23,8 @@ class Settings {
     static get elementalFocus() { return Settings.#getSetting(elementalFocusKey); }
     static get greater() { return Settings.#getSetting(greaterElementalFocusKey); }
     static get mythic() { return Settings.#getSetting(mythicElementalFocusKey); }
-    static #getSetting(key) { return game.settings.get(MODULE_NAME, key).toLowerCase(); }
+    // @ts-ignore
+    static #getSetting(/** @type {string} */key) { return game.settings.get(MODULE_NAME, key).toLowerCase(); }
 }
 
 const damageElements = [
@@ -33,6 +34,12 @@ const damageElements = [
     'fire'
 ];
 
+/**
+ *
+ * @param {any[]} a
+ * @param {any[]} b
+ * @returns True if both arrays share a common element
+ */
 const intersects = (a, b) => {
     const setA = new Set(a);
     const setB = new Set(b);
@@ -40,6 +47,9 @@ const intersects = (a, b) => {
     return !!overlap.length;
 }
 
+/**
+ * @type {Handlebars.TemplateDelegate}
+ */
 let focusSelectorTemplate;
 Hooks.once(
     'setup',
@@ -47,7 +57,7 @@ Hooks.once(
 );
 
 // before dialog pops up
-Hooks.on('pf1PreActionUse', (actionUse) => {
+Hooks.on('pf1PreActionUse', (/** @type {ActionUse} */actionUse) => {
     const { action, actor, item, shared } = actionUse;
     if (item?.type !== 'spell') {
         return;
@@ -57,7 +67,7 @@ Hooks.on('pf1PreActionUse', (actionUse) => {
         .flatMap(([_, { custom, values }]) => ([...custom.split(';').map(x => x.trim()), ...values]))
         .filter(truthiness);
 
-    const handleFocus = (key) => {
+    const handleFocus = (/** @type {string} */key) => {
         const focuses = getDocDFlags(actor, key);
         const hasFocus = intersects(damageTypes, focuses);
         if (hasFocus) {
@@ -75,10 +85,14 @@ Hooks.on('pf1PreActionUse', (actionUse) => {
     handleFocus(greaterElementalFocusKey);
 });
 
+// @ts-ignore
 Hooks.on('renderItemSheet', (_app, [html], data) => {
     const { item } = data;
     const name = item?.name?.toLowerCase() ?? '';
 
+    /**
+     * @type {string | undefined}
+     */
     let key;
     let elements = Object.fromEntries(damageElements.map(k => [k, pf1.config.damageTypes[k]]));;
 
@@ -97,7 +111,8 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
         const actor = item.actor;
         if (actor) {
             elements = {};
-            const existingElementalFocuses = getDocDFlags(actor, elementalFocusKey);
+            // @ts-ignore
+            const /** @type {string[]}*/ existingElementalFocuses = getDocDFlags(actor, elementalFocusKey);
             existingElementalFocuses.forEach((focus) => {
                 elements[focus] = pf1.config.damageTypes[focus];
             });
@@ -120,17 +135,20 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     div.innerHTML = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
 
     const select = div.querySelector('#elemental-focus-selector');
-    select.addEventListener(
+    select?.addEventListener(
         'change',
         async (event) => {
-            await item.setItemDictionaryFlag(key, event.target.value);
+            // event.target is HTMLTextAreaElement
+            // @ts-ignore
+            const /** @type {HTMLTextAreaElement} */ target = event.target;
+            await item.setItemDictionaryFlag(key, target?.value);
         },
     );
 
     addElementToRollBonus(html, div);
 });
 
-registerItemHint((hintcls, actor, item, data) => {
+registerItemHint((hintcls, _actor, item, _data) => {
     const key = allKeys.find((k) => item.system.flags.dictionary[k] !== undefined);
     if (!key) {
         return;
@@ -144,5 +162,5 @@ registerItemHint((hintcls, actor, item, data) => {
     const label = pf1.config.damageTypes[currentElement] ?? currentElement;
 
     const hint = hintcls.create(label, [], {});
-    return [hint];
+    return hint;
 });

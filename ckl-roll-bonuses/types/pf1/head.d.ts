@@ -1,6 +1,7 @@
 export { }
 
 declare global {
-    let RollPF: D20RollPF;
+    // let d20Roll:
+    let RollPF: typeof RollPF;
     let pf1: pf1;
 }

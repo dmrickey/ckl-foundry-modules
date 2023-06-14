@@ -5,7 +5,7 @@ import { localize } from "../util/localize.mjs";
 const key = 'genericSpellDC'
 
 // register keen
-registerItemHint((hintcls, actor, /** @type {ItemPF} */item, _data) => {
+registerItemHint((hintcls, actor, item, _data) => {
     const flag = item.getItemDictionaryFlag(key);
     if (!flag) {
         return;
@@ -18,7 +18,7 @@ registerItemHint((hintcls, actor, /** @type {ItemPF} */item, _data) => {
 });
 
 // before dialog pops up
-Hooks.on('pf1PreActionUse', (actionUse) => {
+Hooks.on('pf1PreActionUse', (/** @type {ActionUse} */ actionUse) => {
     const { actor, item, shared } = actionUse;
     if (item?.type !== 'spell') {
         return;

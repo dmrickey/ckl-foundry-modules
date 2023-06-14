@@ -1,18 +1,27 @@
 import { truthiness } from "./truthiness.mjs";
 
+
+/**
+ * @type {ItemHintsAPI}
+ */
 let itemHintsAPI;
 
+/**
+ * @type {(HintFunc)[]}
+ */
 const funcs = [];
 
 /**
- * @param {Actor} actor
- * @param {Item} item
+ * @param {ActorPF} actor
+ * @param {ItemPF} item
  * @param {Object} data
- * @returns {undefined|Hint[]}
+ * @returns {Hint[]}
  */
 function itemHintsHandler(actor, item, data) {
     const hintcls = itemHintsAPI.HintClass;
-    const hints = funcs.flatMap((func) => func(hintcls, actor, item, data));
+    const hints = funcs
+        .flatMap((func) => func)
+        .map((func) => func(hintcls, actor, item, data));
     return hints.filter(truthiness);
 }
 
@@ -26,4 +35,7 @@ function itemHintsRegistration() {
 
 Hooks.once('ready', itemHintsRegistration);
 
+/**
+ * @param {HintFunc} func
+ */
 export const registerItemHint = (func) => funcs.push(func);

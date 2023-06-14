@@ -1,5 +1,7 @@
 export { }
 
+import './core/hooks'
+
 declare global {
     /**
      * The singleton Game instance

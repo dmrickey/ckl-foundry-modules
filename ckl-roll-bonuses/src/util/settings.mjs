@@ -1,7 +1,7 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { localize } from "./localize.mjs";
 
-export const registerSetting = ({
+export const registerSetting = ( /** @type {{key: string, defaultValue?: any, scope?: 'world' | 'client', settingType?: BooleanConstructor | StringConstructor}}*/{
     key,
     defaultValue = null,
     scope = 'world',

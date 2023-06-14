@@ -1,7 +1,7 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { isEmptyObject } from "./is-empty-object.mjs";
 
-const localize = (key, opts = {}) => {
+const localize = (/** @type {string} */key, opts = {}) => {
     const myKey = `${MODULE_NAME}.${key}`;
     return isEmptyObject(opts)
         ? (game.i18n.localize(myKey) === myKey ? game.i18n.localize(key) : game.i18n.localize(myKey))

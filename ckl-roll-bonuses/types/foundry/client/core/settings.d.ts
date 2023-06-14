@@ -72,6 +72,21 @@ interface ClientSettings {
             ? ClientSettings.PartialSettingConfig<ClientSettings.Values[`${N}.${K}`]>
             : ClientSettings.PartialSettingConfig<T>
     ): void;
+
+    /**
+     * Get the value of a game setting for a certain namespace and setting key
+     *
+     * @param namespace - The namespace under which the setting is registered
+     * @param key       - The setting key to retrieve
+     * @typeParam N     - The namespace under which the setting is registered, as a type
+     * @typeParam K     - The setting key to retrieve, as a type
+     *
+     * @example Retrieve the current setting value
+     * ```typescript
+     * game.settings.get("myModule", "myClientSetting");
+     * ```
+     */
+    get<N extends string, K extends string>(namespace: N, key: K): ClientSettings.Values[`${N}.${K}`];
 }
 
 namespace ClientSettings {

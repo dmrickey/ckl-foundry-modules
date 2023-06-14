@@ -9,6 +9,9 @@ const schoolClOffsetFormula = 'schoolClOffsetFormula';
 // todo get rid of total and just calculate it from roll data as needed (if it can be done without getting stuck in a recursive loop)
 const schoolClOffsetTotal = 'schoolClOffsetTotal';
 
+/**
+ * @type {Handlebars.TemplateDelegate}
+ */
 let clOffsetTemplate;
 Hooks.once(
     'setup',
@@ -17,7 +20,7 @@ Hooks.once(
 
 Hooks.on('pf1GetRollData', (
     /** @type {{ item: any; }} */ action,
-    /** @type {{ dFlags: DictionaryFlags; cl: number; }} */ result
+    /** @type {{ dFlags: ItemDictionaryFlags; cl: number; }} */ result
 ) => {
     if (!(action instanceof pf1.components.ItemAction)) {
         return;
@@ -57,7 +60,11 @@ Hooks.on('pf1GetRollData', (
     }
 });
 
-Hooks.on('renderItemSheet', (app, [html], data) => {
+Hooks.on('renderItemSheet', (
+    /** @type {{ actor: ActorPF; }} */ app,
+    [html],
+    /** @type {{ item: ItemPF; }} */ data
+) => {
     const { actor } = app;
     const { item } = data;
 
@@ -80,7 +87,7 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
     const input = div.querySelector('#school-cl-offset-formula');
     const select = div.querySelector('#school-cl-offset');
 
-    input.addEventListener(
+    input?.addEventListener(
         'change',
         async (event) => {
             // @ts-ignore - target is HTMLInputElement
@@ -92,7 +99,7 @@ Hooks.on('renderItemSheet', (app, [html], data) => {
         },
     );
 
-    select.addEventListener(
+    select?.addEventListener(
         'change',
         async (event) => {
             // @ts-ignore - target is HTMLInputElement
@@ -122,5 +129,5 @@ registerItemHint((hintcls, _actor, item, _data) => {
     const label = getHint(total, currentSchool);
 
     const hint = hintcls.create(label, [], {});
-    return [hint];
+    return hint;
 });
