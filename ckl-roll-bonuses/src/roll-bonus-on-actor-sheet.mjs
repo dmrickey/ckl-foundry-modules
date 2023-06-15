@@ -2,7 +2,10 @@ import { localize } from "./util/localize.mjs";
 
 const headerId = 'ckl-roll-bonus-header';
 
-const addElementToRollBonus = (itemSheetHtml, element) => {
+const addElementToRollBonus = (
+    /** @type {HTMLElement} */ itemSheetHtml,
+    /** @type {HTMLDivElement} */ element,
+) => {
     const flagsContainer = itemSheetHtml.querySelector('.tab[data-tab="advanced"] .tags');
     if (!flagsContainer || !element) {
         return;

@@ -8,15 +8,19 @@ export class CklSkillConfig {
         this.inspiration = inspiration?.trim() || `1d6[${localize('skills.inspiration')}]`;
     }
 
-    static getSkillConfig = (actor) => new CklSkillConfig(actor.getFlag(MODULE_NAME, this._inspiriationDieKey) || new CklSkillConfig());
-    static loadInspiration = (actor) => this.getSkillConfig(actor).inspiration;
-    static setSkillConfig = async (actor, config) => await actor.setFlag(MODULE_NAME, this._inspiriationDieKey, config);
+    static getSkillConfig = (/** @type {ActorPF} */ actor) => new CklSkillConfig(actor.getFlag(MODULE_NAME, this._inspiriationDieKey) || new CklSkillConfig());
+    static loadInspiration = (/** @type {ActorPF} */ actor) => this.getSkillConfig(actor).inspiration;
+    static setSkillConfig = async (
+        /** @type {ActorPF} */ actor,
+        /** @type {CklSkillConfig} */ config,
+    ) => await actor.setFlag(MODULE_NAME, this._inspiriationDieKey, config);
 
-    static async showSkillConfigDialog(actor) {
+    static async showSkillConfigDialog(/** @type {ActorPF} */ actor) {
         const buttons = [
             { label: localize('PF1.Cancel'), value: false },
             { label: localize('ok'), value: true },
         ];
+
         const inputs = [{
             label: localize('skills.inspiration'),
             type: 'text',

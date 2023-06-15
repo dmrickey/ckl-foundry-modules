@@ -102,7 +102,9 @@ registerItemHint((hintcls, actor, item, _data) => {
     return hints;
 });
 
-const handleFortune = (/** @type {{ dice?: any; fortuneCount: any; misfortuneCount: any; actionID?: any; }} */ options) => {
+const handleFortune = (
+    /** @type {{ dice?: any; fortuneCount: any; misfortuneCount: any; actionID?: any; }} */ options,
+) => {
     options.dice ||= '1d20';
     options.fortuneCount ||= 0;
     options.misfortuneCount ||= 0;

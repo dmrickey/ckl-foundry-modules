@@ -2,15 +2,25 @@ import { CONFIG_BUTTON } from '../consts.mjs';
 import { CklSkillConfig } from './ckl-skill-config.mjs';
 import { CklSkillData } from './ckl-skill-data.mjs';
 
+/**
+ *
+ * @param {string} id
+ * @returns Created button @see {@link HTMLAnchorElement}
+ */
 const createSkillButton = (id) => {
     const node = document.createElement('a');
     node.id = id;
+    // @ts-ignore
     node.style = 'line-height: 1.5rem; width: 1.5rem;';
     node.innerHTML = CONFIG_BUTTON;
     return node;
 }
 
-Hooks.on('renderActorSheetPF', (app, html, data) => {
+Hooks.on('renderActorSheetPF', (
+    /** @type {{ _skillsLocked: boolean; }} */ app,
+    /** @type {{ find: (arg0: string) => { (): any; new (): any; each: { (arg0: { (_: any, element: HTMLElement): void; }): void; new (): any; }; }; }} */ html,
+    /** @type {{ actor: ActorPF; }} */ data
+) => {
     // this is not a "safe check" so I'm specifically checking for false instead of a falsy value
     if (app._skillsLocked == false) {
         return;
@@ -27,13 +37,16 @@ Hooks.on('renderActorSheetPF', (app, html, data) => {
             );
 
             const parent = btn.parentElement;
+            if (!parent) return;
 
             parent.removeChild(btn);
             const column = document.createElement('div');
             const lh = game.modules.get('koboldworks-pf1-little-helper')?.active ? ' flex-direction: column;' : '';
+            // @ts-ignore
             column.style = `flex: unset; display: flex; align-items: center; justify-content: center; text-align: center;${lh}`;
             column.appendChild(button);
 
+            // @ts-ignore
             btn.style = 'padding: unset;';
             column.appendChild(btn);
 
@@ -44,7 +57,7 @@ Hooks.on('renderActorSheetPF', (app, html, data) => {
     // add skill data buttons
     html.find('.tab.skills .skills-list li.skill, .tab.skills .skills-list li.sub-skill').each((_, li) => {
         // fills out spacing for "base skills" (craft, perform, etc) so the settings cog is aligned with the rest
-        const addMissingForSpacing = cls => {
+        const addMissingForSpacing = (/** @type {string} */ cls) => {
             let found = li.querySelector(cls);
             if (!found) {
                 found = document.createElement('div');
@@ -62,6 +75,8 @@ Hooks.on('renderActorSheetPF', (app, html, data) => {
         }
 
         const skillId = getSkillId();
+        if (!skillId) return;
+
         const id = `ckl-skill-${skillId}`
         const button = createSkillButton(id);
         button.addEventListener(
@@ -80,7 +95,11 @@ Hooks.on('renderActorSheetPF', (app, html, data) => {
     });
 });
 
-Hooks.on('pf1PreActorRollSkill', (actor, options, skillId) => {
+Hooks.on('pf1PreActorRollSkill', (
+    /** @type {ActorPF} */ actor,
+    /** @type {{ bonus: string; dice: string; }} */ options,
+    /** @type {string} */ skillId,
+) => {
     const data = CklSkillData.getSkillData(actor, skillId);
     if (!data.configured) {
         return;
@@ -106,7 +125,7 @@ Hooks.on('pf1PreActorRollSkill', (actor, options, skillId) => {
 
 // todo pf1 0.83.0
 // todo no way to know which actor prompted the dialog so it's impossible to do in any sane way right now
-Hooks.on('renderApplication', (app, html, data) => {
+// Hooks.on('renderApplication', (app, html, data) => {
     // if (app.options.subject?.skill === undefined) {
     //     return;
     // }
@@ -139,7 +158,7 @@ Hooks.on('renderApplication', (app, html, data) => {
     // node.appendChild(text);
 
     // lastRow.parentElement.appendChild(node);
-});
+// });
 
 // Hooks.once('pf1.postReady', () => {
 //     // libWrapper.register(MODULE_NAME, 'pf1.DicePF.d20Roll', function (wrapped, skillId, options) {

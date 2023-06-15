@@ -85,8 +85,11 @@ Hooks.on('pf1PreActionUse', (/** @type {ActionUse} */actionUse) => {
     handleFocus(greaterElementalFocusKey);
 });
 
-// @ts-ignore
-Hooks.on('renderItemSheet', (_app, [html], data) => {
+Hooks.on('renderItemSheet', (
+    /** @type {{ }} */ _app,
+    /** @type {[HTMLElement]} */[html],
+    /** @type {{ item: ItemPF; }} */ data
+) => {
     const { item } = data;
     const name = item?.name?.toLowerCase() ?? '';
 
@@ -138,8 +141,9 @@ Hooks.on('renderItemSheet', (_app, [html], data) => {
     select?.addEventListener(
         'change',
         async (event) => {
-            // event.target is HTMLTextAreaElement
-            // @ts-ignore
+            if (!key) return;
+
+            // @ts-ignore - event.target is HTMLTextAreaElement
             const /** @type {HTMLTextAreaElement} */ target = event.target;
             await item.setItemDictionaryFlag(key, target?.value);
         },

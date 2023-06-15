@@ -60,9 +60,12 @@ Hooks.on('pf1GetRollData', (
     }
 });
 
+/**
+ * @param {string} html
+ */
 Hooks.on('renderItemSheet', (
     /** @type {{ actor: ActorPF; }} */ app,
-    [html],
+    /** @type {[HTMLElement]} */[html],
     /** @type {{ item: ItemPF; }} */ data
 ) => {
     const { actor } = app;
@@ -111,7 +114,7 @@ Hooks.on('renderItemSheet', (
 });
 
 registerItemHint((hintcls, _actor, item, _data) => {
-    const currentSchool = getDocDFlags(item, schoolClOffset)[0];
+    const currentSchool = getDocDFlags(item, schoolClOffset)[0].toString();
     if (!currentSchool) {
         return [];
     }
@@ -122,11 +125,17 @@ registerItemHint((hintcls, _actor, item, _data) => {
         return;
     }
 
+    /**
+     *
+     * @param {number} t
+     * @param {string} s
+     * @returns
+     */
     const getHint = (t, s) => {
         const signed = `+${t}`.replace("+-", "-");
         return `CL ${signed} (${spellSchools[s] ?? s})`;
     }
-    const label = getHint(total, currentSchool);
+    const label = getHint(+total, currentSchool);
 
     const hint = hintcls.create(label, [], {});
     return hint;

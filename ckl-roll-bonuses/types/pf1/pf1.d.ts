@@ -1,7 +1,10 @@
 export { }
 
 declare global {
-    abstract class BaseDocument { }
+    abstract class BaseDocument {
+        getFlag(moduleName: string, key: string): any;
+        async setFlag<T>(moduleName: string, key: string, value: T);
+    }
 
     abstract class ItemDocument extends BaseDocument { }
 
@@ -47,7 +50,16 @@ declare global {
         items: EmbeddedCollection<ItemPF>;
 
         system: {
-            skills: { [key: string]: unknown }
+            skills: {
+                [key: string]: {
+                    name: string;
+                    subSkills: {
+                        [key: string]: {
+                            name: string;
+                        }
+                    };
+                }
+            }
         };
     }
 
@@ -90,15 +102,31 @@ declare global {
 
     interface ItemPF extends ItemDocument {
         actions: EmbeddedCollection<Action>;
-
+        actor: ActorPF;
         firstAction: Action;
+        flags: {
+            core: {
+                sourceId: string
+            }
+        };
+        id: string;
+        isActive: boolean;
+        name: string;
+        parent: ActorPF;
+        parentActor: ActorPF;
+        system: {
+            // ItemSpellPF
+            school: string;
 
+            broken: boolean;
+            flags: Flags,
+        };
         type: ItemType;
 
         /**
          * Gets value for the given dictionary flag key
          * @param key
-         */
+        */
         getItemDictionaryFlag(key: string): string | number;
 
         // example output
@@ -112,31 +140,21 @@ declare global {
         // }
         /**
          * Gets the Item's dictionary flags.
-         */
+        */
         getItemDictionaryFlags(): DictionaryFlags;
 
         /**
          * Sets teh given dictionary flag on the item
          * @param key
          * @param value
-         */
+        */
         setItemDictionaryFlag(key: string, value: FlagValue);
 
         /**
          * @param key - THe key for the boolean flag
-         * @returns True if the item has the boolean flag
-         */
+       * @returns True if the item has the boolean flag
+       */
         hasItemBooleanFlag(key: string): boolean;
-
-        id: string;
-        isActive: boolean;
-        parent: ActorPF;
-        parentActor: ActorPF;
-
-        system: {
-            broken: boolean;
-            flags: Flags,
-        }
     }
 
     type ItemType =
