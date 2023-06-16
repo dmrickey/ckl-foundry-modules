@@ -114,9 +114,9 @@ Hooks.on('renderItemSheet', (
 });
 
 registerItemHint((hintcls, _actor, item, _data) => {
-    const currentSchool = getDocDFlags(item, schoolClOffset)[0].toString();
+    const currentSchool = getDocDFlags(item, schoolClOffset)[0]?.toString();
     if (!currentSchool) {
-        return [];
+        return;
     }
 
     const { spellSchools } = pf1.config;

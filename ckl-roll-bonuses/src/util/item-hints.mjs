@@ -7,7 +7,7 @@ import { truthiness } from "./truthiness.mjs";
 let itemHintsAPI;
 
 /**
- * @type {(HintFunc)[]}
+ * @type {hintFunc[]}
  */
 const funcs = [];
 
@@ -20,9 +20,10 @@ const funcs = [];
 function itemHintsHandler(actor, item, data) {
     const hintcls = itemHintsAPI.HintClass;
     const hints = funcs
-        .flatMap((func) => func)
-        .map((func) => func(hintcls, actor, item, data));
-    return hints.filter(truthiness);
+        .map((func) => func(hintcls, actor, item, data))
+        .flatMap((hint) => hint)
+        .filter(truthiness);
+    return hints;
 }
 
 function itemHintsRegistration() {
@@ -36,6 +37,6 @@ function itemHintsRegistration() {
 Hooks.once('ready', itemHintsRegistration);
 
 /**
- * @param {HintFunc} func
+ * @param {hintFunc} func
  */
 export const registerItemHint = (func) => funcs.push(func);

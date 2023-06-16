@@ -33,10 +33,10 @@ const skillMisfortune = 'misfortune-skill';
 /**
  * @type {{[key: string]: (key?: string, actor?: ActorPF) => string}}
  */
-let fortunesLookup = {};
+let fortuneHintLookup = {};
 
 Hooks.once('ready', () => {
-    fortunesLookup = {
+    fortuneHintLookup = {
         [abilityFortune]: (key) => key ? pf1.config.abilities[key] : localize('PF1.Ability'),
         [attackFortune]: (key) => !key ? localize('PF1.Attack') : key === 'melee' ? localize('PF1.Melee') : localize('PF1.Ranged'),
         [babFortune]: () => localize('PF1.BABAbbr'),
@@ -60,7 +60,6 @@ class Settings {
     static #getSetting(/** @type {string} */key) { return game.settings.get(MODULE_NAME, key); }
 }
 
-// todo fix linting
 registerItemHint((hintcls, actor, item, _data) => {
     const bFlags = Object.entries(item.system?.flags?.boolean ?? {})
         .filter(([_, value]) => !!value)
@@ -86,7 +85,7 @@ registerItemHint((hintcls, actor, item, _data) => {
 
             let [fType, ...rest] = f.split('_');
             const key = rest.join('_');
-            extra.push(fortunesLookup[fType.slice(isFortune ? 0 : 3)](key, actor));
+            extra.push(fortuneHintLookup[fType.slice(isFortune ? 0 : 3)](key, actor));
         });
 
         if (extra.length) {
