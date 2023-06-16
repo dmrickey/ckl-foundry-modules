@@ -112,6 +112,11 @@ Follows the same basic setup as Spell Focus above.
 ## Spell DC Bonuses (and penalties)
 Add a new dFlag on any item named `genericSpellDC`, then drop in a number (positive or negative) or a formula and when you next cast a spell on that Actor the DC should be adjusted accordingly.
 
-##  Caster Level Offset for specified Magic School
+## Caster Level Offset for specified Magic School
 Has a formula input which accepts roll data variables plus a dropdown for selecting the school of magic.
 - You must add a dictionary flag `schoolClOffset` to your buff/feature/etc. Once you add that, the inputs will show up below.
+
+## Critical Helpers
+<image goes here>
+
+

@@ -12,6 +12,9 @@ const critOffsetSelf = 'crit-offset-self';
 const critOffsetAll = 'crit-offset-all';
 const critOffsetId = (/** @type {IdObject} */ { id }) => `crit-offset_${id}`;
 
+const critMultSelf = 'crit-mult-self';
+const crit
+
 // register keen
 registerItemHint((hintcls, _actor, item, _data) => {
     const bFlags = Object.entries(item.system?.flags?.boolean ?? {})
