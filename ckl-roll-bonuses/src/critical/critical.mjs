@@ -1,5 +1,6 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { hasAnyBFlag, getDocDFlagsStartsWith, KeyedDFlagHelper } from "../util/flag-helpers.mjs";
+import { localHooks } from "../util/hooks.mjs";
 import { registerItemHint } from "../util/item-hints.mjs";
 import { localize } from "../util/localize.mjs";
 import { signed } from "../util/to-signed-string.mjs";
@@ -123,34 +124,18 @@ function critRange() {
 }
 
 /**
- * Override to read critRange from rollData
- * @param {() => any} wrapped
- * @this {ChatAttack}
+ * @param {ChatAttack} arg
  */
-function setEffectNotesHTML(wrapped) {
-    const hasKeen = this.action.item.hasItemBooleanFlag(selfKeen)
-        || hasAnyBFlag(this.action.item.parentActor, keenAll, keenId(this.action.item), keenId(this.action));
+function setEffectNotesHTML({ action, effectNotes }) {
+    const hasKeen = action.item.hasItemBooleanFlag(selfKeen)
+        || hasAnyBFlag(action.item.parentActor, keenAll, keenId(action.item), keenId(this.action));
     if (hasKeen) {
-        this.effectNotes.push('Keen');
+        effectNotes.push('Keen');
     }
-
-    return wrapped();
 }
-
-/**
- * Override to read critRange from rollData
- * @param {() => any} wrapped
- * @this {ChatAttack}
- */
-function setAttackNotesHTML(wrapped) {
-    // this.attackNotes.push('');
-    return wrapped();
-}
+Hooks.on(localHooks.chatAttackEffectNotes, setEffectNotesHTML);
 
 Hooks.once('setup', () => {
     // todo hopefully not necessary in 0.83.0
     libWrapper.register(MODULE_NAME, 'pf1.actionUse.ChatAttack.prototype.critRange', critRange, libWrapper.OVERRIDE);
-
-    libWrapper.register(MODULE_NAME, 'pf1.actionUse.ChatAttack.prototype.setEffectNotesHTML', setEffectNotesHTML, libWrapper.WRAPPER);
-    libWrapper.register(MODULE_NAME, 'pf1.actionUse.ChatAttack.prototype.setAttackNotesHTML', setAttackNotesHTML, libWrapper.WRAPPER);
 });
