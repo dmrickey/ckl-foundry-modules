@@ -21,75 +21,77 @@ If you have static bonuses, use the built in change system -- this is only neces
 Fortune and Misfortune can now be added as flags onto your buffs, feats, abilities, etc. Simply add a boolean flag `fortune` or `misfortune`. If you have a specific Weapon, Attack, Ability, Feat that only rolls twice for itself, you can add `fortune-self-item` (or `misfortune-self-item`).  There are lots of ways to configure this for individual features. You can have misfortune only for saves or even a specific save. For all skills, an indvidual skill, etc. The following has all of the details on how you can configure it. There is one special case `fortune-warsight-init` that makes it so you roll three times on initiative for the oracle ability (must have "fortune stacks" setting enabled (it is enabled by default) for this ability to work).
 
 <details>
-  <summary>All of the different ways for customizing fortune/misfortune</summary>
+  <summary>How to customize fortune/misfortune (click to expand)</summary>
 
-    For brevity, I'll only list `fortune-`, but everything also applies to `misfortune-`.
+  For brevity, I'll only list `fortune-`, but everything also applies to `misfortune-`.
 
-    ### Everything
-    * `fortune`
+  ### Everything
+  * `fortune`
+  * `misfortune`
+    * all of these are boolean flags
 
-    ### Only for the Item that has the flag
-    * `fortune-self-item`
+  ### Only for the Item that has the flag
+  * `fortune-self-item`
 
-    ### Ability Checks
-    * `fortune-ability`
-      * You can fortune a specific ability by appending its 3-letter abbreviation `fortune_ability_xxx`
-      * e.g. `fortune-ability_str`
+  ### Ability Checks
+  * `fortune-ability`
+    * You can fortune a specific ability by appending its 3-letter abbreviation `fortune_ability_xxx`
+    * e.g. `fortune-ability_str`
 
-    ### Attacks
-    * `fortune-attack`
-      * `fortune-attack_melee` 
-      * `fortune-attack_ranged`
-    * attacks also use bab
-    * if the action is configured as a Melee/Ranged Combat Maneuver, it will also use cmb
+  ### Attacks
+  * `fortune-attack`
+    * `fortune-attack_melee` 
+    * `fortune-attack_ranged`
+  * attacks also use bab
+  * if the action is configured as a Melee/Ranged Combat Maneuver, it will also use cmb
 
-    ### Base Attack Bonus
-    * `fortune-bab`
+  ### Base Attack Bonus
+  * `fortune-bab`
 
-    ### Caster Level Checks
-    * `fortune-cl`
-      * `fortune-cl_primary`
-      * `fortune-cl_secondary`
-      * `fortune-cl_tertiary`
-      * `fortune-cl_spelllike
-      * can also use the class configured for the spell book e.g. `fortune-cl_druid`
+  ### Caster Level Checks
+  * `fortune-cl`
+    * `fortune-cl_primary`
+    * `fortune-cl_secondary`
+    * `fortune-cl_tertiary`
+    * `fortune-cl_spelllike`
+    * can also use the class configured for the spell book e.g. `fortune-cl_druid`
 
-    ### Combat Maneuver Checks
-    * `fortune-cmb`
-      * `fortune-cmb_melee`
-      * `fortune-cmb_ranged`
-        * melee/ranged only work for Actions configured as melee/ranged CMB, not for when rolling "CMB" directly off the character sheet because there's no way to tell if  that's for melee or one of the few ranged options
-    * cmb also use bab
+  ### Combat Maneuver Checks
+  * `fortune-cmb`
+    * `fortune-cmb_melee`
+    * `fortune-cmb_ranged`
+      * melee/ranged only work for Actions configured as melee/ranged CMB, not for when rolling "CMB" directly off the character sheet because there's no way to tell if  that's for melee or one of the few ranged options
+  * cmb also use bab
 
-    ### Concentration Checks
-    * `fortune-concentration`
-      * `fortune-concentration_primary`
-      * `fortune-concentration_secondary`
-      * `fortune-concentration_tertiary`
-      * `fortune-concentration_spelllike
-      * can also use the class configured for the spell book e.g. `fortune-concentration_druid`
+  ### Concentration Checks
+  * `fortune-concentration`
+    * `fortune-concentration_primary`
+    * `fortune-concentration_secondary`
+    * `fortune-concentration_tertiary`
+    * `fortune-concentration_spelllike`
+    * can also use the class configured for the spell book e.g. `fortune-concentration_druid`
 
-    ### Initiative Checks
-    * `fortune-init`
-    * `fortune-warsight-init`
-      * special oracle ability that allows choosing one of the three dice (I will not let you choose a lower dice, I pick the highest, you can delay if you want)
-      * must have the setting "fortune stacks" enabled
+  ### Initiative Checks
+  * `fortune-init`
+  * `fortune-warsight-init`
+    * special oracle ability that allows choosing one of the three dice (I have no way let you choose a lower dice, it picks the highest, you can delay if you want)
+    * must have the setting "fortune stacks" enabled (GM setting for the mod, this is enabled by default)
 
-    ### Saving Throws
-    * `fortune-save`
-      * `fortune-save_fort`
-      * `fortune-save_ref`
-      * `fortune-save_will`
+  ### Saving Throws
+  * `fortune-save`
+    * `fortune-save_fort`
+    * `fortune-save_ref`
+    * `fortune-save_will`
 
-    ### Skill Checks
-    * `fortune-skill`
-      * You can fortune a specific ability by appending its 3-letter abbreviation `fortune_skill_xxx`
-        * e.g. `fortune-skill_ken`
-      * It will work with perform/craft/profession subskills
-        * e.g. `fortune-skill_crf.subSkills.crf1
-      * It will work with custom skills
-        * e.g. `fortune-skill_theIdYouPutInTheInput
-        * e.g. `fortune-skill_newSkill2
+  ### Skill Checks
+  * `fortune-skill`
+    * You can fortune a specific ability by appending its 3-letter abbreviation `fortune_skill_xxx`
+      * e.g. `fortune-skill_ken`
+    * It will work with perform/craft/profession subskills
+      * e.g. `fortune-skill_crf.subSkills.crf1`
+    * It will work with custom skills
+      * e.g. `fortune-skill_theIdYouPutInTheSkillInput`
+      * e.g. `fortune-skill_newSkill2`
 
 </details>
 
@@ -112,6 +114,44 @@ Follows the same basic setup as Spell Focus above.
 ## Spell DC Bonuses (and penalties)
 Add a new dFlag on any item named `genericSpellDC`, then drop in a number (positive or negative) or a formula and when you next cast a spell on that Actor the DC should be adjusted accordingly.
 
-##  Caster Level Offset for specified Magic School
+## Caster Level Offset for specified Magic School
 Has a formula input which accepts roll data variables plus a dropdown for selecting the school of magic.
 - You must add a dictionary flag `schoolClOffset` to your buff/feature/etc. Once you add that, the inputs will show up below.
+
+## Critical Helpers
+Attack's critical variables can now be dynamically adjusted. Crit can be modified with keen. It can also be modified by a static amount to account for certain 3.5 classes or other homebrew. The critical multipler can also be adjusted--this is useful for a Swashbuckler's capstone ability (and any homebrew that needs it). 
+
+<details>
+  <summary>How to customize crit range or multiplier (click to expand)</summary>
+
+  For brevity, I'll only list `fortune-`, but everything also applies to `misfortune-`.
+
+  ### Keen - boolean flag
+  * `keen-self`
+    * place this flag on an attack/weapon/item/spell/etc. Any action for this Item will have its crit range doubled.
+  * `keen-all`
+    * place this flag on anything in your character to double the crit range of any action
+  * `keen_<id>`
+    * e.g. `keen_7hAXCo6sYfpIqeli`
+    * Place this flag on anything, then when you use either the Item or Action associated with the id, it will be keen
+    * This is useful for when you have a temporary buff that grants a specific weapon Keen
+
+  ### Crit target modifications (dictionary flag)
+  #### Positive numbers are good, so having a `3` will mean your "crits only on a 20" weapon will now crit on "17 or higher"
+  * `crit-offset-self`
+  * `crit-offset-all`
+  * `crit-offset_<id>`
+    * e.g. `crit-offset_7hAXCo6sYfpIqeli`
+    * individual descriptions same as keen described above
+    * The value of the dictionary flags can be either a number or a formula
+    * if something is effect by both crit-offset and keen, then keen is applied first before an extra crit-offset is applied
+
+  ### Crit multipliers (dictionary flag)
+  * `crit-mult-offset-self`
+  * `crit-mult-offset-all`
+  * `crit-mult-offset_<id>`
+    * e.g. `crit-mult-offset_7hAXCo6sYfpIqeli`
+    * individual descriptions same as keen described above
+    * The value of the dictionary flags can be either a number or a formula
+
+</details>

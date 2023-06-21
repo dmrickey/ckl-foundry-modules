@@ -2,7 +2,7 @@
     "id": "ckl-roll-bonuses",
     "title": "Roll Bonuses PF1",
     "description": "Example basic module.",
-    "version": "1.5.2",
+    "version": "1.6.0",
     "url": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-roll-bonuses",
     "authors": [
         {
@@ -16,7 +16,7 @@
         "verified": "10"
     },
     "esmodules": [
-        "scripts/main.mjs"
+        "src/main.mjs"
     ],
     "styles": [
         "styles.css"

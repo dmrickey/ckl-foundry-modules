@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "checkJs": true,
+        "noImplicitAny": true,
+        "strict": true,
+        "lib": [
+            "es2022",
+            "DOM"
+        ],
+        "target": "ES2015",
+    },
+    "include": [
+        "src/**/*",
+        "types/**/*"
+    ]
+}

@@ -1,9 +1,11 @@
 {
     "ckl-roll-bonuses": {
+        "crit-offset": "Crit Offset ({mod})",
         "fortune": "Fortune",
+        "genericSpellDC": "Spell DC",
+        "keen": "Keen",
         "misfortune": "Misfortune",
-        "fortune-skill": "Fortune (skill)",
-        "misfortune-skill": "Misfortune (skill)",
+        "ok": "OK",
         "rollBonuses": "Roll Bonuses",
         "skills": {
             "config": "Skill Config",
@@ -14,7 +16,6 @@
             "schoolClOffset": "School CL Offset",
             "spellFocusSchool": "Spell Focus School"
         },
-        "ok": "OK",
         "settings": {
             "elementalFocus": {
                 "name": "Elemental Focus",
