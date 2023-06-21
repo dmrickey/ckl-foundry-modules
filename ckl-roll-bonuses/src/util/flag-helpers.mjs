@@ -141,12 +141,12 @@ export class KeyedDFlagHelper {
 
     // * @returns {Object} - { foundKey1: [values from different items], foundKey2: [...], ...}
     /**
-     * @param {ItemDictionaryFlags} dFlags
+     * @param {ItemDictionaryFlags | undefined} dFlags
      * @param {...string} flags
     */
-    constructor(dFlags, ...flags) {
+    constructor(dFlags = {}, ...flags) {
         this.#flags = flags;
-        for (const itemTag in (dFlags || {})) {
+        for (const itemTag in (dFlags)) {
             flags.forEach((flag) => {
                 this.#byFlag[flag] ||= [];
                 if (dFlags[itemTag].hasOwnProperty(flag)) {
@@ -195,8 +195,8 @@ export class KeyedDFlagHelper {
      * @param {RollData} rollData
      * @returns {{[key: string]: number}} Totals, keyed by flag
     */
-    sumEntries(rollData = {}) {
-        return this.#sumByFlag ??= this.#calculateSums(rollData);
+    sumEntries(rollData) {
+        return this.#sumByFlag ??= this.#calculateSums(rollData ?? {});
     }
 
     /**
@@ -205,11 +205,16 @@ export class KeyedDFlagHelper {
      * @param {RollData} rollData
      * @returns {number} - The total for the given flag
     */
-    sumOfFlag(flag, rollData = {}) {
+    sumOfFlag(flag, rollData) {
         return this.sumEntries(rollData)[flag];
     }
 
-    sumAll(rollData = {}) {
+    /**
+     * Gets the sum of all values.
+     * @param {RollData} rollData
+     * @returns {number} - The combined total for all flags
+    */
+    sumAll(rollData) {
         return Object.values(this.sumEntries(rollData)).reduce((sum, current) => sum + current, 0);
     }
 }

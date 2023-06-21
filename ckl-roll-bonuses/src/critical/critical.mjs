@@ -12,8 +12,9 @@ const critOffsetSelf = 'crit-offset-self';
 const critOffsetAll = 'crit-offset-all';
 const critOffsetId = (/** @type {IdObject} */ { id }) => `crit-offset_${id}`;
 
-const critMultSelf = 'crit-mult-self';
-const crit
+const critMultOffsetSelf = 'crit-mult-offset-self';
+const critMultOffsetAll = 'crit-mult-offset-all';
+const critMultOffsetId = (/** @type {IdObject} */ { id }) => `crit-mult-offset_${id}`;
 
 // register keen
 registerItemHint((hintcls, _actor, item, _data) => {
@@ -56,37 +57,100 @@ registerItemHint((hintcls, actor, item, _data,) => {
     return hint;
 });
 
+Hooks.on('pf1GetRollData', (
+    /** @type {Action} */ action,
+    /** @type {RollData} */ rollData
+) => {
+    if (!(action instanceof pf1.components.ItemAction)) {
+        return;
+    }
+    const { item } = action;
+    const isBroken = !!item.system.broken;
+
+    // update critMult
+    const calculateMult = () => {
+        if (isBroken) {
+            return 2;
+        }
+
+        const sum = new KeyedDFlagHelper(rollData.dFlags, critMultOffsetSelf, critMultOffsetAll, critMultOffsetId(action), critMultOffsetId(item))
+            .sumAll(rollData);
+
+        return rollData.action.ability.critMult + sum;
+    };
+
+    const mult = calculateMult();
+    rollData.action.ability.critMult = mult;
+    // end update critMult
+
+    // update critRange
+    const calculateRange = () => {
+        const current = rollData.action.ability.critRange;
+
+        if (isBroken) {
+            return 20;
+        }
+
+        const hasKeen = item.hasItemBooleanFlag(selfKeen)
+            || hasAnyBFlag(item.parentActor, keenAll, keenId(item), keenId(action));
+
+        let range = hasKeen
+            ? current * 2 - 21
+            : current;
+
+        const flags = [critOffsetAll, critOffsetId(item), critOffsetId(action)];
+        const mod = new KeyedDFlagHelper(rollData.dFlags, ...flags).sumAll(rollData)
+            + new KeyedDFlagHelper(item.system.flags.dictionary, critOffsetSelf).sumAll(rollData);
+
+        range -= mod;
+        range = Math.clamped(range, 2, 20);
+        return range;
+    };
+
+    const range = calculateRange();
+    rollData.action.ability.critRange = range;
+    // end update critRange
+});
+
 /**
+ *  ***shouldn't be necessary in 0.83.0***
+ * Override to read critRange from rollData - this should be identical to the function in 0.83.0
+ * @this {ChatAttack}
+ */
+function critRange() {
+    if (this.action.item.system.broken) return 20;
+    return this.rollData.action.ability?.critRange || 20;
+}
+
+/**
+ * Override to read critRange from rollData
  * @param {() => any} wrapped
  * @this {ChatAttack}
  */
-function critRange(wrapped) {
-    const current = wrapped();
-    const item = this.action.item;
-
-    const isBroken = !!item.system.broken;
-    if (isBroken) {
-        return 20;
+function setEffectNotesHTML(wrapped) {
+    const hasKeen = this.action.item.hasItemBooleanFlag(selfKeen)
+        || hasAnyBFlag(this.action.item.parentActor, keenAll, keenId(this.action.item), keenId(this.action));
+    if (hasKeen) {
+        this.effectNotes.push('Keen');
     }
 
-    const hasKeen = item.hasItemBooleanFlag(selfKeen)
-        || hasAnyBFlag(item.parentActor, keenAll, keenId(item), keenId(this.action));
+    return wrapped();
+}
 
-    let range = hasKeen
-        ? current * 2 - 21
-        : current;
-
-    const flags = [critOffsetAll, critOffsetId(item), critOffsetId(this.action)];
-    const mod = new KeyedDFlagHelper(item.parentActor.itemFlags.dictionary, ...flags)
-        .sumAll(this.rollData)
-        + new KeyedDFlagHelper(item.system.flags.dictionary, critOffsetSelf)
-            .sumAll(this.rollData);
-
-    range += mod;
-    range = Math.clamped(range, 2, 20);
-    return range;
+/**
+ * Override to read critRange from rollData
+ * @param {() => any} wrapped
+ * @this {ChatAttack}
+ */
+function setAttackNotesHTML(wrapped) {
+    // this.attackNotes.push('');
+    return wrapped();
 }
 
 Hooks.once('setup', () => {
-    libWrapper.register(MODULE_NAME, 'pf1.actionUse.ChatAttack.prototype.critRange', critRange, libWrapper.WRAPPER);
+    // todo hopefully not necessary in 0.83.0
+    libWrapper.register(MODULE_NAME, 'pf1.actionUse.ChatAttack.prototype.critRange', critRange, libWrapper.OVERRIDE);
+
+    libWrapper.register(MODULE_NAME, 'pf1.actionUse.ChatAttack.prototype.setEffectNotesHTML', setEffectNotesHTML, libWrapper.WRAPPER);
+    libWrapper.register(MODULE_NAME, 'pf1.actionUse.ChatAttack.prototype.setAttackNotesHTML', setAttackNotesHTML, libWrapper.WRAPPER);
 });

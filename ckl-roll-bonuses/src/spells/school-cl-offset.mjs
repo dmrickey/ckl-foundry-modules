@@ -19,19 +19,19 @@ Hooks.once(
 );
 
 Hooks.on('pf1GetRollData', (
-    /** @type {{ item: any; }} */ action,
-    /** @type {{ dFlags: ItemDictionaryFlags; cl: number; }} */ result
+    /** @type {Action} */ action,
+    /** @type {RollData} */ rollData
 ) => {
     if (!(action instanceof pf1.components.ItemAction)) {
         return;
     }
 
     const item = action?.item;
-    if (item?.type !== 'spell' || !item.system?.school || !result) {
+    if (item?.type !== 'spell' || !item.system?.school || !rollData) {
         return;
     }
 
-    const flags = new KeyedDFlagHelper(result.dFlags, schoolClOffset, schoolClOffsetTotal)
+    const flags = new KeyedDFlagHelper(rollData.dFlags, schoolClOffset, schoolClOffsetTotal)
         .getDFlagsWithAllFlagsByItem();
     const matches = Object.values(flags)
         .filter((offset) => offset[schoolClOffset] === item.system.school);
@@ -41,9 +41,9 @@ Hooks.on('pf1GetRollData', (
     }
 
     const offsetCl = (/** @type {number} */ value) => {
-        if (result.hasOwnProperty('cl')) {
-            result.cl ||= 0;
-            result.cl += value;
+        if (rollData.hasOwnProperty('cl')) {
+            rollData.cl ||= 0;
+            rollData.cl += value;
         }
     }
 

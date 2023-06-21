@@ -27,12 +27,19 @@ declare global {
     class Action {
         id: string;
         data: {
+            ability: {
+                attack: string;
+                critMult: number;
+                critRange: number;
+                damage: string;
+                damageMult: number;
+            };
             actionType: ActionType;
             damage: {
                 parts: [string, { custom: string, values: string[] }][]
             }
         }
-        item: ItemPF;
+        item: ItemAttackPF;
     }
 
     class ActorPF extends BaseDocument {
@@ -72,6 +79,8 @@ declare global {
 
     class ChatAttack {
         action: Action;
+        attackNotes: string[];
+        effectNotes: string[];
         rollData: RollData;
     }
 
@@ -100,8 +109,14 @@ declare global {
 
     interface ItemAction { }
 
+    interface ItemAttackPF extends ItemPF { }
+
     interface ItemPF extends ItemDocument {
         actions: EmbeddedCollection<Action>;
+
+        /**
+         * @deprecated use @see parentActor
+         */
         actor: ActorPF;
         firstAction: Action;
         flags: {
@@ -112,6 +127,10 @@ declare global {
         id: string;
         isActive: boolean;
         name: string;
+
+        /**
+         * @deprecated use @see parentActor
+         */
         parent: ActorPF;
         parentActor: ActorPF;
         system: {
@@ -172,6 +191,17 @@ declare global {
      * Roll Data used for resolving formulas
      */
     interface RollData {
+        action: {
+            id: string,
+            ability: {
+                attack: string;
+                critMult: number;
+                critRange: number;
+                damage: string;
+                damageMult: number;
+            }
+        },
+        dFlags: ItemDictionaryFlags,
         [key: string]: any,
     }
 
