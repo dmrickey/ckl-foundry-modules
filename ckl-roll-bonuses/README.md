@@ -21,7 +21,7 @@ If you have static bonuses, use the built in change system -- this is only neces
 Fortune and Misfortune can now be added as flags onto your buffs, feats, abilities, etc. Simply add a boolean flag `fortune` or `misfortune`. If you have a specific Weapon, Attack, Ability, Feat that only rolls twice for itself, you can add `fortune-self-item` (or `misfortune-self-item`).  There are lots of ways to configure this for individual features. You can have misfortune only for saves or even a specific save. For all skills, an indvidual skill, etc. The following has all of the details on how you can configure it. There is one special case `fortune-warsight-init` that makes it so you roll three times on initiative for the oracle ability (must have "fortune stacks" setting enabled (it is enabled by default) for this ability to work).
 
 <details>
-  <summary>All of the different ways for customizing fortune/misfortune</summary>
+  <summary>How to customize fortune/misfortune (click to expand)</summary>
 
     For brevity, I'll only list `fortune-`, but everything also applies to `misfortune-`.
 
@@ -117,6 +117,39 @@ Has a formula input which accepts roll data variables plus a dropdown for select
 - You must add a dictionary flag `schoolClOffset` to your buff/feature/etc. Once you add that, the inputs will show up below.
 
 ## Critical Helpers
-<image goes here>
+Attack's critical variables can now be dynamically adjusted. Crit can be modified with keen. It can also be modified by a static amount to account for certain 3.5 classes or other homebrew. The critical multipler can also be adjusted--this is useful for a Swashbuckler's capstone ability (and any homebrew that needs it). 
 
+<details>
+  <summary>How to customize crit range or multiplier (click to expand)</summary>
 
+  For brevity, I'll only list `fortune-`, but everything also applies to `misfortune-`.
+
+  ### Keen - boolean flag
+  * `keen-self`
+    * place this flag on an attack/weapon/item/spell/etc. Any action for this Item will have its crit range doubled.
+  * `keen-all`
+    * place this flag on anything in your character to double the crit range of any action
+  * `keen_<id>`
+    * e.g. `keen_7hAXCo6sYfpIqeli`
+    * Place this flag on anything, then when you use either the Item or Action associated with the id, it will be keen
+    * This is useful for when you have a temporary buff that grants a specific weapon Keen
+
+  ### Crit target modifications (dictionary flag)
+  ## Positive numbers are good, so having a `3` will mean your "crits only on a 20" weapon will now crit on "17 or higher"
+  * `crit-offset-self`
+  * `crit-offset-all`
+  * `crit-offset_<id>`
+    * e.g. `crit-offset_7hAXCo6sYfpIqeli`
+    * individual descriptions same as keen described above
+    * The value of the dictionary flags can be either a number or a formula
+    * if something is effect by both crit-offset and keen, then keen is applied first before an extra crit-offset is applied
+
+  ### Crit multipliers (dictionary flag)
+  * `crit-mult-offset-self`
+  * `crit-mult-offset-all`
+  * `crit-mult-offset_<id>`
+    * e.g. `crit-mult-offset_7hAXCo6sYfpIqeli`
+    * individual descriptions same as keen described above
+    * The value of the dictionary flags can be either a number or a formula
+
+</details>
