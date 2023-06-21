@@ -51,7 +51,7 @@ Fortune and Misfortune can now be added as flags onto your buffs, feats, abiliti
     * `fortune-cl_primary`
     * `fortune-cl_secondary`
     * `fortune-cl_tertiary`
-    * `fortune-cl_spelllike
+    * `fortune-cl_spelllike`
     * can also use the class configured for the spell book e.g. `fortune-cl_druid`
 
   ### Combat Maneuver Checks
@@ -66,14 +66,14 @@ Fortune and Misfortune can now be added as flags onto your buffs, feats, abiliti
     * `fortune-concentration_primary`
     * `fortune-concentration_secondary`
     * `fortune-concentration_tertiary`
-    * `fortune-concentration_spelllike
+    * `fortune-concentration_spelllike`
     * can also use the class configured for the spell book e.g. `fortune-concentration_druid`
 
   ### Initiative Checks
   * `fortune-init`
   * `fortune-warsight-init`
-    * special oracle ability that allows choosing one of the three dice (I will not let you choose a lower dice, I pick the highest, you can delay if you want)
-    * must have the setting "fortune stacks" enabled
+    * special oracle ability that allows choosing one of the three dice (I have no way let you choose a lower dice, it picks the highest, you can delay if you want)
+    * must have the setting "fortune stacks" enabled (GM setting for the mod, this is enabled by default)
 
   ### Saving Throws
   * `fortune-save`
@@ -86,10 +86,10 @@ Fortune and Misfortune can now be added as flags onto your buffs, feats, abiliti
     * You can fortune a specific ability by appending its 3-letter abbreviation `fortune_skill_xxx`
       * e.g. `fortune-skill_ken`
     * It will work with perform/craft/profession subskills
-      * e.g. `fortune-skill_crf.subSkills.crf1
+      * e.g. `fortune-skill_crf.subSkills.crf1`
     * It will work with custom skills
-      * e.g. `fortune-skill_theIdYouPutInTheInput
-      * e.g. `fortune-skill_newSkill2
+      * e.g. `fortune-skill_theIdYouPutInTheSkillInput`
+      * e.g. `fortune-skill_newSkill2`
 
 </details>
 
