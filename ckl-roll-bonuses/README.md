@@ -124,8 +124,6 @@ Attack's critical variables can now be dynamically adjusted. Crit can be modifie
 <details>
   <summary>How to customize crit range or multiplier (click to expand)</summary>
 
-  For brevity, I'll only list `fortune-`, but everything also applies to `misfortune-`.
-
   ### Keen - boolean flag
   * `keen-self`
     * place this flag on an attack/weapon/item/spell/etc. Any action for this Item will have its crit range doubled.
