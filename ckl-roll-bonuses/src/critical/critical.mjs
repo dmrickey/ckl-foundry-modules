@@ -23,9 +23,9 @@ registerItemHint((hintcls, _actor, item, _data) => {
         .filter(([_, value]) => !!value)
         .map(([key, _]) => key);
 
-    const keens = bFlags.filter(flag => flag.startsWith('keen'));
+    const hasKeen = bFlags.find(flag => flag.startsWith('keen'));
 
-    if (!keens.length) return;
+    if (!hasKeen) return;
 
     const hint = hintcls.create(localize('keen'), [], {});
     return hint;
@@ -123,17 +123,15 @@ function critRange() {
     return this.rollData.action.ability?.critRange || 20;
 }
 
-/**
- * @param {ChatAttack} arg
- */
-function setEffectNotesHTML({ action, effectNotes }) {
+Hooks.on(localHooks.chatAttackAttackNotes, (
+    /** @type {ChatAttack} */ { action, attackNotes }
+) => {
     const hasKeen = action.item.hasItemBooleanFlag(selfKeen)
-        || hasAnyBFlag(action.item.parentActor, keenAll, keenId(action.item), keenId(this.action));
+        || hasAnyBFlag(action.item.parentActor, keenAll, keenId(action.item), keenId(action));
     if (hasKeen) {
-        effectNotes.push('Keen');
+        attackNotes.push(localize('keen'));
     }
-}
-Hooks.on(localHooks.chatAttackEffectNotes, setEffectNotesHTML);
+});
 
 Hooks.once('setup', () => {
     // todo hopefully not necessary in 0.83.0
