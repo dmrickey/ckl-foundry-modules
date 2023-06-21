@@ -23,73 +23,73 @@ Fortune and Misfortune can now be added as flags onto your buffs, feats, abiliti
 <details>
   <summary>How to customize fortune/misfortune (click to expand)</summary>
 
-    For brevity, I'll only list `fortune-`, but everything also applies to `misfortune-`.
+  For brevity, I'll only list `fortune-`, but everything also applies to `misfortune-`.
 
-    ### Everything
-    * `fortune`
+  ### Everything
+  * `fortune`
 
-    ### Only for the Item that has the flag
-    * `fortune-self-item`
+  ### Only for the Item that has the flag
+  * `fortune-self-item`
 
-    ### Ability Checks
-    * `fortune-ability`
-      * You can fortune a specific ability by appending its 3-letter abbreviation `fortune_ability_xxx`
-      * e.g. `fortune-ability_str`
+  ### Ability Checks
+  * `fortune-ability`
+    * You can fortune a specific ability by appending its 3-letter abbreviation `fortune_ability_xxx`
+    * e.g. `fortune-ability_str`
 
-    ### Attacks
-    * `fortune-attack`
-      * `fortune-attack_melee` 
-      * `fortune-attack_ranged`
-    * attacks also use bab
-    * if the action is configured as a Melee/Ranged Combat Maneuver, it will also use cmb
+  ### Attacks
+  * `fortune-attack`
+    * `fortune-attack_melee` 
+    * `fortune-attack_ranged`
+  * attacks also use bab
+  * if the action is configured as a Melee/Ranged Combat Maneuver, it will also use cmb
 
-    ### Base Attack Bonus
-    * `fortune-bab`
+  ### Base Attack Bonus
+  * `fortune-bab`
 
-    ### Caster Level Checks
-    * `fortune-cl`
-      * `fortune-cl_primary`
-      * `fortune-cl_secondary`
-      * `fortune-cl_tertiary`
-      * `fortune-cl_spelllike
-      * can also use the class configured for the spell book e.g. `fortune-cl_druid`
+  ### Caster Level Checks
+  * `fortune-cl`
+    * `fortune-cl_primary`
+    * `fortune-cl_secondary`
+    * `fortune-cl_tertiary`
+    * `fortune-cl_spelllike
+    * can also use the class configured for the spell book e.g. `fortune-cl_druid`
 
-    ### Combat Maneuver Checks
-    * `fortune-cmb`
-      * `fortune-cmb_melee`
-      * `fortune-cmb_ranged`
-        * melee/ranged only work for Actions configured as melee/ranged CMB, not for when rolling "CMB" directly off the character sheet because there's no way to tell if  that's for melee or one of the few ranged options
-    * cmb also use bab
+  ### Combat Maneuver Checks
+  * `fortune-cmb`
+    * `fortune-cmb_melee`
+    * `fortune-cmb_ranged`
+      * melee/ranged only work for Actions configured as melee/ranged CMB, not for when rolling "CMB" directly off the character sheet because there's no way to tell if  that's for melee or one of the few ranged options
+  * cmb also use bab
 
-    ### Concentration Checks
-    * `fortune-concentration`
-      * `fortune-concentration_primary`
-      * `fortune-concentration_secondary`
-      * `fortune-concentration_tertiary`
-      * `fortune-concentration_spelllike
-      * can also use the class configured for the spell book e.g. `fortune-concentration_druid`
+  ### Concentration Checks
+  * `fortune-concentration`
+    * `fortune-concentration_primary`
+    * `fortune-concentration_secondary`
+    * `fortune-concentration_tertiary`
+    * `fortune-concentration_spelllike
+    * can also use the class configured for the spell book e.g. `fortune-concentration_druid`
 
-    ### Initiative Checks
-    * `fortune-init`
-    * `fortune-warsight-init`
-      * special oracle ability that allows choosing one of the three dice (I will not let you choose a lower dice, I pick the highest, you can delay if you want)
-      * must have the setting "fortune stacks" enabled
+  ### Initiative Checks
+  * `fortune-init`
+  * `fortune-warsight-init`
+    * special oracle ability that allows choosing one of the three dice (I will not let you choose a lower dice, I pick the highest, you can delay if you want)
+    * must have the setting "fortune stacks" enabled
 
-    ### Saving Throws
-    * `fortune-save`
-      * `fortune-save_fort`
-      * `fortune-save_ref`
-      * `fortune-save_will`
+  ### Saving Throws
+  * `fortune-save`
+    * `fortune-save_fort`
+    * `fortune-save_ref`
+    * `fortune-save_will`
 
-    ### Skill Checks
-    * `fortune-skill`
-      * You can fortune a specific ability by appending its 3-letter abbreviation `fortune_skill_xxx`
-        * e.g. `fortune-skill_ken`
-      * It will work with perform/craft/profession subskills
-        * e.g. `fortune-skill_crf.subSkills.crf1
-      * It will work with custom skills
-        * e.g. `fortune-skill_theIdYouPutInTheInput
-        * e.g. `fortune-skill_newSkill2
+  ### Skill Checks
+  * `fortune-skill`
+    * You can fortune a specific ability by appending its 3-letter abbreviation `fortune_skill_xxx`
+      * e.g. `fortune-skill_ken`
+    * It will work with perform/craft/profession subskills
+      * e.g. `fortune-skill_crf.subSkills.crf1
+    * It will work with custom skills
+      * e.g. `fortune-skill_theIdYouPutInTheInput
+      * e.g. `fortune-skill_newSkill2
 
 </details>
 
@@ -135,7 +135,7 @@ Attack's critical variables can now be dynamically adjusted. Crit can be modifie
     * This is useful for when you have a temporary buff that grants a specific weapon Keen
 
   ### Crit target modifications (dictionary flag)
-  ## Positive numbers are good, so having a `3` will mean your "crits only on a 20" weapon will now crit on "17 or higher"
+  #### Positive numbers are good, so having a `3` will mean your "crits only on a 20" weapon will now crit on "17 or higher"
   * `crit-offset-self`
   * `crit-offset-all`
   * `crit-offset_<id>`
