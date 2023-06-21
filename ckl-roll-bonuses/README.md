@@ -27,6 +27,8 @@ Fortune and Misfortune can now be added as flags onto your buffs, feats, abiliti
 
   ### Everything
   * `fortune`
+  * `misfortune`
+    * all of these are boolean flags
 
   ### Only for the Item that has the flag
   * `fortune-self-item`
