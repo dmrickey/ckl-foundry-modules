@@ -219,6 +219,28 @@ declare global {
             ItemAction: { new(): ItemAction }
         };
         config: {
+            bonusModifiers: {
+                alchemical: "Alchemical",
+                base: "Base",
+                circumstance: "Circumstance",
+                competence: "Competence",
+                deflection: "Deflection",
+                dodge: "Dodge",
+                enh: "Enhancement",
+                inherent: "Inherent",
+                insight: "Insight",
+                luck: "Luck",
+                morale: "Morale",
+                penalty: "Penalty",
+                profane: "Profane",
+                racial: "Racial",
+                resist: "Resistance",
+                sacred: "Sacred",
+                size: "Size",
+                trait: "Trait",
+                untyped: "Untyped",
+                untypedPerm: "Untyped (Permanent)",
+            },
             abilities,
             damageTypes: { [key: string]: string },
             savingThrows: SavingThrows,

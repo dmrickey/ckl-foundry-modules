@@ -6,6 +6,7 @@ import './saves/init.mjs';
 import './spells/init.mjs';
 import './fortune/fortune-handler.mjs';
 import './critical/critical.mjs';
+import './fates-favored/fates-favored.mjs';
 
 import './util/item-hints.mjs';
 
