@@ -119,7 +119,7 @@ Has a formula input which accepts roll data variables plus a dropdown for select
 - You must add a dictionary flag `schoolClOffset` to your buff/feature/etc. Once you add that, the inputs will show up below.
 
 ## Critical Helpers
-Attack's critical variables can now be dynamically adjusted. Crit can be modified with keen. It can also be modified by a static amount to account for certain 3.5 classes or other homebrew. The critical multipler can also be adjusted--this is useful for a Swashbuckler's capstone ability (and any homebrew that needs it). 
+Attack's critical variables can now be dynamically adjusted. Crit can be modified with keen. It can also be modified by a static amount to account for certain 3.5 classes or other homebrew. The critical multipler can also be adjusted--this is useful for a Swashbuckler's capstone ability (and any homebrew that needs it).
 
 <details>
   <summary>How to customize crit range or multiplier (click to expand)</summary>
@@ -153,3 +153,6 @@ Attack's critical variables can now be dynamically adjusted. Crit can be modifie
     * The value of the dictionary flags can be either a number or a formula
 
 </details>
+
+## Fate's Favored
+You can now configure the popular trait `Fate's Favored` to increase luck bonuses. To configure, just add a boolean flag `fatesFavored` to your trait (or any other Item) and it will automatically increase any luck bonuses received from any other Change by 1.
