@@ -4,7 +4,7 @@ const fatesFavored = 'fatesFavored';
 
 /**
  * @param {() => number} wrapped
- * @this any ItemChange
+ * @this ItemChange
  */
 function patchChangeValue(wrapped) {
     const parent = this.parent?.parentActor;

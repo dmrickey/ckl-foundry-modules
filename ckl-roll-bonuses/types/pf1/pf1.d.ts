@@ -110,6 +110,22 @@ declare global {
     interface ItemAction { }
 
     interface ItemAttackPF extends ItemPF { }
+    interface ItemEquipmentPF extends ItemPF {
+        system: {
+            armor: {
+                acp: number,
+                dex: number | null,
+                enh: number,
+                value: number,
+            },
+            slot: 'shield',
+        }
+    }
+
+    interface ItemChange {
+        modifier: BonusModifers,
+        parent: undefined | ItemPF;
+    }
 
     interface ItemPF extends ItemDocument {
         actions: EmbeddedCollection<Action>;
@@ -201,8 +217,22 @@ declare global {
                 damageMult: number;
             }
         },
+        armor: {
+            ac: number,
+            enh: number,
+            total: number,
+            type: number,
+        },
         dFlags: ItemDictionaryFlags,
-        [key: string]: any,
+        item: any,
+        shield: {
+            ac: number,
+            enh: number,
+            total: number,
+            type: number,
+        },
+        spells: any,
+        // [key: string]: any,
     }
 
     class RollPF {
@@ -214,33 +244,115 @@ declare global {
         static safeTotal(formula: string | number, rollData: RollData): number;
     }
 
+    type BonusModifers =
+        'alchemical'
+        | 'base'
+        | 'circumstance'
+        | 'competence'
+        | 'deflection'
+        | 'dodge'
+        | 'enh'
+        | 'inherent'
+        | 'insight'
+        | 'luck'
+        | 'morale'
+        | 'penalty'
+        | 'profane'
+        | 'racial'
+        | 'resist'
+        | 'sacred'
+        | 'size'
+        | 'trait'
+        | 'untyped'
+        | 'untypedPerm';
+
+    type BuffTargets =
+        '~attackCore'
+        | 'aac'
+        | 'ac'
+        | 'acpA'
+        | 'acpS'
+        | 'allChecks'
+        | 'allSavingThrows'
+        | 'allSpeeds'
+        | 'attack'
+        | 'bab'
+        | 'bonusFeats'
+        | 'bonusSkillRanks'
+        | 'burrowSpeed'
+        | 'carryMult'
+        | 'carryStr'
+        | 'cha'
+        | 'chaChecks'
+        | 'chaMod'
+        | 'chaSkills'
+        | 'cl'
+        | 'climbSpeed'
+        | 'cmb'
+        | 'cmd'
+        | 'con'
+        | 'concentration'
+        | 'conChecks'
+        | 'conMod'
+        | 'conSkills'
+        | 'critConfirm'
+        | 'damage'
+        | 'dex'
+        | 'dexChecks'
+        | 'dexMod'
+        | 'dexSkills'
+        | 'ffac'
+        | 'ffcmd'
+        | 'flySpeed'
+        | 'fort'
+        | 'init'
+        | 'int'
+        | 'intChecks'
+        | 'intMod'
+        | 'intSkills'
+        | 'landSpeed'
+        | 'mattack'
+        | 'mDexA'
+        | 'mDexS'
+        | 'mhp'
+        | 'nac'
+        | 'rattack'
+        | 'ref'
+        | 'sac'
+        | 'sdamage'
+        | 'skills'
+        | 'spellResist'
+        | 'str'
+        | 'strChecks'
+        | 'strMod'
+        | 'strSkills'
+        | 'swimSpeed'
+        | 'tac'
+        | 'vigor'
+        | 'wdamage'
+        | 'will'
+        | 'wis'
+        | 'wisChecks'
+        | 'wisMod'
+        | 'wisSkills'
+        | 'wounds';
+
     interface pf1 {
         components: {
             ItemAction: { new(): ItemAction }
+            ItemChange: {
+                new(args: {
+                    flavor: string,
+                    formula: string | number,
+                    modifier: BonusModifers,
+                    operator?: 'add' | 'function' | 'set',
+                    priority?: number,
+                    subTarget: BuffTargets,
+                }): ItemChange
+            }
         };
         config: {
-            bonusModifiers: {
-                alchemical: "Alchemical",
-                base: "Base",
-                circumstance: "Circumstance",
-                competence: "Competence",
-                deflection: "Deflection",
-                dodge: "Dodge",
-                enh: "Enhancement",
-                inherent: "Inherent",
-                insight: "Insight",
-                luck: "Luck",
-                morale: "Morale",
-                penalty: "Penalty",
-                profane: "Profane",
-                racial: "Racial",
-                resist: "Resistance",
-                sacred: "Sacred",
-                size: "Size",
-                trait: "Trait",
-                untyped: "Untyped",
-                untypedPerm: "Untyped (Permanent)",
-            },
+            bonusModifiers: BonusModifers,
             abilities,
             damageTypes: { [key: string]: string },
             savingThrows: SavingThrows,
@@ -253,6 +365,7 @@ declare global {
             },
             item: {
                 ItemPF: { new(): ItemPF }
+                ItemEquipmentPF: { new(): ItemEquipmentPF }
             }
         };
     }

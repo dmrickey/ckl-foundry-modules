@@ -5,9 +5,6 @@ Focus Feats
   - Greater Weapon Focus
 
 AC Bonus
-- Shield Focus
-  - Improved Shield Focus
-  - Greater Shield Focus
 - Armor Focus
   - Improved Armor Focus
 
@@ -15,8 +12,7 @@ Skills
 - Bard's Versatile Performance
   - configure a skill to be based on another skill
 - skill headband
-  - configure an item to give you specific ranks
-  - (this may not be needed in recent versions of Pathfinder)
+  - configure an item to give you specific ranks (0.82.5 only gives bonus ranks, not ranks to specific skills)
 
 - add the formula class to skill inputs
 - consumable buffs - requires foundry v10 / pf1 0.83.0
