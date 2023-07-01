@@ -1,10 +1,10 @@
-Focus Feats
+Focus Feats -- requires 0.83.0
 - Martial Focus
 - Gnome Weapon Focus
 - Weapon Focus
   - Greater Weapon Focus
 
-AC Bonus
+AC Bonus -- requires 0.83.0
 - Armor Focus
   - Improved Armor Focus
 

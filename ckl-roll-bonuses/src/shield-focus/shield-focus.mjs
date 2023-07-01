@@ -3,6 +3,10 @@
 // improved Shield Focus - Reduce shield ACP by one
 // Greater Shield Focus - adds an extra +1 AC
 
+// THIS IS NOT USED - BASICALLY EVERYTHING HERE CAN ALREADY BE HANDLED BY THE SYSTEM
+// THIS IS JUST STILL HERE AS EXAMPLES
+// todo add localization
+
 import { hasAnyBFlag } from "../util/flag-helpers.mjs";
 import { registerItemHint } from "../util/item-hints.mjs";
 
