@@ -147,7 +147,7 @@ const handleFortune = (
     }
 };
 
-const handleInitiative = (
+const handleInitiativeV82 = (
     /** @type {ActorPF} */ actor,
     /** @type {string} */ formula,
 ) => {
@@ -189,7 +189,58 @@ const handleInitiative = (
     return parts.filter((p) => p !== null).join(" + ");
 };
 
-Hooks.once('setup', () => libWrapper.register(MODULE_NAME, 'pf1.documents.CombatPF.prototype._getInitiativeFormula', handleInitiative, libWrapper.OVERRIDE));
+/**
+ * @param {string} formula
+ * @this {CombatantPF}
+ * @returns
+ */
+function handleInitiative(formula) {
+    formula ||= '1d20';
+    const actor = this.actor;
+
+    /** BEGIN OVERRIDE */
+    // this gets the original formula before "extra" stuff that's this base method adds in case something else is wrapping this method
+    formula = formula.split('@attributes.init.total[')[0];
+
+    if (actor?.items?.size) {
+        const options = {
+            dice: formula,
+            fortuneCount: 0,
+            misfortuneCount: 0,
+        };
+
+        const count = countBFlags(actor.items, fortune, misfortune, initFortune, initMisfortune, initWarsightFortune);
+
+        options.fortuneCount += count[fortune];
+        options.misfortuneCount += count[misfortune];
+
+        options.fortuneCount += count[initFortune];
+        options.misfortuneCount += count[initMisfortune];
+
+        if (count[initWarsightFortune]) {
+            options.fortuneCount += 2;
+        }
+
+        handleFortune(options);
+        formula = options.dice;
+    }
+    /** END OVERRIDE */
+
+    const defaultParts = [formula, `@attributes.init.total[${game.i18n.localize("PF1.Initiative")}]`];
+    if (actor && game.settings.get("pf1", "initiativeTiebreaker"))
+        defaultParts.push(`(@attributes.init.total / 100)[${game.i18n.localize("PF1.Tiebreaker")}]`);
+    const parts = CONFIG.Combat.initiative.formula ? CONFIG.Combat.initiative.formula.split(/\s*\+\s*/) : defaultParts;
+    if (!actor) return parts[0] || "0";
+    return parts.filter((p) => p !== null).join(" + ");
+};
+
+Hooks.on('pf1PostReady', () => {
+    if (foundry.utils.isNewerVersion(game.system.version, '0.82.5')) {
+        Hooks.once('setup', () => libWrapper.register(MODULE_NAME, 'pf1.documents.CombatantPF.prototype._getInitiativeFormula', handleInitiative, libWrapper.OVERRIDE));
+    } else {
+        Hooks.once('setup', () => libWrapper.register(MODULE_NAME, 'pf1.documents.CombatPF.prototype._getInitiativeFormula', handleInitiativeV82, libWrapper.OVERRIDE));
+    }
+});
 
 // item use does not fire through this hook, so it needs its own dice handling below
 Hooks.on(localHooks.d20Roll, ( /** @type {{ dice?: any; fortuneCount: any; misfortuneCount: any; actionID?: any; }} */ options) => handleFortune(options));
