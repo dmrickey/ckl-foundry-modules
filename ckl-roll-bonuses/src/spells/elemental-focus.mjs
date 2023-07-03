@@ -133,8 +133,6 @@ Hooks.on('renderItemSheet', (
 
     const currentElement = getDocDFlags(item, key)[0];
 
-    console.log('elements', elements);
-
     const templateData = { elements, element: currentElement };
 
     const div = document.createElement('div');

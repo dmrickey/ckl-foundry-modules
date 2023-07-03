@@ -4,7 +4,6 @@
         <select damageType="school" id="elemental-focus-selector">
             {{#select element}}
             {{#each elements as |damageType elem|}}
-            {{log 'damageType' damageType}}
             <option value="{{elem}}">{{damageType.name}}</option>
             {{/each}}
             {{/select}}
