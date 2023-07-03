@@ -7,7 +7,7 @@ const fatesFavored = 'fatesFavored';
  * @this ItemChange
  */
 function patchChangeValue(wrapped) {
-    const parent = this.parent?.parentActor;
+    const parent = this.parent?.actor;
     const value = wrapped();
     return this.modifier === 'luck' && parent?.itemFlags?.boolean?.[fatesFavored]
         ? isNaN(+value) ? `${value} + 1` : (+value + 1)

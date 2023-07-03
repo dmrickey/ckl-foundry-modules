@@ -93,7 +93,7 @@ Hooks.on('pf1GetRollData', (
         }
 
         const hasKeen = item.hasItemBooleanFlag(selfKeen)
-            || hasAnyBFlag(item.parentActor, keenAll, keenId(item), keenId(action));
+            || hasAnyBFlag(item.actor, keenAll, keenId(item), keenId(action));
 
         let range = hasKeen
             ? current * 2 - 21
@@ -127,7 +127,7 @@ Hooks.on(localHooks.chatAttackAttackNotes, (
     /** @type {ChatAttack} */ { action, attackNotes }
 ) => {
     const hasKeen = action.item.hasItemBooleanFlag(selfKeen)
-        || hasAnyBFlag(action.item.parentActor, keenAll, keenId(action.item), keenId(action));
+        || hasAnyBFlag(action.item.actor, keenAll, keenId(action.item), keenId(action));
     if (hasKeen) {
         attackNotes.push(localize('keen'));
     }

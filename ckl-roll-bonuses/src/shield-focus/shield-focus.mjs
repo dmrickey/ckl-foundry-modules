@@ -33,7 +33,7 @@ registerItemHint((hintcls, actor, item, _data) => {
 function handleShieldFocusRollData(doc, rollData) {
     if (!(doc instanceof pf1.documents.item.ItemEquipmentPF)) return;
 
-    const actor = doc.parentActor;
+    const actor = doc.actor;
     if (!actor) return;
 
     const isShield = doc.isActive && doc.system.slot === 'shield';

@@ -56,6 +56,8 @@ declare global {
 
         items: EmbeddedCollection<ItemPF>;
 
+        name: string;
+
         system: {
             skills: {
                 [key: string]: {
@@ -82,6 +84,10 @@ declare global {
         attackNotes: string[];
         effectNotes: string[];
         rollData: RollData;
+    }
+
+    class CombatantPF {
+        actor: ActorPF;
     }
 
     /**
@@ -130,9 +136,6 @@ declare global {
     interface ItemPF extends ItemDocument {
         actions: EmbeddedCollection<Action>;
 
-        /**
-         * @deprecated use @see parentActor
-         */
         actor: ActorPF;
         firstAction: Action;
         flags: {
@@ -144,10 +147,11 @@ declare global {
         isActive: boolean;
         name: string;
 
+        parent: ActorPF | ItemPF;
+
         /**
-         * @deprecated use @see parentActor
+         * @deprecated use @see actor
          */
-        parent: ActorPF;
         parentActor: ActorPF;
         system: {
             // ItemSpellPF
@@ -203,10 +207,23 @@ declare global {
         | 'spell'
         | 'weapon';
 
+    interface SkillRollData {
+        ability: keyof Abilities,
+        acp: boolean,
+        changeBonus: number,
+        cs: boolean,
+        rank: number,
+        rt: boolean,
+
+        name?: string,
+        subSkills?: SkillRollData[],
+    }
+
     /**
      * Roll Data used for resolving formulas
      */
     interface RollData {
+        skills: { [key: string]: SkillRollData },
         action: {
             id: string,
             ability: {
