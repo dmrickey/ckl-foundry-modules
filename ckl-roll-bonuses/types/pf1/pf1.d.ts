@@ -36,7 +36,7 @@ declare global {
             };
             actionType: ActionType;
             damage: {
-                parts: [string, { custom: string, values: string[] }][]
+                parts: { formula: string, type: { custom: string, values: string[], } }[]
             }
         }
         item: ItemAttackPF;
@@ -354,6 +354,16 @@ declare global {
         | 'wisSkills'
         | 'wounds';
 
+    interface DamageType {
+        category: 'physical' | 'energy',
+        color: string,
+        flags: { [key: string]: any },
+        icon: string,
+        isModifier: boolean,
+        name: string,
+        namepsace: 'pf1' | string,
+    }
+
     interface pf1 {
         components: {
             ItemAction: { new(): ItemAction }
@@ -371,7 +381,6 @@ declare global {
         config: {
             bonusModifiers: BonusModifers,
             abilities,
-            damageTypes: { [key: string]: string },
             savingThrows: SavingThrows,
             skills,
             spellSchools
@@ -384,6 +393,9 @@ declare global {
                 ItemPF: { new(): ItemPF }
                 ItemEquipmentPF: { new(): ItemEquipmentPF }
             }
+        };
+        registry: {
+            damageTypes: EmbeddedCollection<DamageType>,
         };
     }
 
