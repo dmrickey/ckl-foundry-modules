@@ -64,7 +64,8 @@ Hooks.on('pf1PreActionUse', (/** @type {ActionUse} */actionUse) => {
     }
 
     const damageTypes = action.data.damage.parts
-        .flatMap(([_, { custom, values }]) => ([...custom.split(';').map(x => x.trim()), ...values]))
+        .map(({ type }) => type)
+        .flatMap(({ custom, values }) => ([...custom.split(';').map(x => x.trim()), ...values]))
         .filter(truthiness);
 
     const handleFocus = (/** @type {string} */key) => {
@@ -97,7 +98,7 @@ Hooks.on('renderItemSheet', (
      * @type {string | undefined}
      */
     let key;
-    let elements = Object.fromEntries(damageElements.map(k => [k, pf1.config.damageTypes[k]]));;
+    let elements = Object.fromEntries(damageElements.map(k => [k, pf1.registry.damageTypes.get(k)]));;
 
     if (name.includes(Settings.elementalFocus) || item?.flags.core?.sourceId.includes(elementalFocusId)) {
         key = elementalFocusKey;
@@ -117,7 +118,7 @@ Hooks.on('renderItemSheet', (
             // @ts-ignore
             const /** @type {string[]}*/ existingElementalFocuses = getDocDFlags(actor, elementalFocusKey);
             existingElementalFocuses.forEach((focus) => {
-                elements[focus] = pf1.config.damageTypes[focus];
+                elements[focus] = pf1.registry.damageTypes.get(focus);
             });
         }
     }
@@ -131,6 +132,8 @@ Hooks.on('renderItemSheet', (
     }
 
     const currentElement = getDocDFlags(item, key)[0];
+
+    console.log('elements', elements);
 
     const templateData = { elements, element: currentElement };
 
@@ -163,8 +166,8 @@ registerItemHint((hintcls, _actor, item, _data) => {
         return;
     }
 
-    const label = pf1.config.damageTypes[currentElement] ?? currentElement;
+    const label = pf1.registry.damageTypes.get(`${currentElement}`) ?? currentElement;
 
-    const hint = hintcls.create(label, [], {});
+    const hint = hintcls.create(label.name, [], {});
     return hint;
 });
