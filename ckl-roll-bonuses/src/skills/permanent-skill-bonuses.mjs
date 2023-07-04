@@ -89,19 +89,13 @@ Hooks.on('renderActorSheetPF', (
             li.appendChild(controls);
         }
         else {
+            // move delete button after name so there aren't three buttons on the right
             const deleteButton = controls.querySelector('.skill-delete');
             if (deleteButton) {
                 controls.removeChild(deleteButton);
 
                 const name = li.querySelector('.skill-name');
                 if (name) {
-                    // const deleteContainer = document.createElement('div');
-                    // deleteContainer.classList.add('lockable', 'hide-contents');
-                    // deleteContainer.appendChild(deleteButton);
-
-                    // deleteButton.classList.add('lockable');
-                    // name.appendChild(deleteContainer);
-
                     deleteButton.classList.add('lockable');
                     if (app._skillsLocked) {
                         deleteButton.classList.add('hide-contents');
