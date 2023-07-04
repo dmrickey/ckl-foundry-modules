@@ -2,3 +2,13 @@
     background-color: rgba(0, 0, 0, .05);
     border: 1px solid #7a7971;
 }
+
+.pf1.sheet {
+    .lockable {
+        &.hide-contents {
+            >* {
+                display: none !important;
+            }
+        }
+    }
+}

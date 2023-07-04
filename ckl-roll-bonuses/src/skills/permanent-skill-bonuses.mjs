@@ -21,11 +21,6 @@ Hooks.on('renderActorSheetPF', (
     /** @type {{ find: (arg0: string) => { (): any; new (): any; each: { (arg0: { (_: any, element: HTMLElement): void; }): void; new (): any; }; }; }} */ html,
     /** @type {{ actor: ActorPF; }} */ data
 ) => {
-    // this is not a "safe check" so I'm specifically checking for false instead of a falsy value
-    if (app._skillsLocked == false) {
-        return;
-    }
-
     // add skill config button
     setTimeout(() => {
         html.find('.tab.skills .skill-lock-button').each((_, btn) => {
@@ -87,9 +82,39 @@ Hooks.on('renderActorSheetPF', (
         let controls = li.querySelector('.skill-controls');
         if (!controls) {
             controls = document.createElement('div');
-            controls.className = 'skill-controls';
+            controls.classList.add('skill-controls', 'lockable');
+            if (app._skillsLocked) {
+                controls.classList.add('hide-contents');
+            }
             li.appendChild(controls);
         }
+        else {
+            const deleteButton = controls.querySelector('.skill-delete');
+            if (deleteButton) {
+                controls.removeChild(deleteButton);
+
+                const name = li.querySelector('.skill-name');
+                if (name) {
+                    // const deleteContainer = document.createElement('div');
+                    // deleteContainer.classList.add('lockable', 'hide-contents');
+                    // deleteContainer.appendChild(deleteButton);
+
+                    // deleteButton.classList.add('lockable');
+                    // name.appendChild(deleteContainer);
+
+                    deleteButton.classList.add('lockable');
+                    if (app._skillsLocked) {
+                        deleteButton.classList.add('hide-contents');
+                    }
+                    name.appendChild(deleteButton);
+                }
+            }
+        }
+
+        // @ts-ignore
+        controls.style.justifySelf = 'flex-end';
+        // @ts-ignore
+        controls.style.marginInlineEnd = '0.25rem';
 
         controls.appendChild(button);
     });
