@@ -16,6 +16,11 @@
             "schoolClOffset": "School CL Offset",
             "spellFocusSchool": "Spell Focus School"
         },
+        "versatilePerformance": {
+            "hint": "{base} -> {skills}",
+            "skillTip": "Can be used with Versatile Performance - {base}",
+            "title": "Versatile Performance - {skill}"
+        },
         "settings": {
             "elementalFocus": {
                 "name": "Elemental Focus",

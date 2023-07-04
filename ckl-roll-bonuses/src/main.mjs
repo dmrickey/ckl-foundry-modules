@@ -1,15 +1,15 @@
 import { localHooks } from './util/hooks.mjs';
 import { MODULE_NAME } from './consts.mjs';
 
-import './skills/init.mjs';
-import './saves/init.mjs';
-import './spells/init.mjs';
-import './fortune/fortune-handler.mjs';
+import './util/item-hints.mjs';
+
 import './critical/critical.mjs';
 import './fates-favored/fates-favored.mjs';
-import './shield-focus/shield-focus.mjs';
-
-import './util/item-hints.mjs';
+import './fortune/fortune-handler.mjs';
+import './saves/init.mjs';
+import './skills/init.mjs';
+import './spells/init.mjs';
+import './versatile-performance/versatile-performance.mjs';
 
 /**
  * @param {() => any} wrapped

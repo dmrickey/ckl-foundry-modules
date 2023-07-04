@@ -4,6 +4,7 @@ declare global {
     abstract class BaseDocument {
         getFlag(moduleName: string, key: string): any;
         async setFlag<T>(moduleName: string, key: string, value: T);
+        updateSource(changes: Partial<this>, options?: object);
     }
 
     abstract class ItemDocument extends BaseDocument { }
@@ -43,6 +44,8 @@ declare global {
     }
 
     class ActorPF extends BaseDocument {
+        getSkillInfo(skillId: string): SkillRollData;
+
         /**
          * Gets the actor's roll data.
          * @param refresh - pass true to force the roll data to recalculate
@@ -86,6 +89,10 @@ declare global {
         rollData: RollData;
     }
 
+    class ChatMessagePF extends BaseDocument {
+        content: string;
+    }
+
     class CombatantPF {
         actor: ActorPF;
     }
@@ -126,6 +133,10 @@ declare global {
             },
             slot: 'shield',
         }
+    }
+
+    interface ItemFeatPF extends ItemPF {
+
     }
 
     interface ItemChange {
@@ -392,6 +403,7 @@ declare global {
             item: {
                 ItemPF: { new(): ItemPF }
                 ItemEquipmentPF: { new(): ItemEquipmentPF }
+                ItemFeatPF: { new(): ItemFeatPF }
             }
         };
         registry: {
