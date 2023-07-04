@@ -1,15 +1,26 @@
 // https://www.d20pfsrd.com/classes/core-classes/bard/#Versatile_Performance_Ex
 
 import { MODULE_NAME } from "../consts.mjs";
+import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
 import { getDocDFlags } from "../util/flag-helpers.mjs";
 import { registerItemHint } from "../util/item-hints.mjs";
 import { localize } from "../util/localize.mjs";
+import { truthiness } from "../util/truthiness.mjs";
 
 const key = 'versatile-performance';
 const disabledKey = (
     /** @type {string} */ baseId,
     /** @type {string} */ skillId,
 ) => `vp_disable_${baseId}_${skillId}`;
+
+/**
+ * @type {Handlebars.TemplateDelegate}
+ */
+let vpSelectorTemplate;
+Hooks.once(
+    'setup',
+    async () => vpSelectorTemplate = await getTemplate(`modules/${MODULE_NAME}/hbs/versatile-performance-selector.hbs`)
+);
 
 registerItemHint((hintcls, actor, item, _data) => {
     if (!(item instanceof pf1.documents.item.ItemFeatPF)) return;
@@ -125,6 +136,86 @@ function versatileRollSkill(wrapped, skillId, _options) {
 
     return wrapped(skillId);
 }
+
+Hooks.on('renderItemSheet', (
+    /** @type {{ }} */ _app,
+    /** @type {[HTMLElement]} */[html],
+    /** @type {{ item: ItemPF; }} */ data
+) => {
+    const { item } = data;
+    const name = item?.name?.toLowerCase() ?? '';
+    const actor = item.actor;
+    if (!actor) return;
+
+    const currentVP = item.system.flags.dictionary[key];
+    if (!currentVP) {
+        return;
+    }
+    const [baseId, ...substitutes] = `${currentVP}`.split(';');
+    const [skill1Id, skill2Id] = substitutes;
+    let base, skill1, skill2;
+    if (baseId) {
+        base = actor.getSkillInfo(baseId);
+    }
+    if (skill1Id) {
+        skill1 = actor.getSkillInfo(skill1Id);
+    }
+    if (skill2Id) {
+        skill2 = actor.getSkillInfo(skill2Id);
+    }
+
+    const allSkills = (() => {
+        const skills = [];
+        for (const [id, s] of Object.entries(actor.getRollData().skills)) {
+            const skill = duplicate(s);
+            skill.id = id;
+            skills.push(skill);
+            skill.name = pf1.config.skills[id] ?? actor.system.skills[id].name;
+
+            for (const [subId, subS] of Object.entries(s.subSkills ?? {})) {
+                const subSkill = duplicate(subS);
+                subSkill.id = `${id}.subSkills.${subId}`;
+                skills.push(subSkill);
+            }
+        }
+        return skills
+            .filter(truthiness)
+            .sort((a, b) => a.name.localeCompare(b.name));
+    })();
+
+    const performs = (() => {
+        const skills = [];
+        const perform = actor.getSkillInfo('prf');
+        for (const [subId, subS] of Object.entries(perform.subSkills ?? {})) {
+            const subSkill = duplicate(subS);
+            subSkill.id = `prf.subSkills.${subId}`;
+            skills.push(subSkill);
+        }
+        return skills
+            .sort((a, b) => a.name.localeCompare(b.name));
+    })();
+    if (!performs.length) return;
+
+    const templateData = { base, skill1, skill2, performs, allSkills };
+
+    const div = document.createElement('div');
+    div.innerHTML = vpSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
+
+    const updateVP = async () => {
+        const b = document.querySelector('#vp-base-selector')?.value;
+        const s1 = document.querySelector('#vp-skill1-selector')?.value;
+        const s2 = document.querySelector('#vp-skill2-selector')?.value;
+        await item.setItemDictionaryFlag(key, `${b};${s1};${s2}`);
+    };
+    const baseSelect = div.querySelector('#vp-base-selector');
+    const skill1Select = div.querySelector('#vp-skill1-selector');
+    const skill2Select = div.querySelector('#vp-skill2-selector');
+    baseSelect?.addEventListener('change', updateVP);
+    skill1Select?.addEventListener('change', updateVP);
+    skill2Select?.addEventListener('change', updateVP);
+
+    addElementToRollBonus(html, div);
+});
 
 Hooks.once('setup', () => {
     libWrapper.register(MODULE_NAME, 'pf1.documents.actor.ActorPF.prototype.rollSkill', versatileRollSkill, libWrapper.WRAPPER);

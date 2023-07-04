@@ -17,9 +17,15 @@
             "spellFocusSchool": "Spell Focus School"
         },
         "versatilePerformance": {
+            "header": "Versatile Performance",
             "hint": "{base} -> {skills}",
             "skillTip": "Can be used with Versatile Performance - {base} ({enabled})",
-            "title": "Versatile Performance - {skill}"
+            "title": "Versatile Performance - {skill}",
+            "label": {
+                "perform": "Perform",
+                "skill1": "Skill 1",
+                "skill2": "Skill 2"
+            }
         },
         "settings": {
             "elementalFocus": {
