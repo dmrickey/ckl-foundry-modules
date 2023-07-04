@@ -6,6 +6,10 @@ import { registerItemHint } from "../util/item-hints.mjs";
 import { localize } from "../util/localize.mjs";
 
 const key = 'versatile-performance';
+const disabledKey = (
+    /** @type {string} */ baseId,
+    /** @type {string} */ skillId,
+) => `vp_disable_${baseId}_${skillId}`;
 
 registerItemHint((hintcls, actor, item, _data) => {
     if (!(item instanceof pf1.documents.item.ItemFeatPF)) return;
@@ -26,20 +30,32 @@ registerItemHint((hintcls, actor, item, _data) => {
 
 /**
  *
- * @param {*} baseSkill
+ * @param {ActorPF} actor
+ * @param {string} baseId
+ * @param {string} skillId
  * @returns {HTMLElement}
  */
-function createVPIcon(baseSkill) {
-    const i = document.createElement('i');
-    i.classList.add('fas', 'fa-music');
-    i.style.marginInlineStart = 'auto';
-    i.style.marginInlineEnd = '0.25rem';
-    i.style.alignSelf = 'center';
+function createVPIcon(actor, baseId, skillId) {
+    const baseSkill = actor.getSkillInfo(baseId);
 
-    const tip = localize('versatilePerformance.skillTip', { base: baseSkill.name });
-    i.setAttribute('data-tooltip', tip);
-    i.setAttribute('data-tooltip-direction', 'UP');
-    return i;
+    const disabled = actor.getFlag(MODULE_NAME, disabledKey(baseId, skillId));
+
+    const icon = document.createElement('a');
+    icon.classList.add('fas', disabled ? 'fa-music-slash' : 'fa-music');
+    icon.style.marginInlineStart = 'auto';
+    icon.style.width = '1.5rem';
+    icon.style.alignSelf = 'center';
+    icon.style.textAlign = 'center';
+
+    const tip = localize('versatilePerformance.skillTip', { base: baseSkill.name, enabled: localize(disabled ? 'PF1.Disabled' : 'PF1.Enabled') });
+    icon.setAttribute('data-tooltip', tip);
+    icon.setAttribute('data-tooltip-direction', 'UP');
+
+    icon.addEventListener(
+        'click',
+        () => actor.setFlag(MODULE_NAME, disabledKey(baseId, skillId), !disabled),
+    );
+    return icon;
 }
 
 Hooks.on('renderActorSheetPF', (
@@ -67,7 +83,7 @@ Hooks.on('renderActorSheetPF', (
             const [baseId, ...targetIds] = `${vp}`.split(';');
             if (!targetIds.includes(skillId)) return;
 
-            const icon = createVPIcon(actor.getSkillInfo(baseId));
+            const icon = createVPIcon(actor, baseId, skillId);
             const name = li.querySelector('.skill-name');
             name?.appendChild(icon);
         });
@@ -85,10 +101,10 @@ function versatileRollSkill(wrapped, skillId, _options) {
     const vps = getDocDFlags(this, key);
 
     for (let i = 0; i < vps.length; i++) {
-        const [base, ...substitutes] = `${vps[i]}`.split(';').map(x => x.trim());
+        const [baseId, ...substitutes] = `${vps[i]}`.split(';').map(x => x.trim());
 
-        if (substitutes.includes(skillId)) {
-            const baseName = this.getSkillInfo(base).name;
+        if (substitutes.includes(skillId) && !this.getFlag(MODULE_NAME, disabledKey(baseId, skillId))) {
+            const baseName = this.getSkillInfo(baseId).name;
 
             Hooks.once('preCreateChatMessage', (
                 /** @type {ChatMessagePF}*/ doc,
@@ -103,7 +119,7 @@ function versatileRollSkill(wrapped, skillId, _options) {
                 const vpTitle = localize('versatilePerformance.title', { skill: baseName });
                 doc.updateSource({ content: doc.content.replace(currentTitle, `  ${updatedTitle}<br />  ${vpTitle}`) });
             });
-            return wrapped(base);
+            return wrapped(baseId);
         }
     }
 

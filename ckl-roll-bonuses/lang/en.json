@@ -18,7 +18,7 @@
         },
         "versatilePerformance": {
             "hint": "{base} -> {skills}",
-            "skillTip": "Can be used with Versatile Performance - {base}",
+            "skillTip": "Can be used with Versatile Performance - {base} ({enabled})",
             "title": "Versatile Performance - {skill}"
         },
         "settings": {
