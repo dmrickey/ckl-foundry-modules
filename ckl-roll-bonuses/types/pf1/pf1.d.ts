@@ -145,6 +145,7 @@ declare global {
     }
 
     interface ItemPF extends ItemDocument {
+        baseTypes: string[];
         actions: EmbeddedCollection<Action>;
 
         actor: ActorPF;
@@ -169,7 +170,8 @@ declare global {
             school: string;
 
             broken: boolean;
-            flags: Flags,
+            flags: Flags;
+            tags: string[];
         };
         type: ItemType;
 

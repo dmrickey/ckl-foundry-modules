@@ -5,7 +5,7 @@ import { truthiness } from "./truthiness.mjs";
  *
  * @param {BaseDocument} doc - Item or Actor
  * @param {string} key
- * @returns
+ * @returns {(String | number)[]}
  */
 const getDocDFlags = (doc, key) => {
     // if doc is an actor

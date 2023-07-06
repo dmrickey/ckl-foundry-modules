@@ -1,4 +1,4 @@
-import { CONFIG_BUTTON } from '../consts.mjs';
+import { CONFIG_BUTTON } from '../../consts.mjs';
 import { CklSkillConfig } from './ckl-skill-config.mjs';
 import { CklSkillData } from './ckl-skill-data.mjs';
 

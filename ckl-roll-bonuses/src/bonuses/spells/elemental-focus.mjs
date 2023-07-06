@@ -1,9 +1,9 @@
-import { MODULE_NAME } from "../consts.mjs";
-import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
-import { getDocDFlags } from "../util/flag-helpers.mjs";
-import { registerItemHint } from "../util/item-hints.mjs";
-import { registerSetting } from "../util/settings.mjs";
-import { truthiness } from "../util/truthiness.mjs";
+import { MODULE_NAME } from "../../consts.mjs";
+import { addElementToRollBonus } from "../../roll-bonus-on-actor-sheet.mjs";
+import { getDocDFlags } from "../../util/flag-helpers.mjs";
+import { registerItemHint } from "../../util/item-hints.mjs";
+import { registerSetting } from "../../util/settings.mjs";
+import { truthiness } from "../../util/truthiness.mjs";
 
 const elementalFocusKey = 'elementalFocus';
 const greaterElementalFocusKey = 'greaterElementalFocus';

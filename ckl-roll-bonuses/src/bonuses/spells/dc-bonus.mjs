@@ -1,6 +1,6 @@
-import { getDocDFlags } from "../util/flag-helpers.mjs";
-import { registerItemHint } from "../util/item-hints.mjs";
-import { localize } from "../util/localize.mjs";
+import { getDocDFlags } from "../../util/flag-helpers.mjs";
+import { registerItemHint } from "../../util/item-hints.mjs";
+import { localize } from "../../util/localize.mjs";
 
 const key = 'genericSpellDC'
 
