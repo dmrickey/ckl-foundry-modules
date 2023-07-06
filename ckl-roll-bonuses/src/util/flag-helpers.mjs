@@ -176,6 +176,15 @@ export class KeyedDFlagHelper {
     }
 
     /**
+     *
+     * @param {string} flag
+     * @returns {FlagValue[]}
+     */
+    valuesForFlag(flag) {
+        return this.#byFlag[flag];
+    }
+
+    /**
      * @param {RollData} rollData
      * @returns {{[key: string]: number}}
     */

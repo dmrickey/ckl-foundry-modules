@@ -27,7 +27,7 @@
                 "skill2": "Skill 2"
             }
         },
-        "weaponFocus": "Weapon Focus",
+        "weapon-focus": "Weapon Focus",
         "settings": {
             "elementalFocus": {
                 "name": "Elemental Focus",

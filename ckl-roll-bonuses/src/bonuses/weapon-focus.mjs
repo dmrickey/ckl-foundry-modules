@@ -1,6 +1,8 @@
 import { MODULE_NAME } from "../consts.mjs";
 import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
-import { getDocDFlags } from "../util/flag-helpers.mjs";
+import { KeyedDFlagHelper, getDocDFlags } from "../util/flag-helpers.mjs";
+import { registerItemHint } from "../util/item-hints.mjs";
+import { localize } from "../util/localize.mjs";
 import { registerSetting } from "../util/settings.mjs";
 
 const weaponFocusKey = 'weapon-focus';
@@ -27,6 +29,23 @@ class Settings {
     static #getSetting(/** @type {string} */key) { return game.settings.get(MODULE_NAME, key).toLowerCase(); }
 }
 
+registerItemHint((hintcls, _actor, item, _data) => {
+    const key = allKeys.find((k) => item.system.flags.dictionary[k] !== undefined);
+    if (!key) {
+        return;
+    }
+
+    const current = getDocDFlags(item, key)[0];
+    if (!current) {
+        return;
+    }
+
+    const label = `${current}`;
+
+    const hint = hintcls.create(label, [], {});
+    return hint;
+});
+
 /**
  * @type {Handlebars.TemplateDelegate}
  */
@@ -36,33 +55,37 @@ Hooks.once(
     async () => focusSelectorTemplate = await getTemplate(`modules/${MODULE_NAME}/hbs/weapon-focus-selector`)
 );
 
-// before dialog pops up
-Hooks.on('pf1PreActionUse', (/** @type {ActionUse} */actionUse) => {
-    // const { actor, item, shared } = actionUse;
-    // if (item?.type !== 'spell') {
-    //     return;
-    // }
+/**
+ *
+ * @param {() => any} wrapped
+ * @param {object} e - The attack dialog's JQuery form data or FormData object
+ * @this ActionUse
+ */
+function addWeaponFocusBonus(wrapped, e) {
+    wrapped();
 
-    // /**
-    //  * @param {string} key
-    //  */
-    // const handleFocus = (key) => {
-    //     const focuses = getDocDFlags(actor, key);
-    //     const hasFocus = !!focuses.find(f => item.baseTypes.includes(`${f}`));
-    //     if (hasFocus) {
-    //         shared.saveDC += 1;
+    const { actor, item } = this;
+    if (!actor && (!item || !item.system.tags?.length)) return;
 
-    //         const mythicFocuses = getDocDFlags(actor, mythicSpellFocusKey);
-    //         const hasMythicFocus = !!mythicFocuses.find(f => f === item.system.school);
-    //         if (hasMythicFocus) {
-    //             shared.saveDC += 1;
-    //         }
-    //     }
-    // }
+    const tags = item.system.tags;
+    let value = 0;
 
-    // handleFocus(spellFocusKey);
-    // handleFocus(greaterSpellFocusKey);
-});
+    const dFlags = actor.getRollData().dFlags;
+    const helper = new KeyedDFlagHelper(dFlags, weaponFocusKey, greaterWeaponFocusKey);
+
+    if (tags.find(value => helper.valuesForFlag(weaponFocusKey).includes(value))) {
+        value += 1;
+    }
+    if (tags.find(value => helper.valuesForFlag(greaterWeaponFocusKey).includes(value))) {
+        value += 1;
+    }
+
+    if (value) {
+        this.shared.attackBonus.push(`${value}[${localize(weaponFocusKey)}]`);
+    }
+}
+
+libWrapper.register(MODULE_NAME, 'pf1.actionUse.ActionUse.prototype.alterRollData', addWeaponFocusBonus, libWrapper.WRAPPER);
 
 Hooks.on('renderItemSheet', (
     /** @type {{}} */ _app,
