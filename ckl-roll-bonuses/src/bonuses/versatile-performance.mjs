@@ -171,13 +171,13 @@ Hooks.on('renderItemSheet', (
     const allSkills = (() => {
         const skills = [];
         for (const [id, s] of Object.entries(actor.getRollData().skills)) {
-            const skill = duplicate(s);
+            const skill = deepClone(s);
             skill.id = id;
             skills.push(skill);
             skill.name = pf1.config.skills[id] ?? actor.system.skills[id].name;
 
             for (const [subId, subS] of Object.entries(s.subSkills ?? {})) {
-                const subSkill = duplicate(subS);
+                const subSkill = deepClone(subS);
                 subSkill.id = `${id}.subSkills.${subId}`;
                 skills.push(subSkill);
             }
@@ -191,7 +191,7 @@ Hooks.on('renderItemSheet', (
         const skills = [];
         const perform = actor.getSkillInfo('prf');
         for (const [subId, subS] of Object.entries(perform.subSkills ?? {})) {
-            const subSkill = duplicate(subS);
+            const subSkill = deepClone(subS);
             subSkill.id = `prf.subSkills.${subId}`;
             skills.push(subSkill);
         }
@@ -210,8 +210,11 @@ Hooks.on('renderItemSheet', (
     div.innerHTML = vpSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
 
     const updateVP = async () => {
+        // @ts-ignore
         const b = document.querySelector('#vp-base-selector')?.value;
+        // @ts-ignore
         const s1 = document.querySelector('#vp-skill1-selector')?.value;
+        // @ts-ignore
         const s2 = document.querySelector('#vp-skill2-selector')?.value;
         await item.setItemDictionaryFlag(key, `${b};${s1};${s2}`);
     };

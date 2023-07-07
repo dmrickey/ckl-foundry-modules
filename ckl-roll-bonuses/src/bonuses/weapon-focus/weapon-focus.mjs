@@ -1,6 +1,7 @@
 import { MODULE_NAME } from "../../consts.mjs";
 import { addNodeToRollBonus } from "../../roll-bonus-on-actor-sheet.mjs";
 import { KeyedDFlagHelper, getDocDFlags } from "../../util/flag-helpers.mjs";
+import { localHooks } from "../../util/hooks.mjs";
 import { registerItemHint } from "../../util/item-hints.mjs";
 import { localize } from "../../util/localize.mjs";
 import { registerSetting } from "../../util/settings.mjs";
@@ -61,17 +62,15 @@ registerItemHint((hintcls, actor, item, _data) => {
 
 /**
  * Add Weapon Focus to tooltip
- * @param {(actionId: string) => any} wrapped
- * @param {string} actionId
- * @this {ItemPF}
+ * @param {ItemPF} item
+ * @param {*} sources
+ * @returns {*[]}
  */
-function getAttackSources(wrapped, actionId) {
-    const sources = wrapped(actionId);
+function getAttackSources(item, sources) {
+    const actor = item.actor;
+    if (!actor) return sources;
 
-    const actor = this.actor;
-    if (!actor) return;
-
-    const baseTypes = this.system.baseTypes;
+    const baseTypes = item.system.baseTypes;
     let value = 0;
     let name = localize(weaponFocusKey);
 
@@ -93,7 +92,7 @@ function getAttackSources(wrapped, actionId) {
 
     return sources;
 }
-Hooks.once('setup', () => libWrapper.register(MODULE_NAME, 'pf1.documents.item.ItemPF.prototype.getAttackSources', getAttackSources, libWrapper.WRAPPER));
+Hooks.on(localHooks.itemGetAttackSources, getAttackSources);
 
 /**
  * @type {Handlebars.TemplateDelegate}
@@ -105,16 +104,10 @@ Hooks.once(
 );
 
 /**
- *
- * @param {() => any} wrapped
- * @param {object} e - The attack dialog's JQuery form data or FormData object
- * @this ActionUse
+ * @param {ActionUse} actionUse
  */
-function addWeaponFocusBonus(wrapped, e) {
-    wrapped();
-
-    const { actor, item } = this;
-    if (!actor && (!item || !item.system.baseTypes?.length)) return;
+function addWeaponFocusBonus({ actor, item, shared }) {
+    if (!actor || !item.system.baseTypes?.length) return;
 
     const baseTypes = item.system.baseTypes;
     let value = 0;
@@ -130,11 +123,10 @@ function addWeaponFocusBonus(wrapped, e) {
     }
 
     if (value) {
-        this.shared.attackBonus.push(`${value}[${localize(weaponFocusKey)}]`);
+        shared.attackBonus.push(`${value}[${localize(weaponFocusKey)}]`);
     }
 }
-
-Hooks.once('setup', () => libWrapper.register(MODULE_NAME, 'pf1.actionUse.ActionUse.prototype.alterRollData', addWeaponFocusBonus, libWrapper.WRAPPER));
+Hooks.on(localHooks.actionUseAlterRollData, addWeaponFocusBonus);
 
 Hooks.on('renderItemSheet', (
     /** @type {{}} */ _app,

@@ -35,16 +35,15 @@ const damageElements = [
 ];
 
 /**
- *
  * @param {any[]} a
  * @param {any[]} b
- * @returns True if both arrays share a common element
+ * @returns {boolean} True if both arrays share a common element
  */
 const intersects = (a, b) => {
     const setA = new Set(a);
     const setB = new Set(b);
-    const overlap = [...setA].filter(x => setB.has(x));
-    return !!overlap.length;
+    const overlap = [...setA].find(x => setB.has(x));
+    return !!overlap;
 }
 
 /**
@@ -64,7 +63,9 @@ Hooks.on('pf1PreActionUse', (/** @type {ActionUse} */actionUse) => {
     }
 
     const damageTypes = action.data.damage.parts
+        // @ts-ignore
         .map(({ type }) => type)
+        // @ts-ignore
         .flatMap(({ custom, values }) => ([...custom.split(';').map(x => x.trim()), ...values]))
         .filter(truthiness);
 

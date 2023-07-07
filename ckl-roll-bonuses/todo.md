@@ -21,3 +21,9 @@ Skills
 - Air Affinity: Sylph sorcerers with the elemental (air) bloodline treat their Charisma scores as 2 points higher for the purposes of all sorcerer spells and class abilities
     - Specifically just "treat <ability score> higher/lower for <spell book>"
     - maybe also "treat <ability score> higher/lower for <class ability>" -- would need to be based off of class key and ability that has a parent as that class
+
+update code in main.mjs for 0.83.0
+update code in fortune-handler.mjs for 0.83.0
+(and any other place mentioning 0.83.0)
+
+Make sure two versatile performances for the same skill work if only one is turned on
