@@ -59,7 +59,7 @@ registerItemHint((hintcls, actor, item, _data,) => {
 });
 
 Hooks.on('pf1GetRollData', (
-    /** @type {Action} */ action,
+    /** @type {ItemAction} */ action,
     /** @type {RollData} */ rollData
 ) => {
     if (!(action instanceof pf1.components.ItemAction)) {

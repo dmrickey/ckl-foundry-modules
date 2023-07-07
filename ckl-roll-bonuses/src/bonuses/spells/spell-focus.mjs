@@ -1,5 +1,5 @@
 import { MODULE_NAME } from "../../consts.mjs";
-import { addElementToRollBonus } from "../../roll-bonus-on-actor-sheet.mjs";
+import { addNodeToRollBonus } from "../../roll-bonus-on-actor-sheet.mjs";
 import { getDocDFlags } from "../../util/flag-helpers.mjs";
 import { registerItemHint } from "../../util/item-hints.mjs";
 import { registerSetting } from "../../util/settings.mjs";
@@ -123,7 +123,7 @@ Hooks.on('renderItemSheet', (
         },
     );
 
-    addElementToRollBonus(html, div);
+    addNodeToRollBonus(html, div);
 });
 
 registerItemHint((hintcls, _actor, item, _data) => {

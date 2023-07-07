@@ -1,9 +1,10 @@
 import { MODULE_NAME } from "../consts.mjs";
-import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
+import { addNodeToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
 import { KeyedDFlagHelper, getDocDFlags } from "../util/flag-helpers.mjs";
 import { registerItemHint } from "../util/item-hints.mjs";
 import { localize } from "../util/localize.mjs";
 import { registerSetting } from "../util/settings.mjs";
+import { uniqueArray } from "../util/unique-array.mjs";
 
 const weaponFocusKey = 'weapon-focus';
 const greaterWeaponFocusKey = 'greater-weapon-focus';
@@ -19,6 +20,7 @@ const gnomeWeaponFocusId = '8RzIeYtbx0UtXUge';
 registerSetting({ key: weaponFocusKey });
 registerSetting({ key: greaterWeaponFocusKey });
 registerSetting({ key: gnomeWeaponFocusKey });
+registerSetting({ key: gnomishTagKey });
 
 class Settings {
     static get weaponFocus() { return Settings.#getSetting(weaponFocusKey); }
@@ -29,6 +31,7 @@ class Settings {
     static #getSetting(/** @type {string} */key) { return game.settings.get(MODULE_NAME, key).toLowerCase(); }
 }
 
+// register hint on item with focus
 registerItemHint((hintcls, _actor, item, _data) => {
     const key = allKeys.find((k) => item.system.flags.dictionary[k] !== undefined);
     if (!key) {
@@ -46,13 +49,73 @@ registerItemHint((hintcls, _actor, item, _data) => {
     return hint;
 });
 
+// register hint on focused weapon/attack
+registerItemHint((hintcls, actor, item, _data) => {
+    if (item.type !== 'attack' && item.type !== 'weapon') return;
+
+    const baseTypes = item.system.baseTypes;
+    let value = 0;
+
+    const dFlags = actor.itemFlags.dictionary;
+    const helper = new KeyedDFlagHelper(dFlags, weaponFocusKey, greaterWeaponFocusKey);
+
+    let label;
+    if (baseTypes.find(value => helper.valuesForFlag(greaterWeaponFocusKey).includes(value))) {
+        label = localize(greaterWeaponFocusKey);
+    }
+    else if (baseTypes.find(value => helper.valuesForFlag(weaponFocusKey).includes(value))) {
+        label = localize(weaponFocusKey);
+    }
+
+    if (label) {
+        return hintcls.create(label, [], {});
+    }
+});
+
+/**
+ * Add Weapon Focus to tooltip
+ * @param {(actionId: string) => any} wrapped
+ * @param {string} actionId
+ * @this {ItemPF}
+ */
+function getAttackSources(wrapped, actionId) {
+    const sources = wrapped(actionId);
+
+    const actor = this.actor;
+    if (!actor) return;
+
+    const baseTypes = this.system.baseTypes;
+    let value = 0;
+    let name = localize(weaponFocusKey);
+
+    const dFlags = this.actor.itemFlags.dictionary;
+    const helper = new KeyedDFlagHelper(dFlags, weaponFocusKey, greaterWeaponFocusKey);
+
+    if (baseTypes.find(bt => helper.valuesForFlag(weaponFocusKey).includes(bt))) {
+        value += 1;
+    }
+    if (baseTypes.find(bt => helper.valuesForFlag(greaterWeaponFocusKey).includes(bt))) {
+        value += 1;
+        name = localize(greaterWeaponFocusKey);
+    }
+
+    if (value) {
+        sources.push({ value, name, modifier: -100 });
+
+        return sources.sort((/** @type {{ sort: number; }} */ a, /** @type {{ sort: number; }} */ b) => b.sort - a.sort);
+    }
+
+    return sources;
+}
+Hooks.once('setup', () => libWrapper.register(MODULE_NAME, 'pf1.documents.item.ItemPF.prototype.getAttackSources', getAttackSources, libWrapper.WRAPPER));
+
 /**
  * @type {Handlebars.TemplateDelegate}
  */
 let focusSelectorTemplate;
 Hooks.once(
     'setup',
-    async () => focusSelectorTemplate = await getTemplate(`modules/${MODULE_NAME}/hbs/weapon-focus-selector`)
+    async () => focusSelectorTemplate = await getTemplate(`modules/${MODULE_NAME}/hbs/weapon-focus-selector.hbs`)
 );
 
 /**
@@ -67,16 +130,16 @@ function addWeaponFocusBonus(wrapped, e) {
     const { actor, item } = this;
     if (!actor && (!item || !item.system.tags?.length)) return;
 
-    const tags = item.system.tags;
+    const baseTypes = item.system.baseTypes;
     let value = 0;
 
-    const dFlags = actor.getRollData().dFlags;
+    const dFlags = actor.itemFlags.dictionary;
     const helper = new KeyedDFlagHelper(dFlags, weaponFocusKey, greaterWeaponFocusKey);
 
-    if (tags.find(value => helper.valuesForFlag(weaponFocusKey).includes(value))) {
+    if (baseTypes.find(value => helper.valuesForFlag(weaponFocusKey).includes(value))) {
         value += 1;
     }
-    if (tags.find(value => helper.valuesForFlag(greaterWeaponFocusKey).includes(value))) {
+    if (baseTypes.find(value => helper.valuesForFlag(greaterWeaponFocusKey).includes(value))) {
         value += 1;
     }
 
@@ -85,7 +148,7 @@ function addWeaponFocusBonus(wrapped, e) {
     }
 }
 
-libWrapper.register(MODULE_NAME, 'pf1.actionUse.ActionUse.prototype.alterRollData', addWeaponFocusBonus, libWrapper.WRAPPER);
+Hooks.once('setup', () => libWrapper.register(MODULE_NAME, 'pf1.actionUse.ActionUse.prototype.alterRollData', addWeaponFocusBonus, libWrapper.WRAPPER));
 
 Hooks.on('renderItemSheet', (
     /** @type {{}} */ _app,
@@ -116,9 +179,9 @@ Hooks.on('renderItemSheet', (
     }
     else if (name.includes(Settings.weaponFocus) || item?.flags.core?.sourceId.includes(weaponFocusId) && !isGnome) {
         key = weaponFocusKey;
-        choices = item.actor?.items
-            ?.filter((item) => (item.type === 'weapon' || item.type === 'attack') && item.system.tags.includes(Settings.gnomish))
-            .flatMap((item) => item.baseTypes);
+        choices = uniqueArray(item.actor?.items
+            ?.filter((item) => item.type === 'weapon' || item.type === 'attack')
+            .flatMap((item) => item.system.baseTypes ?? []));
     }
 
     if (!key) {
@@ -132,9 +195,9 @@ Hooks.on('renderItemSheet', (
     const current = getDocDFlags(item, key)[0];
 
     const templateData = { choices, school: current };
-
+    const template = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
     const div = document.createElement('div');
-    div.innerHTML = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
+    div.innerHTML = template;
 
     const select = div.querySelector('#weapon-focus-selector');
     select?.addEventListener(
@@ -146,6 +209,5 @@ Hooks.on('renderItemSheet', (
             await item.setItemDictionaryFlag(key, target?.value);
         },
     );
-
-    addElementToRollBonus(html, div);
+    addNodeToRollBonus(html, div);
 });

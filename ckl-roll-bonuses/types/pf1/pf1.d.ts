@@ -25,24 +25,6 @@ declare global {
         | 'mcman'
         | 'rcman'
 
-    class Action {
-        id: string;
-        data: {
-            ability: {
-                attack: string;
-                critMult: number;
-                critRange: number;
-                damage: string;
-                damageMult: number;
-            };
-            actionType: ActionType;
-            damage: {
-                parts: { formula: string, type: { custom: string, values: string[], } }[]
-            }
-        }
-        item: ItemAttackPF;
-    }
-
     class ActorPF extends BaseDocument {
         getSkillInfo(skillId: string): SkillRollData;
 
@@ -77,7 +59,7 @@ declare global {
 
     class ActionUse {
         action: Action;
-        actor: ActorePF;
+        actor: ActorPF;
         item: ItemPF;
         shared: Shared;
     }
@@ -120,7 +102,23 @@ declare global {
         boolean: { [key: string]: { sources: ItemDocument[] } },
     }
 
-    interface ItemAction { }
+    interface ItemAction {
+        id: string;
+        data: {
+            ability: {
+                attack: string;
+                critMult: number;
+                critRange: number;
+                damage: string;
+                damageMult: number;
+            };
+            actionType: ActionType;
+            damage: {
+                parts: { formula: string, type: { custom: string, values: string[], } }[]
+            }
+        }
+        item: ItemAttackPF;
+    }
 
     interface ItemAttackPF extends ItemPF { }
     interface ItemEquipmentPF extends ItemPF {
@@ -145,7 +143,6 @@ declare global {
     }
 
     interface ItemPF extends ItemDocument {
-        baseTypes: string[];
         actions: EmbeddedCollection<Action>;
 
         actor: ActorPF;
@@ -168,6 +165,9 @@ declare global {
         system: {
             // ItemSpellPF
             school: string;
+
+            // WeaponPF | AttackPF
+            baseTypes: string[];
 
             broken: boolean;
             flags: Flags;
@@ -253,6 +253,7 @@ declare global {
             total: number,
             type: number,
         },
+        cl: number,
         dFlags: ItemDictionaryFlags,
         item: any,
         shield: {

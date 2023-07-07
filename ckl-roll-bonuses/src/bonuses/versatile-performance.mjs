@@ -1,7 +1,7 @@
 // https://www.d20pfsrd.com/classes/core-classes/bard/#Versatile_Performance_Ex
 
 import { MODULE_NAME } from "../consts.mjs";
-import { addElementToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
+import { addNodeToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
 import { getDocDFlags } from "../util/flag-helpers.mjs";
 import { registerItemHint } from "../util/item-hints.mjs";
 import { localize } from "../util/localize.mjs";
@@ -76,7 +76,7 @@ Hooks.on('renderActorSheetPF', (
 ) => {
     const vps = getDocDFlags(actor, key);
 
-    if (!vps.length) return;
+    if (!vps?.length) return;
 
     html.find('.tab.skills .skills-list li.skill, .tab.skills .skills-list li.sub-skill').each((_, li) => {
         const getSkillId = () => {
@@ -148,7 +148,7 @@ Hooks.on('renderItemSheet', (
     if (!actor) return;
 
     const currentVP = item.system.flags.dictionary[key];
-    if (!currentVP) {
+    if (!currentVP && currentVP !== '') {
         return;
     }
     const [baseId, ...substitutes] = `${currentVP}`.split(';');
@@ -214,7 +214,7 @@ Hooks.on('renderItemSheet', (
     skill1Select?.addEventListener('change', updateVP);
     skill2Select?.addEventListener('change', updateVP);
 
-    addElementToRollBonus(html, div);
+    addNodeToRollBonus(html, div);
 });
 
 Hooks.once('setup', () => {

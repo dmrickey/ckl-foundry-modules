@@ -18,7 +18,7 @@ const getDocDFlags = (doc, key) => {
 
     // else read the flag off the item
     if (doc instanceof pf1.documents.item.ItemPF) {
-        return [doc.getItemDictionaryFlag(key)].filter(truthiness);
+        return [doc.isActive && doc.getItemDictionaryFlag(key)].filter(truthiness);
     }
 
     return [];

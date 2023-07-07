@@ -1,6 +1,6 @@
 import { MODULE_NAME } from "../../consts.mjs";
-import { addElementToRollBonus } from "../../roll-bonus-on-actor-sheet.mjs";
-import { getDocDFlags, KeyedDFlagHelper }../ from "../util/flag-helpers.mjs";
+import { addNodeToRollBonus } from "../../roll-bonus-on-actor-sheet.mjs";
+import { getDocDFlags, KeyedDFlagHelper } from "../../util/flag-helpers.mjs";
 import { registerItemHint } from "../../util/item-hints.mjs";
 
 const schoolClOffset = 'schoolClOffset';
@@ -19,7 +19,7 @@ Hooks.once(
 );
 
 Hooks.on('pf1GetRollData', (
-    /** @type {Action} */ action,
+    /** @type {ItemAction} */ action,
     /** @type {RollData} */ rollData
 ) => {
     if (!(action instanceof pf1.components.ItemAction)) {
@@ -40,11 +40,12 @@ Hooks.on('pf1GetRollData', (
         return;
     }
 
-    const offsetCl = (/** @type {number} */ value) => {
-        if (rollData.hasOwnProperty('cl')) {
-            rollData.cl ||= 0;
-            rollData.cl += value;
-        }
+    /**
+     * @param {number} value
+     */
+    const offsetCl = (value) => {
+        rollData.cl ||= 0;
+        rollData.cl += value;
     }
 
     const values = matches.map((x) => +x[schoolClOffsetTotal] || 0);
@@ -110,7 +111,7 @@ Hooks.on('renderItemSheet', (
         },
     );
 
-    addElementToRollBonus(html, div);
+    addNodeToRollBonus(html, div);
 });
 
 registerItemHint((hintcls, _actor, item, _data) => {
