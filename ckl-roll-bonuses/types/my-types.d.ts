@@ -7,7 +7,7 @@ declare global {
 
     interface ModifierSource {
         /** The value of this modifer */
-        value: number,
+        value: number | string,
 
         /** The name of the source of this modifier */
         name: string,
