@@ -71,16 +71,6 @@
                 "hint": "The 'Greater' adjective, feat names are checked for this plus 'Weapon Focus'. This is to support translations without having to translate the mod.",
                 "default": "Greater"
             },
-            "gnome-weapon-focus": {
-                "name": "Gnome Weapon Focus",
-                "hint": "The 'Gnome' adjective, feat names are checked for this plus 'Weapon Focus'. This is to support translations without having to translate the mod.",
-                "default": "Gnome"
-            },
-            "gnomish-tag": {
-                "name": "Gnomish Tag",
-                "hint": "All Gnome weapons in the system are tagged with 'Gnomish'. This value is used to look up which weapons have that tag for Gnome Weapon Focus.",
-                "default": "Gnomish"
-            },
             "fortuneStacks": {
                 "name": "Fortune Stacks",
                 "hint": "If true (default), multiple fortunes/misfortunes from different sources will stack. So you could potentially end up with 4d20kh. If false, then multiple fortunes/misfortunes will only go to a max of two dice. Multiple misfortune and fortunes affecting the same roll will cancel out (e.g. 3 differnt fortunes vs 2 different misfortunes means you are \"more fortunate\" and will be rolling with a bonus. If you have an equal number of fortune vs misfortune, then you \"break even\" and roll normally.)"

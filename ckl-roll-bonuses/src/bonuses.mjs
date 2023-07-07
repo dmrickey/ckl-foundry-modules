@@ -4,4 +4,5 @@ import './bonuses/fortune-handler.mjs';
 import './bonuses/skills/init.mjs';
 import './bonuses/spells/init.mjs';
 import './bonuses/versatile-performance.mjs';
-import './bonuses/weapon-focus.mjs';
+import './bonuses/weapon-focus/weapon-focus.mjs';
+import './bonuses/weapon-focus/racial-weapon-focus.mjs';

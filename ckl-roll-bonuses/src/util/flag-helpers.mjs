@@ -140,6 +140,7 @@ export class KeyedDFlagHelper {
     /** @type {string[]} - The flags*/
     #flags = [];
 
+    // todo swap dFlags for {actor | item} and instead use the above and do a lookup on all items to account for multiple items with the same tag
     // * @returns {Object} - { foundKey1: [values from different items], foundKey2: [...], ...}
     /**
      * @param {ItemDictionaryFlags | undefined} dFlags

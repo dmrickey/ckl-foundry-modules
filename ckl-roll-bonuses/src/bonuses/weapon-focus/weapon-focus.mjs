@@ -1,32 +1,20 @@
-import { MODULE_NAME } from "../consts.mjs";
-import { addNodeToRollBonus } from "../roll-bonus-on-actor-sheet.mjs";
-import { KeyedDFlagHelper, getDocDFlags } from "../util/flag-helpers.mjs";
-import { registerItemHint } from "../util/item-hints.mjs";
-import { localize } from "../util/localize.mjs";
-import { registerSetting } from "../util/settings.mjs";
-import { uniqueArray } from "../util/unique-array.mjs";
-
-const weaponFocusKey = 'weapon-focus';
-const greaterWeaponFocusKey = 'greater-weapon-focus';
-const gnomeWeaponFocusKey = 'gnome-weapon-focus';
-const gnomishTagKey = 'gnomish-tag';
+import { MODULE_NAME } from "../../consts.mjs";
+import { addNodeToRollBonus } from "../../roll-bonus-on-actor-sheet.mjs";
+import { KeyedDFlagHelper, getDocDFlags } from "../../util/flag-helpers.mjs";
+import { registerItemHint } from "../../util/item-hints.mjs";
+import { localize } from "../../util/localize.mjs";
+import { registerSetting } from "../../util/settings.mjs";
+import { uniqueArray } from "../../util/unique-array.mjs";
+import { gnomeWeaponFocusId, greaterWeaponFocusId, greaterWeaponFocusKey, weaponFocusId, weaponFocusKey } from "./ids.mjs";
 
 const allKeys = [weaponFocusKey, greaterWeaponFocusKey];
 
-const weaponFocusId = 'n250dFlbykAIAg5Z';
-const greaterWeaponFocusId = 'IER2MzJrjSvxMlNS';
-const gnomeWeaponFocusId = '8RzIeYtbx0UtXUge';
-
 registerSetting({ key: weaponFocusKey });
 registerSetting({ key: greaterWeaponFocusKey });
-registerSetting({ key: gnomeWeaponFocusKey });
-registerSetting({ key: gnomishTagKey });
 
 class Settings {
     static get weaponFocus() { return Settings.#getSetting(weaponFocusKey); }
     static get greater() { return Settings.#getSetting(greaterWeaponFocusKey); }
-    static get gnome() { return Settings.#getSetting(gnomeWeaponFocusKey); }
-    static get gnomish() { return Settings.#getSetting(gnomishTagKey); }
     // @ts-ignore
     static #getSetting(/** @type {string} */key) { return game.settings.get(MODULE_NAME, key).toLowerCase(); }
 }
@@ -54,7 +42,6 @@ registerItemHint((hintcls, actor, item, _data) => {
     if (item.type !== 'attack' && item.type !== 'weapon') return;
 
     const baseTypes = item.system.baseTypes;
-    let value = 0;
 
     const dFlags = actor.itemFlags.dictionary;
     const helper = new KeyedDFlagHelper(dFlags, weaponFocusKey, greaterWeaponFocusKey);
@@ -101,7 +88,6 @@ function getAttackSources(wrapped, actionId) {
 
     if (value) {
         sources.push({ value, name, modifier: -100 });
-
         return sources.sort((/** @type {{ sort: number; }} */ a, /** @type {{ sort: number; }} */ b) => b.sort - a.sort);
     }
 
@@ -128,7 +114,7 @@ function addWeaponFocusBonus(wrapped, e) {
     wrapped();
 
     const { actor, item } = this;
-    if (!actor && (!item || !item.system.tags?.length)) return;
+    if (!actor && (!item || !item.system.baseTypes?.length)) return;
 
     const baseTypes = item.system.baseTypes;
     let value = 0;
@@ -141,7 +127,6 @@ function addWeaponFocusBonus(wrapped, e) {
     }
     if (baseTypes.find(value => helper.valuesForFlag(greaterWeaponFocusKey).includes(value))) {
         value += 1;
-        debugger;
     }
 
     if (value) {
@@ -168,7 +153,7 @@ Hooks.on('renderItemSheet', (
     let choices = [];
 
     const isGreater = (name.includes(Settings.weaponFocus) && name.includes(Settings.greater)) || item?.flags.core?.sourceId.includes(greaterWeaponFocusId);
-    const isGnome = (name.includes(Settings.weaponFocus) && name.includes(Settings.gnome)) || item?.flags.core?.sourceId.includes(gnomeWeaponFocusId);
+    const isRacial = item?.flags.core?.sourceId.includes(gnomeWeaponFocusId);
 
     if (isGreater) {
         key = greaterWeaponFocusKey;
@@ -178,7 +163,7 @@ Hooks.on('renderItemSheet', (
             choices = getDocDFlags(actor, weaponFocusKey);
         }
     }
-    else if (name.includes(Settings.weaponFocus) || item?.flags.core?.sourceId.includes(weaponFocusId) && !isGnome) {
+    else if ((name.includes(Settings.weaponFocus) && !isRacial) || item?.flags.core?.sourceId.includes(weaponFocusId)) {
         key = weaponFocusKey;
         choices = uniqueArray(item.actor?.items
             ?.filter((item) => item.type === 'weapon' || item.type === 'attack')
