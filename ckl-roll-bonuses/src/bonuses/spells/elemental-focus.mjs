@@ -99,7 +99,7 @@ Hooks.on('renderItemSheet', (
      * @type {string | undefined}
      */
     let key;
-    let elements = Object.fromEntries(damageElements.map(k => [k, pf1.registry.damageTypes.get(k)]));;
+    let elements = Object.fromEntries(damageElements.map(k => [k, pf1.registry.damageTypes.get(k)]));
 
     if (name.includes(Settings.elementalFocus) || item?.flags.core?.sourceId.includes(elementalFocusId)) {
         key = elementalFocusKey;

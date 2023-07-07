@@ -8,7 +8,4 @@ export const localHooks = {
     getActorInitiativeFormula: `${MODULE_NAME}_getActorInitiativeFormula`,
     itemGetAttackSources: `${MODULE_NAME}_itemGetAttackSources`,
     itemUse: `${MODULE_NAME}_itemUse`,
-    rollAbilityTest: `${MODULE_NAME}_rollAbilityTest`,
-    rollCMB: `${MODULE_NAME}_rollCMB`,
-    rollSavingThrow: `${MODULE_NAME}_rollSavingThrow`,
 };

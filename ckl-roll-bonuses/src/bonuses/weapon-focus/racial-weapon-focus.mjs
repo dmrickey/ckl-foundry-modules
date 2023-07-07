@@ -125,7 +125,7 @@ Hooks.on('renderItemSheet', (
 
     const templateData = { current, racialDefault: Settings.gnomish };
     const div = document.createElement('div');
-    div.innerHTML = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });;
+    div.innerHTML = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
 
     const select = div.querySelector('#weapon-focus-selector');
     select?.addEventListener(
