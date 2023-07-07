@@ -194,7 +194,7 @@ Hooks.on('renderItemSheet', (
 
     const current = getDocDFlags(item, key)[0];
 
-    const templateData = { choices, school: current };
+    const templateData = { choices, current };
     const template = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
     const div = document.createElement('div');
     div.innerHTML = template;
