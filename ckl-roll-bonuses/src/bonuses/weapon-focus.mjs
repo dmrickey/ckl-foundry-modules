@@ -6,9 +6,6 @@ import { localize } from "../util/localize.mjs";
 import { registerSetting } from "../util/settings.mjs";
 import { uniqueArray } from "../util/unique-array.mjs";
 
-// todo
-//  - single select option can't be selected
-
 const weaponFocusKey = 'weapon-focus';
 const greaterWeaponFocusKey = 'greater-weapon-focus';
 const gnomeWeaponFocusKey = 'gnome-weapon-focus';
@@ -91,13 +88,13 @@ function getAttackSources(wrapped, actionId) {
     let value = 0;
     let name = localize(weaponFocusKey);
 
-    const dFlags = this.actor.itemFlags.dictionary;
-    const helper = new KeyedDFlagHelper(dFlags, weaponFocusKey, greaterWeaponFocusKey);
+    const weaponFocuses = getDocDFlags(actor, weaponFocusKey);
+    const greaterWeaponFocuses = getDocDFlags(actor, greaterWeaponFocusKey);
 
-    if (baseTypes.find(bt => helper.valuesForFlag(weaponFocusKey).includes(bt))) {
+    if (baseTypes.find(bt => weaponFocuses.includes(bt))) {
         value += 1;
     }
-    if (baseTypes.find(bt => helper.valuesForFlag(greaterWeaponFocusKey).includes(bt))) {
+    if (baseTypes.find(bt => greaterWeaponFocuses.includes(bt))) {
         value += 1;
         name = localize(greaterWeaponFocusKey);
     }

@@ -1,6 +1,7 @@
 import { truthiness } from "./truthiness.mjs";
 
 // todo update to use actor.itemFlags.dictionary or item.system.flags.dictionary
+//   can't really do this an support the same feat with different bonuses
 /**
  *
  * @param {BaseDocument} doc - Item or Actor
