@@ -13,5 +13,5 @@ function patchChangeValue(wrapped) {
         ? isNaN(+value) ? `${value} + 1` : (+value + 1)
         : value;
 }
-
 Hooks.once('setup', () => libWrapper.register(MODULE_NAME, 'pf1.components.ItemChange.prototype.value', patchChangeValue, libWrapper.WRAPPER));
+

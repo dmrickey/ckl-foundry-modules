@@ -63,8 +63,8 @@ registerItemHint((hintcls, actor, item, _data) => {
 /**
  * Add Weapon Focus to tooltip
  * @param {ItemPF} item
- * @param {*} sources
- * @returns {*[]}
+ * @param {ModifierSource[]} sources
+ * @returns {ModifierSource[]}
  */
 function getAttackSources(item, sources) {
     const actor = item.actor;
@@ -86,8 +86,8 @@ function getAttackSources(item, sources) {
     }
 
     if (value) {
-        sources.push({ value, name, modifier: -100 });
-        return sources.sort((/** @type {{ sort: number; }} */ a, /** @type {{ sort: number; }} */ b) => b.sort - a.sort);
+        sources.push({ value, name, modifier: 'untyped', sort: -100, });
+        return sources.sort((a, b) => b.sort - a.sort);
     }
 
     return sources;
