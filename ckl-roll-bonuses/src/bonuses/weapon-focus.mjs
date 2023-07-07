@@ -6,6 +6,9 @@ import { localize } from "../util/localize.mjs";
 import { registerSetting } from "../util/settings.mjs";
 import { uniqueArray } from "../util/unique-array.mjs";
 
+// todo
+//  - single select option can't be selected
+
 const weaponFocusKey = 'weapon-focus';
 const greaterWeaponFocusKey = 'greater-weapon-focus';
 const gnomeWeaponFocusKey = 'gnome-weapon-focus';
@@ -141,6 +144,7 @@ function addWeaponFocusBonus(wrapped, e) {
     }
     if (baseTypes.find(value => helper.valuesForFlag(greaterWeaponFocusKey).includes(value))) {
         value += 1;
+        debugger;
     }
 
     if (value) {
@@ -193,6 +197,10 @@ Hooks.on('renderItemSheet', (
     }
 
     const current = getDocDFlags(item, key)[0];
+
+    if (choices?.length === 1 && !current) {
+        item.setItemDictionaryFlag(key, choices[0]);
+    }
 
     const templateData = { choices, current };
     const template = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });

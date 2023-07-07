@@ -83,7 +83,11 @@ Hooks.on('renderItemSheet', (
     const currentSchool = getDocDFlags(item, schoolClOffset)[0];
     const formula = getDocDFlags(item, schoolClOffsetFormula)[0];
 
-    const templateData = { spellSchools, school: currentSchool, formula };
+    if (Object.keys(spellSchools).length === 1 && !currentSchool) {
+        item.setItemDictionaryFlag(schoolClOffset, Object.keys(spellSchools)[0]);
+    }
+
+    const templateData = { spellSchools, currentSchool, formula };
 
     const div = document.createElement('div');
     div.innerHTML = clOffsetTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });

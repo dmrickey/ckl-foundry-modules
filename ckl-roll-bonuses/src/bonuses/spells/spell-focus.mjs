@@ -107,7 +107,11 @@ Hooks.on('renderItemSheet', (
 
     const currentSchool = getDocDFlags(item, key)[0];
 
-    const templateData = { spellSchools, school: currentSchool };
+    if (Object.keys(spellSchools).length === 1 && !currentSchool) {
+        item.setItemDictionaryFlag(key, Object.keys(spellSchools)[0]);
+    }
+
+    const templateData = { spellSchools, currentSchool };
 
     const div = document.createElement('div');
     div.innerHTML = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });

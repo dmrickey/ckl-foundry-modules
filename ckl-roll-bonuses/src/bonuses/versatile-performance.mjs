@@ -28,12 +28,16 @@ registerItemHint((hintcls, actor, item, _data) => {
 
     const hints = [];
 
-    for (let i = 0; i < vps.length; i++) {
-        const [base, ...substitutes] = `${vps[i]}`.split(';').map(x => x.trim());
-        const baseName = actor.getSkillInfo(base).name;
-        const skills = substitutes.map((id) => actor.getSkillInfo(id).name).join(', ');
-        const hint = hintcls.create(localize('versatilePerformance.hint', { base: baseName, skills }), [], {});
-        hints.push(hint);
+    try {
+        for (let i = 0; i < vps.length; i++) {
+            const [base, ...substitutes] = `${vps[i]}`.split(';').map(x => x.trim());
+            const baseName = actor.getSkillInfo(base).name;
+            const skills = substitutes.map((id) => actor.getSkillInfo(id).name).join(', ');
+            const hint = hintcls.create(localize('versatilePerformance.hint', { base: baseName, skills }), [], {});
+            hints.push(hint);
+        }
+    } catch {
+        return hintcls.create(localize('versatilePerformance.error'), [], {});
     }
 
     return hints;
@@ -195,6 +199,10 @@ Hooks.on('renderItemSheet', (
             .sort((a, b) => a.name.localeCompare(b.name));
     })();
     if (!performs.length) return;
+
+    if (performs.length === 1 && !base) {
+        item.setItemDictionaryFlag(key, `${performs[0].id}`);
+    }
 
     const templateData = { base, skill1, skill2, performs, allSkills };
 

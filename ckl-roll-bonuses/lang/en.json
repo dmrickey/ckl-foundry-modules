@@ -18,6 +18,7 @@
             "spellFocusSchool": "Spell Focus School"
         },
         "versatilePerformance": {
+            "error": "Versatile Performance - invalid skill IDs",
             "header": "Versatile Performance",
             "hint": "{base} -> {skills}",
             "skillTip": "Can be used with Versatile Performance - {base} ({enabled})",

@@ -133,7 +133,11 @@ Hooks.on('renderItemSheet', (
 
     const currentElement = getDocDFlags(item, key)[0];
 
-    const templateData = { elements, element: currentElement };
+    if (Object.keys(elements).length === 1 && !currentElement) {
+        item.setItemDictionaryFlag(key, Object.keys(elements)[0]);
+    }
+
+    const templateData = { elements, currentElement };
 
     const div = document.createElement('div');
     div.innerHTML = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
