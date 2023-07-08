@@ -1,6 +1,7 @@
 {
     "ckl-roll-bonuses": {
         "crit-offset": "Crit Offset ({mod})",
+        "fates-favored": "Fate's Favored",
         "fortune": "Fortune",
         "genericSpellDC": "Spell DC",
         "greater-weapon-focus": "Greater Weapon Focus",

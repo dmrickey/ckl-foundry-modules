@@ -352,6 +352,7 @@ Hooks.on('pf1PreActorRollCl', (
     options.misfortuneCount = misfortuneCount;
 });
 
+// todo fix hook args order #2211
 Hooks.on('pf1PreActorRollConcentration', (
     /** @type {ActorPF} */ actor,
     /** @type {{ rollData: RollData; fortuneCount: number; misfortuneCount: number; }} */ options,

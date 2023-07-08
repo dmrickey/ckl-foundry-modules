@@ -108,7 +108,6 @@ function addWeaponFocusBonus({ actor, item, shared }) {
 }
 Hooks.on(localHooks.actionUseAlterRollData, addWeaponFocusBonus);
 
-// todo add text input if key is present
 Hooks.on('renderItemSheet', (
     /** @type {{}} */ _app,
     /** @type {[HTMLElement]} */[html],

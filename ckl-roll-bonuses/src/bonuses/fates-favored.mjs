@@ -1,7 +1,8 @@
 import { MODULE_NAME } from '../consts.mjs';
 import { localHooks } from '../util/hooks.mjs';
+import { localize } from '../util/localize.mjs';
 
-const fatesFavored = 'fatesFavored';
+const fatesFavored = 'fates-favored';
 
 /**
  * @param {() => number} wrapped
@@ -36,8 +37,7 @@ function getAttackSources(item, sources) {
                 source.value = +value - 1;
             }
 
-            // todo localize
-            fatesFavoredSource = { name: "Fate's Favored", modifier: 'Luck (Stacking)', sort: source.sort + 1, value: 1 };
+            fatesFavoredSource = { name: localize(fatesFavored), modifier: 'luck', sort: source.sort + 1, value: 1 };
         }
     });
 
