@@ -104,6 +104,7 @@ declare global {
 
     interface ItemAction {
         id: string;
+        actor: ActorPF;
         data: {
             ability: {
                 attack: string;
@@ -171,6 +172,7 @@ declare global {
 
             broken: boolean;
             flags: Flags;
+            tag: string;
             tags: string[];
         };
         type: ItemType;

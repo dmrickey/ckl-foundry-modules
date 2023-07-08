@@ -1,16 +1,11 @@
 Focus Feats -- requires 0.83.0
 - Martial Focus
-- Gnome Weapon Focus
-- Weapon Focus
-  - Greater Weapon Focus
 
 AC Bonus -- requires 0.83.0
 - Armor Focus
   - Improved Armor Focus
 
 Skills
-- Bard's Versatile Performance
-  - configure a skill to be based on another skill
 - skill headband
   - configure an item to give you specific ranks (0.82.5 only gives bonus ranks, not ranks to specific skills)
 

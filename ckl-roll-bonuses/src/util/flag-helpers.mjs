@@ -56,34 +56,6 @@ const getDocDFlagsStartsWith = (doc, keyStart) => {
     return {};
 }
 
-/**
- * @param {ItemDictionaryFlags} dFlags
- * @param {...string} flags
- * @returns {{[key: string]: (number | string)[]}} - { foundKey1: [values from different items], foundKey2: [...], ...}
- */
-const getFlagsFromDFlags = (dFlags, ...flags) => {
-    const /** @type {{[key: string]: (number | string)[]}} */ found = {};
-    for (const item in (dFlags || {})) {
-        flags.forEach((flag) => {
-            if (dFlags[item].hasOwnProperty(flag)) {
-                found[flag] ||= [];
-                found[flag].push(dFlags[item][flag]);
-            }
-        });
-    }
-    return found;
-}
-
-// item.system.flags.boolean - note to self for later
-// todo swap this to actor.itemFlags.boolean[flag].sources.length
-/**
- * Counts the amount of active items that have a given boolean flag
- * @param {ItemPF[]} items
- * @param {string} flag
- * @returns {number} - the count of items that have the given bFlag
- */
-const countBFlag = (items, flag) => (items || []).filter((item) => item.isActive && item.hasItemBooleanFlag(flag)).length;
-
 // todo swap like individual method
 /**
  * Counts the amount of items that have a given boolean flags
@@ -119,11 +91,9 @@ const hasAnyBFlag = (
 ) => flags.some((flag) => !!actor?.itemFlags?.boolean?.[flag]);
 
 export {
-    countBFlag,
     countBFlags,
     getDocDFlags,
     getDocDFlagsStartsWith,
-    getFlagsFromDFlags,
     hasAnyBFlag,
 }
 
@@ -141,7 +111,28 @@ export class KeyedDFlagHelper {
     #flags = [];
 
     // todo swap dFlags for {actor | item} and instead use the above and do a lookup on all items to account for multiple items with the same tag
-    // * @returns {Object} - { foundKey1: [values from different items], foundKey2: [...], ...}
+    // /**
+    //  * @param {ActorPF} actor
+    //  * @param {...string} flags
+    // */
+    // constructor(actor, ...flags) {
+    //     actor.items.forEach(item => {
+    //         if (item.isActive) {
+    //             flags.forEach((flag) => {
+    //                 this.#byFlag[flag] ||= [];
+    //                 if (item.system.flags.dictionary[flag]) {
+    //                     const value = item.system.flags.dictionary[flag];
+    //                     this.#byFlag[flag].push(value);
+
+    //                     this.#byItem[item.system.tag] ||= {};
+    //                     this.#byItem[item.system.tag][flag] = value;
+    //                 }
+    //             });
+    //         }
+    //     });
+    // }
+
+    // todo - maybe 0.83.0 after user is warned when there's a tag collision
     /**
      * @param {ItemDictionaryFlags | undefined} dFlags
      * @param {...string} flags
