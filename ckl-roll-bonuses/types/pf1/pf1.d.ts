@@ -37,7 +37,13 @@ declare global {
             refresh?: boolean
         }): RollData;
 
-        itemFlags: Flags;
+        itemFlags: {
+            /**
+             * The tags for Items that are active with a boolean flag
+             */
+            boolean: { [key: string]: { sources: ItemDocument[] } },
+            dictionary: ItemDictionaryFlags,
+        };
 
         items: EmbeddedCollection<ItemPF>;
 
@@ -92,15 +98,6 @@ declare global {
     }
 
     type FlagValue = string | number;
-
-    interface Flags {
-        dictionary: ItemDictionaryFlags,
-
-        /**
-         * The tags for Items that are active with a boolean flag
-         */
-        boolean: { [key: string]: { sources: ItemDocument[] } },
-    }
 
     interface ItemAction {
         id: string;
@@ -171,7 +168,10 @@ declare global {
             baseTypes: string[];
 
             broken: boolean;
-            flags: Flags;
+            flags: {
+                boolean: {},
+                dictionary: DictionaryFlags;
+            };
             tag: string;
             tags: string[];
         };

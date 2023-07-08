@@ -101,7 +101,7 @@ Hooks.on('pf1GetRollData', (
 
         const flags = [critOffsetAll, critOffsetId(item), critOffsetId(action)];
         const mod = new KeyedDFlagHelper(rollData.dFlags, ...flags).sumAll(rollData)
-            + new KeyedDFlagHelper(item.system.flags.dictionary, critOffsetSelf).sumAll(rollData);
+            + RollPF.safeTotal(item.system.flags.dictionary[critOffsetSelf] ?? 0, rollData);
 
         range -= mod;
         range = Math.clamped(range, 2, 20);
