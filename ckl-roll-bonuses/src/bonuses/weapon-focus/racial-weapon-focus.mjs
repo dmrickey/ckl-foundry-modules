@@ -20,7 +20,7 @@ class Settings {
 
 // register hint on item with focus
 registerItemHint((hintcls, _actor, item, _data) => {
-    const current = getDocDFlags(item, racialWeaponFocusKey)[0];
+    const current = item.getItemDictionaryFlag(racialWeaponFocusKey);
     if (!current) {
         return;
     }
@@ -116,7 +116,7 @@ Hooks.on('renderItemSheet', (
     const isRacial = item?.flags.core?.sourceId.includes(gnomeWeaponFocusId) || item.system.flags.dictionary.hasOwnProperty(racialWeaponFocusKey);
     if (!isRacial) return;
 
-    const current = getDocDFlags(item, racialWeaponFocusKey);
+    const current = item.getItemDictionaryFlag(racialWeaponFocusKey);
 
     if (!current) {
         item.setItemDictionaryFlag(racialWeaponFocusKey, Settings.gnomish);

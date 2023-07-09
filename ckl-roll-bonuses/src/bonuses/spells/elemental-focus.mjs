@@ -1,5 +1,6 @@
 import { MODULE_NAME } from "../../consts.mjs";
 import { addNodeToRollBonus } from "../../roll-bonus-on-actor-sheet.mjs";
+import { intersects } from "../../util/array-intersects.mjs";
 import { getDocDFlags } from "../../util/flag-helpers.mjs";
 import { registerItemHint } from "../../util/item-hints.mjs";
 import { registerSetting } from "../../util/settings.mjs";
@@ -33,18 +34,6 @@ const damageElements = [
     'electric',
     'fire'
 ];
-
-/**
- * @param {any[]} a
- * @param {any[]} b
- * @returns {boolean} True if both arrays share a common element
- */
-const intersects = (a, b) => {
-    const setA = new Set(a);
-    const setB = new Set(b);
-    const overlap = [...setA].find(x => setB.has(x));
-    return !!overlap;
-}
 
 /**
  * @type {Handlebars.TemplateDelegate}
@@ -134,7 +123,7 @@ Hooks.on('renderItemSheet', (
 
     const currentElement = getDocDFlags(item, key)[0];
 
-    if (Object.keys(elements).length === 1 && !currentElement) {
+    if (Object.keys(elements).length && !currentElement) {
         item.setItemDictionaryFlag(key, Object.keys(elements)[0]);
     }
 

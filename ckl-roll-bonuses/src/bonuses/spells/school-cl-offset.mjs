@@ -83,7 +83,7 @@ Hooks.on('renderItemSheet', (
     const currentSchool = getDocDFlags(item, schoolClOffset)[0];
     const formula = getDocDFlags(item, schoolClOffsetFormula)[0];
 
-    if (Object.keys(spellSchools).length === 1 && !currentSchool) {
+    if (Object.keys(spellSchools).length && !currentSchool) {
         item.setItemDictionaryFlag(schoolClOffset, Object.keys(spellSchools)[0]);
     }
 

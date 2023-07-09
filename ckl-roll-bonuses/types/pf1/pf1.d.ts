@@ -94,6 +94,9 @@ declare global {
     }
 
     interface ItemDictionaryFlags {
+        /**
+         * Dictionary flags keyed by Item tags
+         */
         [key: string]: DictionaryFlags,
     }
 
@@ -120,15 +123,7 @@ declare global {
 
     interface ItemAttackPF extends ItemPF { }
     interface ItemEquipmentPF extends ItemPF {
-        system: {
-            armor: {
-                acp: number,
-                dex: number | null,
-                enh: number,
-                value: number,
-            },
-            slot: 'shield',
-        }
+        system: SystemItemEquipmentPF,
     }
 
     interface ItemFeatPF extends ItemPF {
@@ -138,6 +133,31 @@ declare global {
     interface ItemChange {
         modifier: BonusModifers,
         parent: undefined | ItemPF;
+    }
+
+    interface SystemItem {
+        // ItemSpellPF
+        school: string;
+
+        // WeaponPF | AttackPF
+        baseTypes: string[];
+
+        broken: boolean;
+        flags: {
+            boolean: {},
+            dictionary: DictionaryFlags;
+        };
+        tag: string;
+        tags: string[];
+    }
+    interface SystemItemEquipmentPF extends SystemItem {
+        armor: {
+            acp: number,
+            dex: number | null,
+            enh: number,
+            value: number,
+        },
+        slot: 'armor' | 'shield',
     }
 
     interface ItemPF extends ItemDocument {
@@ -160,21 +180,7 @@ declare global {
          * @deprecated use @see actor
          */
         parentActor: ActorPF;
-        system: {
-            // ItemSpellPF
-            school: string;
-
-            // WeaponPF | AttackPF
-            baseTypes: string[];
-
-            broken: boolean;
-            flags: {
-                boolean: {},
-                dictionary: DictionaryFlags;
-            };
-            tag: string;
-            tags: string[];
-        };
+        system: SystemItem;
         type: ItemType;
 
         /**

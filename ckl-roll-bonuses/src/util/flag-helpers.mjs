@@ -174,7 +174,7 @@ export class KeyedDFlagHelper {
      * @returns {FlagValue[]}
      */
     valuesForFlag(flag) {
-        return this.#byFlag[flag];
+        return this.#byFlag[flag] ?? [];
     }
 
     /**

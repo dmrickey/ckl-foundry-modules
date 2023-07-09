@@ -27,7 +27,7 @@ registerItemHint((hintcls, _actor, item, _data) => {
         return;
     }
 
-    const current = getDocDFlags(item, key)[0];
+    const current = item.getItemDictionaryFlag(key);
     if (!current) {
         return;
     }
@@ -95,15 +95,6 @@ function getAttackSources(item, sources) {
 Hooks.on(localHooks.itemGetAttackSources, getAttackSources);
 
 /**
- * @type {Handlebars.TemplateDelegate}
- */
-let focusSelectorTemplate;
-Hooks.once(
-    'setup',
-    async () => focusSelectorTemplate = await getTemplate(`modules/${MODULE_NAME}/hbs/weapon-focus-selector.hbs`)
-);
-
-/**
  * @param {ActionUse} actionUse
  */
 function addWeaponFocusBonus({ actor, item, shared }) {
@@ -127,6 +118,15 @@ function addWeaponFocusBonus({ actor, item, shared }) {
     }
 }
 Hooks.on(localHooks.actionUseAlterRollData, addWeaponFocusBonus);
+
+/**
+ * @type {Handlebars.TemplateDelegate}
+ */
+let focusSelectorTemplate;
+Hooks.once(
+    'setup',
+    async () => focusSelectorTemplate = await getTemplate(`modules/${MODULE_NAME}/hbs/labeled-string-dropdown-selector.hbs`)
+);
 
 Hooks.on('renderItemSheet', (
     /** @type {{}} */ _app,
@@ -170,18 +170,17 @@ Hooks.on('renderItemSheet', (
         }
     }
 
-    const current = getDocDFlags(item, key)[0];
+    const current = item.getItemDictionaryFlag(key);
 
-    if (choices?.length === 1 && !current) {
+    if (choices?.length && !current) {
         item.setItemDictionaryFlag(key, choices[0]);
     }
 
-    const templateData = { choices, current };
-    const template = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
+    const templateData = { choices, current, label: localize(key) };
     const div = document.createElement('div');
-    div.innerHTML = template;
+    div.innerHTML = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
 
-    const select = div.querySelector('#weapon-focus-selector');
+    const select = div.querySelector('#string-selector');
     select?.addEventListener(
         'change',
         async (event) => {

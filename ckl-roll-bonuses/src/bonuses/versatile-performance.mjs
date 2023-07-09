@@ -200,7 +200,7 @@ Hooks.on('renderItemSheet', (
     })();
     if (!performs.length) return;
 
-    if (performs.length === 1 && !base) {
+    if (performs.length && !base) {
         item.setItemDictionaryFlag(key, `${performs[0].id}`);
     }
 
