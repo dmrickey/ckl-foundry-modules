@@ -17,7 +17,7 @@ const addNodeToRollBonus = (
         container.id = containerId;
 
         const header = document.createElement('h3');
-        header.textContent = localize('rollBonuses');
+        header.textContent = localize('roll-bonuses');
         header.classList.add('form-header');
 
         const icon = document.createElement('i');

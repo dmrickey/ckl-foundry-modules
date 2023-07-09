@@ -22,24 +22,22 @@ class Settings {
 
 // register hint on item with focus
 registerItemHint((hintcls, _actor, item, _data) => {
-    const key = allKeys.find((k) => item.system.flags.dictionary[k] !== undefined);
-    if (!key) {
-        return;
-    }
-
-    const current = item.getItemDictionaryFlag(key);
-    if (!current) {
-        return;
-    }
-
-    const label = `${current}`;
-
-    const hint = hintcls.create(label, [], {});
-    return hint;
+    const  /** @type {Hint[]} */ hints = [];
+    allKeys.forEach((key) => {
+        const current = item.getItemDictionaryFlag(key);
+        if (current) {
+            hints.push(hintcls.create(`${current}`, [], {}));
+        }
+    });
+    return hints;
 });
 
 // register hint on focused weapon/attack
 registerItemHint((hintcls, actor, item, _data) => {
+    if (!(item instanceof pf1.documents.item.ItemEquipmentPF || item instanceof pf1.documents.item.ItemAttackPF)) {
+        return;
+    }
+
     if (item.type !== 'attack' && item.type !== 'weapon') return;
 
     const baseTypes = item.system.baseTypes;
@@ -70,6 +68,10 @@ function getAttackSources(item, sources) {
     const actor = item.actor;
     if (!actor) return sources;
 
+    if (!(item instanceof pf1.documents.item.ItemEquipmentPF || item instanceof pf1.documents.item.ItemAttackPF)) {
+        return sources;
+    }
+
     const baseTypes = item.system.baseTypes;
     let value = 0;
     let name = localize(weaponFocusKey);
@@ -98,6 +100,9 @@ Hooks.on(localHooks.itemGetAttackSources, getAttackSources);
  * @param {ActionUse} actionUse
  */
 function addWeaponFocusBonus({ actor, item, shared }) {
+    if (!(item instanceof pf1.documents.item.ItemEquipmentPF || item instanceof pf1.documents.item.ItemAttackPF)) {
+        return;
+    }
     if (!actor || !item.system.baseTypes?.length) return;
 
     const baseTypes = item.system.baseTypes;
@@ -158,7 +163,9 @@ Hooks.on('renderItemSheet', (
     else if ((name.includes(Settings.weaponFocus) && !isRacial) || item?.flags.core?.sourceId.includes(weaponFocusId)) {
         key = weaponFocusKey;
         choices = uniqueArray(item.actor?.items
-            ?.filter((item) => item.type === 'weapon' || item.type === 'attack')
+            ?.filter(
+                /** @returns {item is ItemEquipmentPF | ItemAttackPF} */
+                (item) => item.type === 'weapon' || item.type === 'attack')
             .flatMap((item) => item.system.baseTypes ?? []));
     }
 

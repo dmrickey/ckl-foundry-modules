@@ -8,9 +8,10 @@
         "greater-weapon-focus": "Greater Weapon Focus",
         "improved-armor-focus": "Improved Armor Focus",
         "keen": "Keen",
+        "martial-focus": "Martial Focus",
         "misfortune": "Misfortune",
         "ok": "OK",
-        "rollBonuses": "Roll Bonuses",
+        "roll-bonuses": "Roll Bonuses",
         "skills": {
             "config": "Skill Config",
             "inspiration": "Inspiration"
@@ -67,6 +68,11 @@
                 "name": "Improved Armor Focus",
                 "hint": "The 'Improved' adjective, feat names are checked for this plus 'Armor Focus'. This is to support translations without having to translate the mod.",
                 "default": "Improved"
+            },
+            "martial-focus": {
+                "name": "Martial Focus",
+                "hint": "The name of the 'Martial Focus' feat. This is to support translations without having to translate the mod.",
+                "default": "Martial Focus"
             },
             "mythicElementalFocus": {
                 "name": "Mythic Elemental Focus",

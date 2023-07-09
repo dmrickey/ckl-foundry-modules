@@ -121,9 +121,14 @@ declare global {
         item: ItemAttackPF;
     }
 
-    interface ItemAttackPF extends ItemPF { }
+    interface ItemAttackPF extends ItemPF {
+        system: SystemItemAttackPF,
+    }
     interface ItemEquipmentPF extends ItemPF {
         system: SystemItemEquipmentPF,
+    }
+    interface ItemSpellPF extends ItemPF {
+        system: SystemItemSpellPF,
     }
 
     interface ItemFeatPF extends ItemPF {
@@ -136,12 +141,6 @@ declare global {
     }
 
     interface SystemItem {
-        // ItemSpellPF
-        school: string;
-
-        // WeaponPF | AttackPF
-        baseTypes: string[];
-
         broken: boolean;
         flags: {
             boolean: {},
@@ -150,6 +149,10 @@ declare global {
         tag: string;
         tags: string[];
     }
+    interface SystemItemAttackPF extends SystemItem {
+        baseTypes: string[];
+        weaponGroups: TraitSelector;
+    }
     interface SystemItemEquipmentPF extends SystemItem {
         armor: {
             acp: number,
@@ -157,7 +160,19 @@ declare global {
             enh: number,
             value: number,
         },
+        baseTypes: string[];
+        proficient: boolean,
         slot: 'armor' | 'shield',
+        weaponGroups: TraitSelector;
+    }
+    interface SystemItemSpellPF extends SystemItem {
+        school: string;
+    }
+
+    interface TraitSelector {
+        value: string[];
+        /** custom entries split by ; */
+        custom: string;
     }
 
     interface ItemPF extends ItemDocument {
@@ -413,6 +428,7 @@ declare global {
             },
             item: {
                 ItemPF: { new(): ItemPF }
+                ItemAttackPF: { new(): ItemAttackPF }
                 ItemEquipmentPF: { new(): ItemEquipmentPF }
                 ItemFeatPF: { new(): ItemFeatPF }
             }

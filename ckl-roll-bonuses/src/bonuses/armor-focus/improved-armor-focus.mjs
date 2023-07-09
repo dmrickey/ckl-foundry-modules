@@ -23,7 +23,7 @@ class Settings {
 }
 
 // register hint on feat
-registerItemHint((hintcls, actor, item, _data) => {
+registerItemHint((hintcls, _actor, item, _data) => {
     const current = item.getItemDictionaryFlag(key);
     if (current) {
         return hintcls.create(`${current}`, [], {});
@@ -57,7 +57,9 @@ function handleArmorFocusRollData(doc, rollData) {
     const actor = doc.actor;
     if (!actor) return;
 
-    const armor = actor.items.find((item) => item instanceof pf1.documents.item.ItemEquipmentPF && item.isActive && item.system.slot === 'armor');
+    const armor = actor.items.find(
+        /** @returns {item is ItemEquipmentPF} */
+        (item) => item instanceof pf1.documents.item.ItemEquipmentPF && item.isActive && item.system.slot === 'armor');
     if (!armor) return;
     const baseTypes = armor.system.baseTypes;
     if (!baseTypes?.length) return;
@@ -80,9 +82,10 @@ function handleArmorFocusChange(actor, tempChanges) {
     const armorFocuses = new KeyedDFlagHelper(actor.itemFlags.dictionary, key).valuesForFlag(key);
     if (!armorFocuses.length) return;
 
-    // @ts-ignore
-    const /** @type {ItemEquipmentPF} */ armor =
-        actor.items.find((item) => item instanceof pf1.documents.item.ItemEquipmentPF && item.isActive && item.system.slot === 'armor');
+    const armor =
+        actor.items.find(
+            /** @returns {item is ItemEquipmentPF}} */
+            (item) => item instanceof pf1.documents.item.ItemEquipmentPF && item.isActive && item.system.slot === 'armor');
     if (!armor) return;
     const baseTypes = armor.system.baseTypes;
     if (!baseTypes?.length) return;
