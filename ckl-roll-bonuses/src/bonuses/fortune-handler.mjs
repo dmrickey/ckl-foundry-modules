@@ -324,8 +324,8 @@ Hooks.on('pf1PreActorRollBab', (
 
 Hooks.on('pf1PreActorRollCl', (
     /** @type {{ items: EmbeddedCollection<ItemPF>; }} */ actor,
+    /** @type {{ rollData: RollData; fortuneCount: number; misfortuneCount: number; }} */ options,
     /** @type {string | number} */ bookId,
-    /** @type {{ rollData: RollData; fortuneCount: number; misfortuneCount: number; }} */ options
 ) => {
     let fortuneCount = 0;
     let misfortuneCount = 0;
@@ -352,7 +352,6 @@ Hooks.on('pf1PreActorRollCl', (
     options.misfortuneCount = misfortuneCount;
 });
 
-// todo fix hook args order #2211
 Hooks.on('pf1PreActorRollConcentration', (
     /** @type {ActorPF} */ actor,
     /** @type {{ rollData: RollData; fortuneCount: number; misfortuneCount: number; }} */ options,
