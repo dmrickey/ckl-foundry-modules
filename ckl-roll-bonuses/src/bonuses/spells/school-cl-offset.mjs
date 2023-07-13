@@ -27,7 +27,7 @@ Hooks.on('pf1GetRollData', (
     }
 
     const item = action?.item;
-    if (item?.type !== 'spell' || !item.system?.school || !rollData) {
+    if (!(item instanceof pf1.documents.item.ItemSpellPF) || item?.type !== 'spell' || !item.system?.school || !rollData) {
         return;
     }
 

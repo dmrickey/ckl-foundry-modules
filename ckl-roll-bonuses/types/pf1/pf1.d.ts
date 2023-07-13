@@ -118,7 +118,7 @@ declare global {
                 parts: { formula: string, type: { custom: string, values: string[], } }[]
             }
         }
-        item: ItemAttackPF;
+        item: ItemPF;
     }
 
     interface ItemAttackPF extends ItemPF {
@@ -151,7 +151,7 @@ declare global {
     }
     interface SystemItemAttackPF extends SystemItem {
         baseTypes: string[];
-        weaponGroups: TraitSelector;
+        weaponGroups: TraitSelector?;
     }
     interface SystemItemEquipmentPF extends SystemItem {
         armor: {
@@ -170,9 +170,9 @@ declare global {
     }
 
     interface TraitSelector {
-        value: string[];
         /** custom entries split by ; */
         custom: string;
+        value: string[];
     }
 
     interface ItemPF extends ItemDocument {
@@ -262,6 +262,9 @@ declare global {
         skills: { [key: string]: SkillRollData },
         action: {
             id: string,
+            damage: {
+                parts: { formula: string, type: TraitSelector }[]
+            }
             ability: {
                 attack: string;
                 critMult: number;
@@ -278,7 +281,7 @@ declare global {
         },
         cl: number,
         dFlags: ItemDictionaryFlags,
-        item: any,
+        item: ItemPF,
         shield: {
             ac: number,
             enh: number,
@@ -416,6 +419,7 @@ declare global {
             }
         };
         config: {
+            weaponGroups: { [key: string]: string },
             bonusModifiers: BonusModifers,
             abilities,
             savingThrows: SavingThrows,
@@ -427,6 +431,7 @@ declare global {
                 ActorPF: { new(): ActorPF }
             },
             item: {
+                ItemSpellPF: { new(): ItemSpellPF }
                 ItemPF: { new(): ItemPF }
                 ItemAttackPF: { new(): ItemAttackPF }
                 ItemEquipmentPF: { new(): ItemEquipmentPF }

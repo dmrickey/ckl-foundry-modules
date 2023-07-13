@@ -7,8 +7,8 @@
 // THIS IS JUST STILL HERE AS EXAMPLES
 // todo add localization
 
-import { hasAnyBFlag } from "../util/flag-helpers.mjs";
-import { registerItemHint } from "../util/item-hints.mjs";
+import { hasAnyBFlag } from "../../util/flag-helpers.mjs";
+import { registerItemHint } from "../../util/item-hints.mjs";
 
 const shieldFocus = 'shieldFocus';
 const improvedShieldFocus = 'improvedShieldFocus';

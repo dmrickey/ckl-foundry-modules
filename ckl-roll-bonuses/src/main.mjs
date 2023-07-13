@@ -45,12 +45,12 @@ function itemUseWrapper(wrapped, options = {}) {
 }
 
 /**
- * @param {() => any} wrapped
+ * @param {(arg: object) => any} wrapped
  * @param {object} e - The attack dialog's JQuery form data or FormData object
  * @this ActionUse
  */
 function actionUseAlterRollData(wrapped, e) {
-    wrapped();
+    wrapped(e);
     Hooks.call(localHooks.actionUseAlterRollData, this);
 }
 
@@ -70,8 +70,8 @@ Hooks.once('setup', () => {
     libWrapper.register(MODULE_NAME, 'pf1.actionUse.ChatAttack.prototype.setAttackNotesHTML', setAttackNotesHTMLWrapper, libWrapper.WRAPPER);
     libWrapper.register(MODULE_NAME, 'pf1.actionUse.ChatAttack.prototype.setEffectNotesHTML', setEffectNotesHTMLWrapper, libWrapper.WRAPPER);
     libWrapper.register(MODULE_NAME, 'pf1.dice.d20Roll', d20RollWrapper, libWrapper.WRAPPER);
-    libWrapper.register(MODULE_NAME, 'pf1.documents.item.ItemPF.prototype.use', itemUseWrapper, libWrapper.WRAPPER);
     libWrapper.register(MODULE_NAME, 'pf1.documents.item.ItemPF.prototype.getAttackSources', itemGetAttackSources, libWrapper.WRAPPER);
+    libWrapper.register(MODULE_NAME, 'pf1.documents.item.ItemPF.prototype.use', itemUseWrapper, libWrapper.WRAPPER);
 });
 
 Hooks.once('init', () => console.log('ckl roll bonuses loaded'));
