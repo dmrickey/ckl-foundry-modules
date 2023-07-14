@@ -1,7 +1,7 @@
 {
     "id": "ckl-sihedron",
     "title": "Sihedron! pf1",
-    "description": "Example basic module.",
+    "description": "Look for the Sihedron artifact in the included pack. "Use" the artifact to choose a buff. Select the "give"/"gift" icon to pass the artifact on to your allies. All of the buffs and choosing are automated. Includes support for Mana's regen module.,
     "version": "1.0.0",
     "authors": [
         {
