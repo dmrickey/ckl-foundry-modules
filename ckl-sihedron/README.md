@@ -21,7 +21,7 @@ The mod is preconfigured for art in your root data folder. The names are listed 
 ### Installation
 
 This module is not in the foundry browser--so searching will not find it. At the bottom of the "Install Module" dialog, just use this manifest url at the bottom of the dialog
-- https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-roll-bonuses/module.json
+- https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-sihedron/module.json
 
 ## Required Modules
 
