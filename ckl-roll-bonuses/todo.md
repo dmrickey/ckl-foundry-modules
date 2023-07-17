@@ -1,9 +1,5 @@
-Focus Feats -- requires 0.83.0
-- Martial Focus
-
-AC Bonus -- requires 0.83.0
-- Armor Focus
-  - Improved Armor Focus
+Class Features
+- Gunslinger - Gun Training - Very similar to Martial Focus but also 
 
 Skills
 - skill headband

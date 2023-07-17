@@ -404,9 +404,23 @@ declare global {
         namepsace: 'pf1' | string,
     }
 
+    interface ItemChange {
+        constructor(args: {
+            flavor: string,
+            formula: string | number,
+            modifier: BonusModifers,
+            operator?: 'add' | 'function' | 'set',
+            priority?: number,
+            subTarget: BuffTargets,
+            value?: string | number,
+        }, parent = null);
+
+        static create();
+    }
+
     interface pf1 {
         components: {
-            ItemAction: { new(): ItemAction }
+            ItemAction: { new(): ItemAction },
             ItemChange: {
                 new(args: {
                     flavor: string,
@@ -415,8 +429,9 @@ declare global {
                     operator?: 'add' | 'function' | 'set',
                     priority?: number,
                     subTarget: BuffTargets,
-                }): ItemChange
-            }
+                    value?: string | number,
+                }, parent = null): ItemChange
+            },
         };
         config: {
             weaponGroups: { [key: string]: string },

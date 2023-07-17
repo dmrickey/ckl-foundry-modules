@@ -134,11 +134,11 @@ Hooks.on('renderItemSheet', (
         item.setItemDictionaryFlag(key, choices[0]);
     }
 
-    const templateData = { choices, current, label: localize(key) };
+    const templateData = { choices, current, label: localize(key), key };
     const div = document.createElement('div');
     div.innerHTML = focusSelectorTemplate(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true });
 
-    const select = div.querySelector('#string-selector');
+    const select = div.querySelector(`#string-selector-${key}`);
     select?.addEventListener(
         'change',
         async (event) => {

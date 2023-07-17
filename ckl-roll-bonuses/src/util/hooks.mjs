@@ -1,6 +1,7 @@
 import { MODULE_NAME } from "../consts.mjs";
 
 export const localHooks = {
+    actionDamageSources: `${MODULE_NAME}_actionDamageSources`,
     actionUseAlterRollData: `${MODULE_NAME}_actionUseAlterRollData`,
     chatAttackAttackNotes: `${MODULE_NAME}_chatAttackAttackNotes`,
     chatAttackEffectNotes: `${MODULE_NAME}_chatAttackEffectNotes`,
