@@ -11,13 +11,6 @@ choices: { key: string, label: string}[]
 <div class="form-group">
     <label>{{label}}</label>
     <div class="form-fields">
-        {{!-- <select id="key-value-selector-{{key}}">
-            {{#select current}}
-            {{#each choices}}
-            <option value="{{this.key}}">{{this.label}}</option>
-            {{/each}}
-            {{/select}}
-        </select> --}}
         <select id="key-value-selector-{{key}}">
             {{selectOptions choices selected=current nameAttr="key" labelAttr="label"}}
         </select>
