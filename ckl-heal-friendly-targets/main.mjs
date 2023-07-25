@@ -60,7 +60,7 @@ Hooks.once('ready', () => {
                     const newHp = Math.min(currentHp + healed, maxHp);
                     return { id: target.actorData._id, currentHp, newHp };
                 }) ?? [];
-                const updates = data.map(({ id, newHp }) => ({ _id: id, newHp }));
+                const updates = data.map(({ id, newHp }) => ({ _id: id, 'data.attributes.hp.value': newHp }));
                 // });
                 if (updates?.length) {
                     await socket.executeAsGM('updateActors', data, updates, healed);
