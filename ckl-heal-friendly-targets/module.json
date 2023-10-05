@@ -1,17 +1,20 @@
 {
-    "name": "ckl-heal-friendly-targets",
-    "title": "ckl Heal Friendly Targets",
+    "id": "ckl-heal-friendly-targets",
+    "title": "Heal Friendly Targets PF1",
     "description": "Simple module that heals friendly targets automatically.",
     "version": "1.0.0",
-    "author": "David Rickey",
     "authors": [
         {
             "name": "David Rickey",
-            "discord": "david (aka claudekennilol)#2244"
+            "discord": "claudekennilol"
         }
     ],
-    "esmodules": ["main.mjs"],
-    "styles": ["styles.css"],
+    "esmodules": [
+        "main.mjs"
+    ],
+    "styles": [
+        "styles.css"
+    ],
     "languages": [
         {
             "lang": "en",
@@ -19,13 +22,28 @@
             "path": "lang/en.json"
         }
     ],
-    "minimumCoreVersion": "9",
-    "compatibleCoreVersion": "9",
-    "license": "LICENSE",
-    "readme": "README.md",
-    "manifest": "https://github.com/dmrickey/ckl-foundry-modules/ckl-TODO/module.json",
-    "download": "todo",
-    "url": "https://github.com/dmrickey/ckl-foundry-modules",
+    "relationships": {
+        "systems": [
+            {
+                "id": "pf1",
+                "type": "system",
+                "manifest": "https://gitlab.com/foundryvtt_pathfinder1e/foundryvtt-pathfinder1/-/releases/permalink/latest/downloads/system.json",
+                "compatibility": {
+                    "minimum": "9",
+                    "verified": "9.5"
+                }
+            }
+        ]
+    },
+    "compatibility": {
+        "minimum": "11",
+        "verified": "11"
+    },
+    "license": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-heal-friendly-targets/LICENSE",
+    "readme": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-heal-friendly-targets#readme",
+    "manifest": "https://github.com/dmrickey/ckl-foundry-modules/blob/main/ckl-heal-friendly-targets/module.json",
+    "download": "https://github.com/dmrickey/ckl-foundry-modules/blob/main/ckl-heal-friendly-targets/ckl-heal-friendly-targets.zip",
+    "url": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-heal-friendly-targets",
     "bugs": "https://github.com/dmrickey/ckl-foundry-modules/issues",
-    "socket": true
+    "socket": false
 }

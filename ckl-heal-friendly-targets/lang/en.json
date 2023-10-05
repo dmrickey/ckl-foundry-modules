@@ -1,0 +1,5 @@
+{
+    "ckl-heal-friendly-targets": {
+        "healCardDescription": "Automatically healed for [[{amountHealed}[positive]]]: {targets}"
+    }
+}
