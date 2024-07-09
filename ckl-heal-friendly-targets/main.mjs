@@ -17,23 +17,30 @@ Hooks.on('createChatMessage', async (doc, _options, userId) => {
     }
 
     // const targets = doc.targets; // bugged in pf1 9.4 and still bugged in 10.4
-    const targetIds = doc.flags?.pf1?.metadata?.targets ?? [];
-    const targets = targetIds.map((uuid) => fromUuidSync(uuid)?.object).filter(x => !!x);
     const item = doc.itemSource;
     const action = item?.actions.get(doc.flags?.pf1?.metadata?.action);
     const attacks = doc.flags?.pf1?.metadata?.rolls?.attacks;
     const isHealing = action?.isHealing;
+    const actor = fromUuidSync(doc.flags?.pf1?.metadata?.actor);
+    const actorTokenDoc = actor?.getActiveTokens()[0]?.document || actor.prototypeToken;
+
+    const targetIds = doc.flags?.pf1?.metadata?.targets ?? [];
+    const targets = targetIds
+        .map((uuid) => fromUuidSync(uuid)?.object)
+        .filter(x => !!x)
+        .filter(x => !actorTokenDoc || actorTokenDoc.disposition === x.document.disposition);
 
     ifDebug(() => {
         console.log('Checking chat card for Heal Friendly Targets');
         console.log(' - targets:', targets.map(x => x.id));
         console.log(' - item:', item);
+        console.log(' - actor:', actor);
         console.log(' - action:', action);
         console.log(' - isHealing:', isHealing);
     })
 
-    if (!targets?.length || !action || !attacks?.length || !isHealing) {
-        ifDebug(() => console.log(' - failed check, this is not healing, there was nothing rolled, or there were no targets'));
+    if (!actor || !targets?.length || !action || !attacks?.length || !isHealing) {
+        ifDebug(() => console.log(' - failed check, this is not healing, there was nothing rolled, there were no targets, or there was no source actor'));
         return;
     }
 

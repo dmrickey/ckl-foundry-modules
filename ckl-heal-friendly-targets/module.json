@@ -2,7 +2,7 @@
     "id": "ckl-heal-friendly-targets",
     "title": "Heal Friendly Targets PF1",
     "description": "Simple module that heals friendly targets automatically.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "authors": [
         {
             "name": "David Rickey",
@@ -29,8 +29,8 @@
                 "type": "system",
                 "manifest": "https://gitlab.com/foundryvtt_pathfinder1e/foundryvtt-pathfinder1/-/releases/permalink/latest/downloads/system.json",
                 "compatibility": {
-                    "minimum": "9",
-                    "verified": "9.5"
+                    "minimum": "10",
+                    "verified": "10.4"
                 }
             }
         ]
@@ -41,8 +41,8 @@
     },
     "license": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-heal-friendly-targets/LICENSE",
     "readme": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-heal-friendly-targets#readme",
-    "manifest": "https://github.com/dmrickey/ckl-foundry-modules/blob/main/ckl-heal-friendly-targets/module.json",
-    "download": "https://github.com/dmrickey/ckl-foundry-modules/blob/main/ckl-heal-friendly-targets/ckl-heal-friendly-targets.zip",
+    "manifest": "https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-heal-friendly-targets/module.json",
+    "download": "https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-heal-friendly-targets/ckl-heal-friendly-targets.zip",
     "url": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-heal-friendly-targets",
     "bugs": "https://github.com/dmrickey/ckl-foundry-modules/issues",
     "socket": false
