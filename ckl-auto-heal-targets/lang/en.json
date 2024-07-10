@@ -1,5 +1,5 @@
 {
-    "ckl-heal-friendly-targets": {
+    "ckl-auto-heal-targets": {
         "heal-description": "Automatically healed for [[{amountHealed}[positive]]]: {targets}",
         "hidden-heal-description": "Automatically healed targets hidden from player for [[{amountHealed}[positive]]]: {targets}",
         "settings": {

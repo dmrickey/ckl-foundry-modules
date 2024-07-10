@@ -1,6 +1,6 @@
 {
-    "id": "ckl-heal-friendly-targets",
-    "title": "Heal Friendly Targets PF1",
+    "id": "ckl-auto-heal-targets",
+    "title": "Auto Heal Targets PF1",
     "description": "Simple module that heals friendly targets automatically.",
     "version": "1.1.0",
     "authors": [
@@ -39,11 +39,11 @@
         "minimum": "11",
         "verified": "11"
     },
-    "license": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-heal-friendly-targets/LICENSE",
-    "readme": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-heal-friendly-targets#readme",
-    "manifest": "https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-heal-friendly-targets/module.json",
-    "download": "https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-heal-friendly-targets/ckl-heal-friendly-targets.zip",
-    "url": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-heal-friendly-targets",
+    "license": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-auto-heal-targets/LICENSE",
+    "readme": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-auto-heal-targets#readme",
+    "manifest": "https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-auto-heal-targets/module.json",
+    "download": "https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-auto-heal-targets/ckl-auto-heal-targets.zip",
+    "url": "https://github.com/dmrickey/ckl-foundry-modules/tree/main/ckl-auto-heal-targets",
     "bugs": "https://github.com/dmrickey/ckl-foundry-modules/issues",
     "socket": false
 }

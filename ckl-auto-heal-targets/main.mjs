@@ -1,4 +1,4 @@
-const MODULE_NAME = 'ckl-heal-friendly-targets';
+const MODULE_NAME = 'ckl-auto-heal-targets';
 
 const isFirstGM = () => !!game.users.activeGM?.isSelf;
 

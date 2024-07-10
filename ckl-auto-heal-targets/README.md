@@ -4,7 +4,7 @@ If a healing ability is used, this automatically heals all targets that match th
 
 ## Manifest
 
-https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-heal-friendly-targets/module.json
+https://github.com/dmrickey/ckl-foundry-modules/raw/main/ckl-auto-heal-targets/module.json
 
 ## License
 
