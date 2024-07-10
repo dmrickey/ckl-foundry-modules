@@ -1,5 +1,16 @@
 {
     "ckl-heal-friendly-targets": {
-        "healCardDescription": "Automatically healed for [[{amountHealed}[positive]]]: {targets}"
+        "heal-description": "Automatically healed for [[{amountHealed}[positive]]]: {targets}",
+        "hidden-heal-description": "Automatically healed targets hidden from player for [[{amountHealed}[positive]]]: {targets}",
+        "settings": {
+            "debug": {
+                "name": "Debug",
+                "hint": "Enable to see extra debug info in the console (off by default)."
+            },
+            "heal-all": {
+                "name": "Heal All Targets",
+                "hint": "Enable to heal all targets (default). Disable to heal only targets with the same disposition as you."
+            }
+        }
     }
 }
