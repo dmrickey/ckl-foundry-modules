@@ -1,7 +1,8 @@
 {
     "ckl-auto-heal-targets": {
-        "heal-description": "Automatically healed for [[{amountHealed}[positive]]]: {targets}",
-        "hidden-heal-description": "Automatically healed targets hidden from player for [[{amountHealed}[positive]]]: {targets}",
+        "heal-description": "Targets healed for [[{amountHealed}[positive]]]: {targets}",
+        "healing-label": "Auto Healing",
+        "no-gm-warning": "Auto healing requires GM to be logged in.",
         "settings": {
             "debug": {
                 "name": "Debug",
@@ -10,6 +11,10 @@
             "heal-all": {
                 "name": "Heal All Targets",
                 "hint": "Enable to heal all targets (default). Disable to heal only targets with the same disposition as you."
+            },
+            "show-healing-hint": {
+                "name": "Show Healing Hint",
+                "hint": "Add a hint to the bottom of chat chat cards when healing happens (default true)."
             }
         }
     }

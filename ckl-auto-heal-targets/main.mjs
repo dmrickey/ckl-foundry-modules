@@ -1,4 +1,5 @@
 const MODULE_NAME = 'ckl-auto-heal-targets';
+const key = 'chat-healed';
 
 const isFirstGM = () => !!game.users.activeGM?.isSelf;
 
@@ -10,103 +11,127 @@ const ifDebug = (func) => {
     }
 };
 
-const isSameDisposition = (actor, tokenPF) => {
-    const actorTokenDoc = actor?.getActiveTokens()[0]?.document || actor?.prototypeToken;
-    return !actorTokenDoc || actorTokenDoc.disposition === tokenPF.document.disposition
-};
-const canHealTarget = (actor, tokenPF) => {
-    return Settings.healAll || isSameDisposition(actor, tokenPF);
+class ChatData {
+    constructor(doc) {
+        this.item = doc.itemSource;
+        this.action = this.item?.actions.get(doc.flags?.pf1?.metadata?.action);
+        this.attacks = doc.flags?.pf1?.metadata?.rolls?.attacks;
+        this.isHealing = this.action?.isHealing;
+        this.actor = fromUuidSync(doc.flags?.pf1?.metadata?.actor);
+
+        this.targetIds = doc.flags?.pf1?.metadata?.targets ?? [];
+        this.targets = this.targetIds
+            .map((uuid) => fromUuidSync(uuid))
+            .filter(x => !!x)
+            .filter(x => this.#canHealTarget(this.actor, x));
+
+        ifDebug(() => {
+            console.log('Checking chat card for Heal Friendly Targets');
+            console.log(' - targets:', this.targets.map(x => x.id));
+            console.log(' - item:', this.item);
+            console.log(' - actor:', this.actor);
+            console.log(' - action:', this.action);
+            console.log(' - isHealing:', this.isHealing);
+        });
+
+        this.isValid = this.actor && this.targets?.length && this.action && this.attacks?.length && this.isHealing;
+    }
+
+    get amountHealed() {
+        const total = this.attacks
+            .flatMap((attack) => attack.damage)
+            .map((damage) => damage.total)
+            .reduce((acc, curr) => acc + curr, 0);
+        return total;
+    }
+
+    #canHealTarget(actor, tokenDoc) {
+        return Settings.healAll || this.#isSameDisposition(actor, tokenDoc);
+    }
+
+    #isSameDisposition(actor, tokenDoc) {
+        const actorTokenDoc = actor?.getActiveTokens()[0]?.document || actor?.prototypeToken;
+        return !actorTokenDoc || actorTokenDoc.disposition === tokenDoc.disposition
+    };
 }
 
 Hooks.on('createChatMessage', async (doc, _options, userId) => {
+    if (!game.users.activeGM) {
+        ui.notifications.warn(game.i18n.localize(`${MODULE_NAME}.no-gm-warning`));
+        return;
+    }
+
     if (!isFirstGM()) {
         return;
     }
 
-    // const targets = doc.targets; // bugged in pf1 9.4 and still bugged in 10.4
-    const item = doc.itemSource;
-    const action = item?.actions.get(doc.flags?.pf1?.metadata?.action);
-    const attacks = doc.flags?.pf1?.metadata?.rolls?.attacks;
-    const isHealing = action?.isHealing;
-    const actor = fromUuidSync(doc.flags?.pf1?.metadata?.actor);
+    const data = new ChatData(doc);
 
-    const targetIds = doc.flags?.pf1?.metadata?.targets ?? [];
-    const targets = targetIds
-        .map((uuid) => fromUuidSync(uuid)?.object)
-        .filter(x => !!x)
-        .filter(x => canHealTarget(actor, x));
-
-    ifDebug(() => {
-        console.log('Checking chat card for Heal Friendly Targets');
-        console.log(' - targets:', targets.map(x => x.id));
-        console.log(' - item:', item);
-        console.log(' - actor:', actor);
-        console.log(' - action:', action);
-        console.log(' - isHealing:', isHealing);
-    })
-
-    if (!actor || !targets?.length || !action || !attacks?.length || !isHealing) {
+    if (!data.isValid) {
         ifDebug(() => console.log(' - failed check, this is not healing, there was nothing rolled, there were no targets, or there was no source actor'));
         return;
     }
 
-    const mod = isHealing ? -1 : 1;
-
-    const total = attacks
-        .flatMap((attack) => attack.damage)
-        .map((damage) => damage.total)
-        .reduce((acc, curr) => acc + curr, 0);
-
-    ifDebug(() => console.log(` - healing targets for [[${total}]]`));
-    await pf1.documents.actor.ActorPF.applyDamage(total * mod, { targets });
-
-    const user = game.users.get(userId);
-    const visibility = { seen: [], unseen: [] };
-    targets.forEach((token) => {
-        const isVisible = token?.isVisible ?? false;
-        const isObserver = token.actor?.testUserPermission(user, CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER) ?? false;
-        if (isVisible || isObserver) {
-            visibility.seen.push(token);
-        }
-        else {
-            visibility.unseen.push(token);
-        }
-    });
-
-    const { seen, unseen } = visibility;
-    // TODO instead of creating messages, modify the document contents. Also add "gm-sensitive" class to unseen
-    if (seen.length) {
-        const content = game.i18n.format(
-            `${MODULE_NAME}.heal-description`,
-            { amountHealed: total, targets: seen.map(x => x.name).join(', ') },
-        );
-        const chatOptions = {
-            user: userId,
-            speaker: doc.speaker,
-            content,
-        };
-        ChatMessage.create(chatOptions);
-    }
-
-    if (unseen.length) {
-        const content = game.i18n.format(
-            `${MODULE_NAME}.hidden-heal-description`,
-            { amountHealed: total, targets: unseen.map(x => x.name).join(', ') },
-        );
-        const chatOptions = {
-            user: userId,
-            speaker: doc.speaker,
-            content,
-        };
-        ChatMessage.create(chatOptions, { rollMode: CONST.DICE_ROLL_MODES.PRIVATE });
-    }
+    ifDebug(() => console.log(` - healing targets for [[${data.amountHealed}]]`));
+    await pf1.documents.actor.ActorPF.applyDamage(-data.amountHealed, { targets: data.targets });
+    await doc.setFlag(MODULE_NAME, key, data.amountHealed);
 });
+
+// append info about which targets were healed. Only show the visible ones instead of all targets.
+Hooks.on(
+    "renderChatMessage",
+    /**
+     * @param {ChatMessage} cm - Chat message instance
+     * @param {JQuery<HTMLElement>} jq - JQuery instance
+     * @param {object} options - Render options
+     */
+    (cm, jq, options) => {
+        if (!Settings.showHealingHint) return;
+
+        const amountHealed = cm.getFlag(MODULE_NAME, key);
+        if (!amountHealed) return;
+
+        const element = jq[0];
+        const uuids = [...element.querySelectorAll('.target:not([display=none])')].map(x => x.dataset.uuid);
+
+        const data = new ChatData(cm);
+        const targets = data.targets.filter(x => uuids.includes(x.uuid));
+
+        const footer = element.querySelector('footer');
+
+        const formatter = new Intl.ListFormat(game.i18n.lang);
+        const targetLinks = targets
+            .map(x => `<a class="target" data-uuid="${x.uuid}"><span class="target-image">${x.name}</span></a>`)
+        const message = game.i18n.format(
+            `${MODULE_NAME}.heal-description`,
+            { amountHealed, targets: formatter.format(targetLinks) },
+        );
+
+        const div = `
+            <div class="property-group flexcol">
+                <label>${game.i18n.localize(MODULE_NAME + '.healing-label')}</label>
+                <div class="attack-targets" style="white-space:pre;place-content:start;">${message}</div>
+            </div>
+        `;
+        const enriched = TextEditor.enrichHTML(div, { async: false });
+        // footer.insertAdjacentHTML('afterend', enriched);
+
+        const createdElement = document.createElement('div');
+        createdElement.innerHTML = enriched;
+        const toInsert = createdElement;
+
+        const _jq = $(toInsert);
+        pf1.utils.chat.addTargetCallbacks(null, _jq);
+        footer.after(_jq[0])
+    }
+);
 
 class Settings {
     static {
-        Hooks.on('ready', () => {
-            this.#register(this.#debug, { defaultValue: false, settingType: Boolean });
-            this.#register(this.#healAll, { defaultValue: true, settingType: Boolean, scope: 'client' });
+        Hooks.on('init', () => {
+            this.#register(this.#debug, { defaultValue: false });
+            this.#register(this.#healAll, { defaultValue: true });
+            this.#register(this.#showHealingHint, { defaultValue: true, scope: 'client' });
         });
     }
 
@@ -114,7 +139,7 @@ class Settings {
         config = true,
         defaultValue = null,
         scope = 'world',
-        settingType = String,
+        settingType = Boolean,
     }) =>
         game.settings.register(MODULE_NAME, key, {
             name: `${MODULE_NAME}.settings.${key}.name`,
@@ -134,5 +159,10 @@ class Settings {
     static #healAll = 'heal-all';
     static get healAll() {
         return !!game.settings.get(MODULE_NAME, this.#healAll);
+    }
+
+    static #showHealingHint = 'show-healing-hint';
+    static get showHealingHint() {
+        return !!game.settings.get(MODULE_NAME, this.#showHealingHint);
     }
 }
