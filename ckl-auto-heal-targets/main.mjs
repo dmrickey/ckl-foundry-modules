@@ -101,7 +101,7 @@ Hooks.on(
 
         const formatter = new Intl.ListFormat(game.i18n.lang);
         const targetLinks = targets
-            .map(x => `<a class="target" data-uuid="${x.uuid}"><span class="target-image">${x.name}</span></a>`)
+            .map(x => `<a class="target" data-uuid="${x.uuid}"><span class="target-image">${x.name}</span></a>`) // TODO make sure I'm using the proper name if the observer doesn't know it
         const message = game.i18n.format(
             `${MODULE_NAME}.heal-description`,
             { amountHealed, targets: formatter.format(targetLinks) },
@@ -118,11 +118,10 @@ Hooks.on(
 
         const createdElement = document.createElement('div');
         createdElement.innerHTML = enriched;
-        const toInsert = createdElement;
 
-        const _jq = $(toInsert);
+        const _jq = $(createdElement);
         pf1.utils.chat.addTargetCallbacks(null, _jq);
-        footer.after(_jq[0])
+        footer.after(_jq[0]);
     }
 );
 
