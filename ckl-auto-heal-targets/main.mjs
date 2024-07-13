@@ -24,6 +24,7 @@ class ChatData {
             .map((uuid) => fromUuidSync(uuid))
             .filter(x => !!x)
             .filter(x => this.#canHealTarget(this.actor, x));
+        this.targetTokens = this.targets.map(x => x.object);
 
         ifDebug(() => {
             console.log('Checking chat card for Heal Friendly Targets');
@@ -73,7 +74,7 @@ Hooks.on('createChatMessage', async (doc, _options, userId) => {
     }
 
     ifDebug(() => console.log(` - healing targets for [[${data.amountHealed}]]`));
-    await pf1.documents.actor.ActorPF.applyDamage(-data.amountHealed, { targets: data.targets });
+    await pf1.documents.actor.ActorPF.applyDamage(-data.amountHealed, { targets: data.targetTokens });
     await doc.setFlag(MODULE_NAME, key, data.amountHealed);
 });
 

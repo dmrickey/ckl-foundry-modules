@@ -2,7 +2,7 @@
     "id": "ckl-auto-heal-targets",
     "title": "Auto Heal Targets PF1",
     "description": "Simple module that heals friendly targets automatically.",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "authors": [
         {
             "name": "David Rickey",
