@@ -1,5 +1,6 @@
 const MODULE_NAME = 'ckl-auto-heal-targets';
-const key = 'chat-healed';
+
+const key = 'chat-healed-per-actor';
 
 const isFirstGM = () => !!game.users.activeGM?.isSelf;
 
@@ -14,17 +15,12 @@ const ifDebug = (func) => {
 class ChatData {
     constructor(doc) {
         this.item = doc.itemSource;
-        this.action = this.item?.actions.get(doc.flags?.pf1?.metadata?.action);
-        this.attacks = doc.flags?.pf1?.metadata?.rolls?.attacks;
+        this.action = doc.actionSource;
+        this.attacks = doc.system?.rolls?.attacks;
         this.isHealing = this.action?.isHealing;
-        this.actor = fromUuidSync(doc.flags?.pf1?.metadata?.actor);
-
-        this.targetIds = doc.flags?.pf1?.metadata?.targets ?? [];
-        this.targets = this.targetIds
-            .map((uuid) => fromUuidSync(uuid))
-            .filter(x => !!x)
+        this.actor = this.action?.actor;
+        this.targets = doc.targets
             .filter(x => this.#canHealTarget(this.actor, x));
-        this.targetTokens = this.targets.map(x => x.object);
 
         ifDebug(() => {
             console.log('Checking chat card for Heal Friendly Targets');
@@ -46,17 +42,21 @@ class ChatData {
         return total;
     }
 
-    #canHealTarget(actor, tokenDoc) {
-        return Settings.healAll || this.#isSameDisposition(actor, tokenDoc);
+    #canHealTarget(actor, token) {
+        const hasHp = !isNaN(token.actor?.system.attributes.hp?.max);
+        const canHealTarget = (Settings.healAll || this.#isSameDisposition(actor, token));
+        return hasHp && canHealTarget;
     }
 
-    #isSameDisposition(actor, tokenDoc) {
+    #isSameDisposition(actor, token) {
         const actorTokenDoc = actor?.getActiveTokens()[0]?.document || actor?.prototypeToken;
-        return !actorTokenDoc || actorTokenDoc.disposition === tokenDoc.disposition
+        return !actorTokenDoc || actorTokenDoc.disposition === token.document.disposition
     };
 }
 
 Hooks.on('createChatMessage', async (doc, _options, userId) => {
+    if (!game.ready) return;
+
     if (!game.users.activeGM) {
         ui.notifications.warn(game.i18n.localize(`${MODULE_NAME}.no-gm-warning`));
         return;
@@ -74,57 +74,88 @@ Hooks.on('createChatMessage', async (doc, _options, userId) => {
     }
 
     ifDebug(() => console.log(` - healing targets for [[${data.amountHealed}]]`));
-    await pf1.documents.actor.ActorPF.applyDamage(-data.amountHealed, { targets: data.targetTokens });
-    await doc.setFlag(MODULE_NAME, key, data.amountHealed);
+
+    // get hp before applying healing
+    const tokenData = data.targets.map((token) => ({
+        hp: token.actor?.system.attributes.hp?.value,
+        uuid: token.document.uuid,
+    }));
+    await pf1.documents.actor.ActorPF.applyDamage(-data.amountHealed, { targets: data.targets });
+    await doc.setFlag(
+        MODULE_NAME,
+        key,
+        {
+            amount: data.amountHealed,
+            tokens: tokenData,
+        },
+    );
 });
 
-// append info about which targets were healed. Only show the visible ones instead of all targets.
-Hooks.on(
-    "renderChatMessage",
-    /**
-     * @param {ChatMessage} cm - Chat message instance
-     * @param {JQuery<HTMLElement>} jq - JQuery instance
-     * @param {object} options - Render options
-     */
-    (cm, jq, options) => {
-        if (!Settings.showHealingHint) return;
+/**
+ * @param {ChatMessage} cm - Chat message instance
+ * @param {JQuery<HTMLElement>} jq - JQuery instance
+ * @param {object} options - Render options
+ */
+const onRenderChatMessage = async (cm, jq, options, recursive = false, force = false) => {
+    if (!Settings.showHealingHint) return;
 
-        const amountHealed = cm.getFlag(MODULE_NAME, key);
-        if (!amountHealed) return;
-
-        const element = jq[0];
-        const uuids = [...element.querySelectorAll('.target:not([display=none])')].map(x => x.dataset.uuid);
-
-        const data = new ChatData(cm);
-        const targets = data.targets.filter(x => uuids.includes(x.uuid));
-
-        const footer = element.querySelector('footer');
-
-        const formatter = new Intl.ListFormat(game.i18n.lang);
-        const targetLinks = targets
-            .map(x => `<a class="target" data-uuid="${x.uuid}"><span class="target-image">${x.name}</span></a>`) // TODO make sure I'm using the proper name if the observer doesn't know it
-        const message = game.i18n.format(
-            `${MODULE_NAME}.heal-description`,
-            { amountHealed, targets: formatter.format(targetLinks) },
-        );
-
-        const div = `
-            <div class="property-group flexcol">
-                <label>${game.i18n.localize(MODULE_NAME + '.healing-label')}</label>
-                <div class="attack-targets" style="white-space:pre;place-content:start;">${message}</div>
-            </div>
-        `;
-        const enriched = TextEditor.enrichHTML(div, { async: false });
-        // footer.insertAdjacentHTML('afterend', enriched);
-
-        const createdElement = document.createElement('div');
-        createdElement.innerHTML = enriched;
-
-        const _jq = $(createdElement);
-        pf1.utils.chat.addTargetCallbacks(null, _jq);
-        footer.after(_jq[0]);
+    // Delay until canvas ready if it's not yet so.
+    if (!force && !canvas.ready) {
+        if (recursive) return;
+        if (!game.settings.get("core", "noCanvas")) {
+            Hooks.once("canvasReady", () => onRenderChatMessage(cm, jq, options, true));
+        } else {
+            onRenderChatMessage(cm, jq, options, true, true);
+        }
+        return;
     }
-);
+
+    const flagData = cm.getFlag(MODULE_NAME, key);
+    if (!flagData) return;
+
+    const element = jq[0];
+    const uuids = [...element.querySelectorAll('.target:not([display=none])')].map(x => x.dataset.uuid);
+
+    const data = new ChatData(cm);
+    const targets = data.targets
+        .map(x => x.document)
+        .filter(x => uuids.includes(x.uuid));
+
+    const footer = element.querySelector('footer');
+
+    const getTooltip = (uuid) => {
+        const token = flagData.tokens.find(fd => fd.uuid === uuid);
+        if (token) {
+            return game.i18n.format(MODULE_NAME + '.healing-token-tooltip', { hp: token.hp });
+        }
+    };
+
+    const formatter = new Intl.ListFormat(game.i18n.lang);
+    const targetLinks = targets
+        .map(x => `<a class="target" data-uuid="${x.uuid}" data-tooltip="${getTooltip(x.uuid)}"><span class="target-image">${x.name}</span></a>`) // TODO make sure I'm using the proper name if the observer doesn't know it
+    const message = game.i18n.format(
+        `${MODULE_NAME}.heal-description`,
+        { amountHealed: flagData.amount, targets: formatter.format(targetLinks) },
+    );
+
+    const div = `
+        <div class="property-group flexcol">
+            <label>${game.i18n.localize(MODULE_NAME + '.healing-label')}</label>
+            <div class="attack-targets" style="white-space:pre;place-content:start;">${message}</div>
+        </div>
+    `;
+    const enriched = await TextEditor.enrichHTML(div);
+    // footer.insertAdjacentHTML('afterend', enriched);
+
+    const createdElement = document.createElement('div');
+    createdElement.innerHTML = enriched;
+
+    const _jq = $(createdElement);
+    pf1.utils.chat.addTargetCallbacks(null, _jq);
+    footer.after(_jq[0]);
+}
+// append info about which targets were healed. Only show the visible ones instead of all targets.
+Hooks.on("renderChatMessage", onRenderChatMessage);
 
 class Settings {
     static {

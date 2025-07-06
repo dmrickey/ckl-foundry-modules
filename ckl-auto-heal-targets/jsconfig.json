@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "allowJs": false,
+        "checkJs": false,
+        "strict": false,
+        "lib": [
+            "es2024",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "target": "ES2022"
+    },
+    "include": [
+        "**/*",
+    ]
+}

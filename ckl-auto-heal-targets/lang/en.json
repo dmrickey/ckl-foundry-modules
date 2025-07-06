@@ -2,6 +2,7 @@
     "ckl-auto-heal-targets": {
         "heal-description": "Targets healed for [[{amountHealed}[positive]]]: {targets}",
         "healing-label": "Auto Healing",
+        "healing-token-tooltip": "Previous HP: {hp}",
         "no-gm-warning": "Auto healing requires GM to be logged in.",
         "settings": {
             "debug": {
